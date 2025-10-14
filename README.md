@@ -137,7 +137,7 @@ If you're migrating from Bitnami charts, the main differences are:
 ## Chart Structure
 
 ```text
-bysam/
+/
 ├── wordpress/
 │   ├── Chart.yaml
 │   ├── values.yaml
@@ -172,8 +172,8 @@ helm install --dry-run --debug my-test .
 
 These charts are maintained as part of the BySam project. For issues or questions:
 
-- **GitHub Issues**: [https://github.com/sammyeby/charts/issues](https://github.com/sammyeby/charts/issues)
-- **Email**: <samuel@bysam.io>
+- **GitHub Issues**: [https://github.com/bysamio/charts/issues](https://github.com/bysamio/charts/issues)
+- **Email**: <admin@bysam.io>
 
 ## License
 
