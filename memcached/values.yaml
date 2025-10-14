@@ -1,0 +1,268 @@
+# Default values for Memcached using official Memcached Docker image
+# This is a YAML-formatted file.
+
+## @section Global parameters
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  defaultStorageClass: ""
+
+## @section Common parameters
+nameOverride: ""
+fullnameOverride: ""
+namespaceOverride: ""
+commonLabels: {}
+commonAnnotations: {}
+clusterDomain: cluster.local
+extraDeploy: []
+
+## @section Memcached Image parameters
+image:
+  registry: docker.io
+  repository: memcached
+  tag: "1.6.24-alpine"
+  digest: ""
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+  debug: false
+
+## @section Memcached Configuration parameters
+auth:
+  ## @param auth.enabled Enable Memcached authentication
+  enabled: false
+  ## @param auth.username Memcached admin user
+  username: ""
+  ## @param auth.password Memcached admin password
+  password: ""
+  ## @param auth.existingPasswordSecret Existing secret with Memcached credentials (must contain a value for `memcached-password` key)
+  existingPasswordSecret: ""
+
+## @param architecture Memcached architecture. Allowed values: `standalone` or `high-availability`
+architecture: standalone
+
+## @param replicaCount Number of Memcached replicas to deploy
+replicaCount: 1
+
+## @param command Override default container command (useful when using custom images)
+command: []
+## @param args Override default container args (useful when using custom images)
+args: []
+## @param extraEnvVars Array with extra environment variables to add to Memcached containers
+extraEnvVars: []
+## @param extraEnvVarsCM Name of existing ConfigMap containing extra env vars for Memcached containers
+extraEnvVarsCM: ""
+## @param extraEnvVarsSecret Name of existing Secret containing extra env vars for Memcached containers
+extraEnvVarsSecret: ""
+
+## @section Memcached deployment parameters
+updateStrategy:
+  ## @param updateStrategy.type Memcached statefulset strategy type
+  type: RollingUpdate
+
+schedulerName: ""
+terminationGracePeriodSeconds: ""
+topologySpreadConstraints: []
+priorityClassName: ""
+automountServiceAccountToken: false
+
+hostAliases: []
+extraVolumes: []
+extraVolumeMounts: []
+sidecars: []
+initContainers: []
+
+podLabels: {}
+podAnnotations: {}
+podAffinityPreset: ""
+# podAntiAffinityPreset: soft
+
+nodeAffinityPreset:
+  type: ""
+  key: ""
+  values: []
+
+affinity: {}
+nodeSelector: {}
+tolerations: []
+
+resourcesPreset: "nano"
+resources: {}
+
+## Container ports
+containerPorts:
+  memcached: 11211
+
+extraContainerPorts: []
+
+## Configure Pods Security Context
+podSecurityContext:
+  enabled: true
+  fsGroupChangePolicy: Always
+  sysctls: []
+  supplementalGroups: []
+  fsGroup: 11211
+
+## Configure Container Security Context
+containerSecurityContext:
+  enabled: true
+  seLinuxOptions: {}
+  runAsUser: 11211
+  runAsGroup: 11211
+  runAsNonRoot: true
+  privileged: false
+  readOnlyRootFilesystem: false
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  seccompProfile:
+    type: "RuntimeDefault"
+
+## Configure probes
+livenessProbe:
+  enabled: true
+  tcpSocket:
+    port: memcached
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+
+readinessProbe:
+  enabled: true
+  tcpSocket:
+    port: memcached
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 6
+  successThreshold: 1
+
+startupProbe:
+  enabled: false
+  tcpSocket:
+    port: memcached
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+
+customLivenessProbe: {}
+customReadinessProbe: {}
+customStartupProbe: {}
+lifecycleHooks: {}
+
+## @section Traffic Exposure Parameters
+service:
+  type: ClusterIP
+  ports:
+    memcached: 11211
+  nodePorts:
+    memcached: ""
+  sessionAffinity: None
+  sessionAffinityConfig: {}
+  clusterIP: ""
+  loadBalancerIP: ""
+  loadBalancerSourceRanges: []
+  externalTrafficPolicy: Cluster
+  annotations: {}
+  extraPorts: []
+
+## @section Other Parameters
+serviceAccount:
+  create: true
+  name: ""
+  automountServiceAccountToken: false
+  annotations: {}
+
+pdb:
+  create: false
+  minAvailable: ""
+  maxUnavailable: ""
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 11
+  targetCPU: 50
+  targetMemory: 50
+
+## @section Metrics Parameters
+metrics:
+  enabled: false
+  image:
+    registry: docker.io
+    repository: prom/memcached-exporter
+    tag: v0.14.0
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+  containerPorts:
+    metrics: 9150
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+    successThreshold: 1
+  startupProbe:
+    enabled: false
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 1
+    failureThreshold: 15
+    successThreshold: 1
+  customLivenessProbe: {}
+  customReadinessProbe: {}
+  customStartupProbe: {}
+  resourcesPreset: "nano"
+  resources: {}
+  containerSecurityContext:
+    enabled: true
+    seLinuxOptions: {}
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+    privileged: false
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: "RuntimeDefault"
+  service:
+    ports:
+      metrics: 9150
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "{{ .Values.metrics.containerPorts.metrics }}"
+  serviceMonitor:
+    enabled: false
+    namespace: ""
+    interval: ""
+    scrapeTimeout: ""
+    labels: {}
+    selector: {}
+    relabelings: []
+    metricRelabelings: []
+    honorLabels: false
+    jobLabel: ""
+
+## @section NetworkPolicy parameters
+networkPolicy:
+  enabled: true
+  allowExternal: true
+  allowExternalEgress: true
+  extraIngress: []
+  extraEgress: []
+  ingressNSMatchLabels: {}
+  ingressNSPodMatchLabels: {}

@@ -1,0 +1,9 @@
+dependencies:
+- name: mariadb
+  repository: file://../mariadb
+  version: 1.0.2
+- name: memcached
+  repository: file://../memcached
+  version: 1.0.1
+digest: sha256:1445a9f823de4e6fab303df3df62ca3ae838b7d842e2223325afadf027036138
+generated: "2025-10-04T10:43:43.414337+02:00"

@@ -1,0 +1,24 @@
+apiVersion: v2
+name: memcached
+description: Memcached caching system deployment using official Docker images
+type: application
+version: 1.0.1
+appVersion: "1.6.24"
+home: https://memcached.org/
+icon: https://memcached.org/images/memcached.png
+sources:
+  - https://github.com/sammyeby/charts
+  - https://github.com/memcached/memcached
+maintainers:
+  - name: BySam Charts
+    email: charts@bysam.dev
+keywords:
+  - memcached
+  - cache
+  - in-memory
+annotations:
+  category: Database
+  licenses: BSD-3-Clause
+  images: |
+    - name: memcached
+      image: docker.io/memcached:1.6.24-alpine

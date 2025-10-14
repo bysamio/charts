@@ -1,0 +1,425 @@
+# Default values for WordPress using official WordPress Docker image
+# This is a YAML-formatted file.
+
+## @section Global parameters
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  defaultStorageClass: ""
+
+## @section Common parameters
+nameOverride: ""
+fullnameOverride: ""
+commonLabels: {}
+commonAnnotations: {}
+clusterDomain: cluster.local
+extraDeploy: []
+
+## @section WordPress Image parameters
+image:
+  registry: docker.io
+  repository: wordpress
+  tag: "6.8.2-apache"
+  digest: ""
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+  debug: false
+
+## @section WordPress Diagnostic Mode parameters
+diagnosticMode:
+  ## @param diagnosticMode.enabled Enable diagnostic mode (all probes will be disabled and the command will be overridden)
+  enabled: false
+  ## @param diagnosticMode.command Command to override all containers in the deployment
+  command:
+    - sleep
+  ## @param diagnosticMode.args Args to override all containers in the deployment
+  args:
+    - infinity
+
+## @section WordPress Configuration parameters
+wordpressUsername: user
+wordpressPassword: ""
+existingSecret: ""
+wordpressEmail: user@example.com
+wordpressFirstName: FirstName
+wordpressLastName: LastName
+wordpressBlogName: User's Blog!
+wordpressTablePrefix: wp_
+wordpressScheme: http
+wordpressSkipInstall: false
+wordpressExtraConfigContent: ""
+wordpressConfiguration: ""
+existingWordPressConfigurationSecret: ""
+wordpressConfigureCache: false
+wordpressPlugins: none
+apacheConfiguration: ""
+existingApacheConfigurationConfigMap: ""
+customPostInitScripts: {}
+
+## SMTP mail delivery configuration
+smtpHost: ""
+smtpPort: ""
+smtpUser: ""
+smtpPassword: ""
+smtpProtocol: ""
+smtpFromEmail: ""
+smtpFromName: ""
+smtpExistingSecret: ""
+
+allowEmptyPassword: true
+allowOverrideNone: false
+overrideDatabaseSettings: false
+htaccessPersistenceEnabled: false
+customHTAccessCM: ""
+
+command: []
+args: []
+extraEnvVars: []
+extraEnvVarsCM: ""
+extraEnvVarsSecret: ""
+
+## @section WordPress Multisite Configuration parameters
+multisite:
+  enable: false
+  host: ""
+  networkType: subdomain
+  enableNipIoRedirect: false
+
+## @section WordPress deployment parameters
+replicaCount: 1
+
+updateStrategy:
+  type: RollingUpdate
+
+schedulerName: ""
+terminationGracePeriodSeconds: ""
+topologySpreadConstraints: []
+priorityClassName: ""
+automountServiceAccountToken: false
+
+hostAliases:
+  - ip: "127.0.0.1"
+    hostnames:
+      - "status.localhost"
+
+extraVolumes: []
+extraVolumeMounts: []
+sidecars: []
+initContainers: []
+
+podLabels: {}
+podAnnotations: {}
+podAffinityPreset: ""
+# podAntiAffinityPreset: soft
+
+nodeAffinityPreset:
+  type: ""
+  key: ""
+  values: []
+
+affinity: {}
+nodeSelector: {}
+tolerations: []
+
+resourcesPreset: "micro"
+resources: {}
+
+## Container ports
+containerPorts:
+  http: 80
+  https: 443
+
+extraContainerPorts: []
+
+## Configure Pods Security Context
+podSecurityContext:
+  enabled: true
+  fsGroupChangePolicy: Always
+  sysctls: []
+  supplementalGroups: []
+  fsGroup: 33 # www-data group for official WordPress
+
+## Configure Container Security Context
+containerSecurityContext:
+  enabled: true
+  seLinuxOptions: {}
+  runAsUser: 33 # www-data user for official WordPress
+  runAsGroup: 33 # www-data group for official WordPress
+  runAsNonRoot: true
+  privileged: false
+  readOnlyRootFilesystem: false # WordPress needs to write to filesystem
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+  seccompProfile:
+    type: "RuntimeDefault"
+
+## Configure probes
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /wp-admin/install.php
+    port: http
+    scheme: HTTP
+  initialDelaySeconds: 120
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /wp-login.php
+    port: http
+    scheme: HTTP
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+
+startupProbe:
+  enabled: false
+  httpGet:
+    path: /wp-login.php
+    port: http
+    scheme: HTTP
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 6
+  successThreshold: 1
+
+customLivenessProbe: {}
+customReadinessProbe: {}
+customStartupProbe: {}
+lifecycleHooks: {}
+
+## @section Traffic Exposure Parameters
+service:
+  type: LoadBalancer
+  ports:
+    http: 80
+    https: 443
+  httpsTargetPort: https
+  nodePorts:
+    http: ""
+    https: ""
+  sessionAffinity: None
+  sessionAffinityConfig: {}
+  clusterIP: ""
+  loadBalancerIP: ""
+  loadBalancerSourceRanges: []
+  externalTrafficPolicy: Cluster
+  annotations: {}
+  extraPorts: []
+
+## Configure the ingress resource
+ingress:
+  enabled: false
+  pathType: ImplementationSpecific
+  apiVersion: ""
+  ingressClassName: ""
+  hostname: wordpress.local
+  path: /
+  annotations: {}
+  tls: false
+  tlsWwwPrefix: false
+  selfSigned: false
+  extraHosts: []
+  extraPaths: []
+  extraTls: []
+  secrets: []
+  extraRules: []
+
+## Configure second ingress resource
+secondaryIngress:
+  enabled: false
+  pathType: ImplementationSpecific
+  apiVersion: ""
+  ingressClassName: ""
+  hostname: wordpress.local
+  path: /
+  annotations: {}
+  tls: false
+  tlsWwwPrefix: false
+  selfSigned: false
+  extraHosts: []
+  extraPaths: []
+  extraTls: []
+  secrets: []
+  extraRules: []
+
+## @section Persistence Parameters
+persistence:
+  enabled: true
+  storageClass: ""
+  accessModes:
+    - ReadWriteOnce
+  size: 10Gi
+  dataSource: {}
+  existingClaim: ""
+  selector: {}
+  annotations: {}
+
+## Init containers parameters
+volumePermissions:
+  enabled: false
+  image:
+    registry: docker.io
+    repository: alpine
+    tag: 3.22.1
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+  resourcesPreset: "nano"
+  resources: {}
+  containerSecurityContext:
+    seLinuxOptions: {}
+    runAsUser: 0
+
+## @section Other Parameters
+serviceAccount:
+  create: true
+  name: ""
+  automountServiceAccountToken: false
+  annotations: {}
+
+pdb:
+  create: true
+  minAvailable: ""
+  maxUnavailable: ""
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 11
+  targetCPU: 50
+  targetMemory: 50
+
+## @section Metrics Parameters
+metrics:
+  enabled: false
+  image:
+    registry: docker.io
+    repository: lusotycoon/apache-exporter
+    tag: v1.0.10
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+  containerPorts:
+    metrics: 9117
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+    successThreshold: 1
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 3
+    successThreshold: 1
+  startupProbe:
+    enabled: false
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 1
+    failureThreshold: 15
+    successThreshold: 1
+  customLivenessProbe: {}
+  customReadinessProbe: {}
+  customStartupProbe: {}
+  resourcesPreset: "nano"
+  resources: {}
+  containerSecurityContext:
+    enabled: true
+    seLinuxOptions: {}
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+    privileged: false
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: "RuntimeDefault"
+  service:
+    ports:
+      metrics: 9150
+    annotations:
+      prometheus.io/scrape: "true"
+      prometheus.io/port: "{{ .Values.metrics.containerPorts.metrics }}"
+  serviceMonitor:
+    enabled: false
+    namespace: ""
+    interval: ""
+    scrapeTimeout: ""
+    labels: {}
+    selector: {}
+    relabelings: []
+    metricRelabelings: []
+    honorLabels: false
+    jobLabel: ""
+
+## @section NetworkPolicy parameters
+networkPolicy:
+  enabled: true
+  allowExternal: true
+  allowExternalEgress: true
+  extraIngress: []
+  extraEgress: []
+  ingressNSMatchLabels: {}
+  ingressNSPodMatchLabels: {}
+
+## @section Database Parameters
+## MariaDB chart configuration
+mariadb:
+  enabled: true
+  architecture: standalone
+  auth:
+    rootPassword: ""
+    database: bitnami_wordpress
+    username: bn_wordpress
+    password: ""
+  primary:
+    persistence:
+      enabled: true
+      storageClass: ""
+      accessModes:
+        - ReadWriteOnce
+      size: 8Gi
+    resourcesPreset: "micro"
+    resources: {}
+
+## External Database Configuration
+externalDatabase:
+  host: localhost
+  port: 3306
+  user: bn_wordpress
+  password: ""
+  database: bitnami_wordpress
+  existingSecret: ""
+
+## Memcached chart configuration
+memcached:
+  enabled: false
+  auth:
+    enabled: false
+    username: ""
+    password: ""
+    existingPasswordSecret: ""
+  service:
+    port: 11211
+  resourcesPreset: "nano"
+  resources: {}
+
+## External Memcached Configuration
+externalCache:
+  host: localhost
+  port: 11211

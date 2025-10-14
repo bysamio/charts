@@ -1,0 +1,25 @@
+apiVersion: v2
+name: mariadb
+description: MariaDB database deployment using official Docker images
+type: application
+version: 1.0.2
+appVersion: "12.0.2"
+home: https://mariadb.org/
+icon: https://mariadb.org/wp-content/uploads/2019/11/mariadb-logo-vert_blue-transparent.png
+sources:
+  - https://github.com/sammyeby/charts
+  - https://github.com/MariaDB/server
+maintainers:
+  - name: BySam Charts
+    email: charts@bysam.dev
+keywords:
+  - mariadb
+  - mysql
+  - database
+  - sql
+annotations:
+  category: Database
+  licenses: GPL-2.0+
+  images: |
+    - name: mariadb
+      image: docker.io/mariadb:12.0.2

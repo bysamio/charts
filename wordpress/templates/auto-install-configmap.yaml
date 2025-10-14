@@ -1,0 +1,150 @@
+{{- if and .Values.wordpressUsername .Values.wordpressPassword .Values.wordpressEmail }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "wordpress.fullname" . }}-auto-install
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "wordpress.labels" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations:
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+data:
+  auto-install-sidecar.sh: |
+    #!/bin/sh
+    set -e
+    
+    echo "Starting WordPress auto-installation sidecar..."
+    
+    # Wait for WordPress container to be ready
+    echo "Waiting for WordPress to be ready..."
+    for i in $(seq 1 60); do
+      if curl -f -s http://localhost/wp-admin/install.php > /dev/null 2>&1; then
+        echo "WordPress is ready!"
+        break
+      elif [ $i -eq 60 ]; then
+        echo "WordPress did not become ready in time, exiting"
+        exit 1
+      fi
+      echo "Waiting for WordPress... (attempt $i/60)"
+      sleep 5
+    done
+    
+    # Check if WordPress is already installed
+    if curl -s http://localhost/wp-login.php | grep -q "login"; then
+      echo "WordPress is already installed."
+    else
+      echo "WordPress not installed, starting auto-installation..."
+      
+      # Submit installation form
+      echo "Submitting WordPress installation form..."
+      curl -X POST "http://localhost/wp-admin/install.php?step=2" \
+        --data-urlencode "weblog_title=$WORDPRESS_BLOG_NAME" \
+        --data-urlencode "user_name=$WORDPRESS_USERNAME" \
+        --data-urlencode "admin_password=$WORDPRESS_PASSWORD" \
+        --data-urlencode "admin_password2=$WORDPRESS_PASSWORD" \
+        --data-urlencode "admin_email=$WORDPRESS_EMAIL" \
+        --data-urlencode "blog_public=0" \
+        --data-urlencode "Submit=Install WordPress" \
+        -s > /tmp/install_result.html
+      
+      if grep -q "Success!" /tmp/install_result.html || grep -q "already installed" /tmp/install_result.html; then
+        echo "WordPress auto-installation completed successfully!"
+      else
+        echo "WordPress installation may have completed. Response saved to /tmp/install_result.html"
+        echo "First few lines of response:"
+        head -10 /tmp/install_result.html || true
+      fi
+    fi
+    
+    echo "Auto-installation sidecar completed successfully. Keeping container alive..."
+    # Keep the sidecar running
+    while true; do
+      sleep 3600
+    done
+  auto-install.sh: |
+    #!/bin/bash
+    set -e
+    
+    echo "Starting WordPress auto-installation script..."
+    
+    # Wait for database to be ready using PHP
+    echo "Waiting for database to be ready..."
+    until php -r "
+      \$link = mysqli_connect(getenv('WORDPRESS_DB_HOST'), getenv('WORDPRESS_DB_USER'), getenv('WORDPRESS_DB_PASSWORD'), getenv('WORDPRESS_DB_NAME'), getenv('WORDPRESS_DB_PORT_NUMBER'));
+      if (\$link) {
+        mysqli_close(\$link);
+        exit(0);
+      } else {
+        exit(1);
+      }
+    " > /dev/null 2>&1; do
+      echo "Waiting for database connection..."
+      sleep 3
+    done
+    echo "Database is ready!"
+    
+    # Wait for WordPress to be fully loaded
+    echo "Waiting for WordPress to be ready..."
+    for i in {1..30}; do
+      if [ -f "/var/www/html/wp-admin/install.php" ]; then
+        echo "WordPress files are ready!"
+        break
+      fi
+      echo "Waiting for WordPress files... (attempt $i/30)"
+      sleep 2
+    done
+    
+    # Check if WordPress is already installed using PHP
+    if php -r "
+      \$link = mysqli_connect(getenv('WORDPRESS_DB_HOST'), getenv('WORDPRESS_DB_USER'), getenv('WORDPRESS_DB_PASSWORD'), getenv('WORDPRESS_DB_NAME'), getenv('WORDPRESS_DB_PORT_NUMBER'));
+      \$result = mysqli_query(\$link, 'SHOW TABLES LIKE \"wp_users\"');
+      if (mysqli_num_rows(\$result) > 0) {
+        exit(0);
+      } else {
+        exit(1);
+      }
+      mysqli_close(\$link);
+    " > /dev/null 2>&1; then
+      echo "WordPress is already installed."
+    else
+      echo "WordPress not installed, starting auto-installation..."
+      
+      # Try to perform auto-installation via HTTP
+      echo "Attempting WordPress auto-installation..."
+      
+      # First, check if installation page is available
+      for i in {1..10}; do
+        if curl -f -s http://localhost/wp-admin/install.php > /dev/null; then
+          echo "WordPress installation page is available, proceeding..."
+          
+          # Submit installation form
+          curl -X POST "http://localhost/wp-admin/install.php?step=2" \
+            --data-urlencode "weblog_title=$WORDPRESS_BLOG_NAME" \
+            --data-urlencode "user_name=$WORDPRESS_USERNAME" \
+            --data-urlencode "admin_password=$WORDPRESS_PASSWORD" \
+            --data-urlencode "admin_password2=$WORDPRESS_PASSWORD" \
+            --data-urlencode "admin_email=$WORDPRESS_EMAIL" \
+            --data-urlencode "blog_public=0" \
+            --data-urlencode "Submit=Install WordPress" \
+            -s > /tmp/install_result.html
+          
+          if grep -q "Success!" /tmp/install_result.html; then
+            echo "WordPress auto-installation completed successfully!"
+          else
+            echo "WordPress installation may have completed. Checking..."
+          fi
+          break
+        else
+          echo "Waiting for WordPress to be ready... (attempt $i/10)"
+          sleep 5
+        fi
+      done
+    fi
+    
+    echo "Auto-installation script completed."
+{{- end }}

@@ -1,0 +1,73 @@
+# Test values for WordPress stack deployment on Minikube
+# Optimized for local testing with minimal resource usage
+
+# WordPress Configuration
+wordpressUsername: admin
+wordpressPassword: testpass123
+wordpressEmail: admin@example.com
+wordpressBlogName: "BySam Test WordPress"
+# wordpressScheme: http
+# wordpressExtraConfigContent: |
+#   define('WP_HOME', 'http://127.0.0.1:8080');
+#   define('WP_SITEURL', 'http://127.0.0.1:8080');
+
+# Diagnostic mode (for debugging)
+diagnosticMode:
+  enabled: false
+
+# Service Configuration
+service:
+  type: NodePort
+  nodePorts:
+    http: 30082
+
+# Resource Configuration (minimal for Minikube)
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 250m
+  limits:
+    memory: 512Mi
+    cpu: 500m
+
+# Persistence Configuration
+persistence:
+  enabled: true
+  size: 1Gi
+  storageClass: standard
+
+# MariaDB Configuration
+mariadb:
+  auth:
+    rootPassword: rootpass123
+    database: wordpress
+    username: wpuser
+    password: wppass123
+
+  primary:
+    # service:
+    #   headless:
+    #     enabled: true
+
+    persistence:
+      enabled: true
+      size: 1Gi
+      storageClass: standard
+
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 250m
+      limits:
+        memory: 512Mi
+        cpu: 500m
+
+# Memcached Configuration
+memcached:
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 100m
+    limits:
+      memory: 128Mi
+      cpu: 200m

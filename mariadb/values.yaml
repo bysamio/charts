@@ -1,0 +1,806 @@
+# Default values for MariaDB using official MariaDB Docker image
+# This is a YAML-formatted file.
+
+## @section Global parameters
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+  defaultStorageClass: ""
+
+## @section Common parameters
+nameOverride: ""
+fullnameOverride: ""
+commonLabels: {}
+commonAnnotations: {}
+clusterDomain: cluster.local
+extraDeploy: []
+## @param namespaceOverride Namespace override for all chart resources
+namespaceOverride: ""
+
+## @section MariaDB Image parameters
+image:
+  registry: docker.io
+  repository: mariadb
+  tag: "12.0.2"
+  digest: ""
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+  debug: false
+
+## @section MariaDB Authentication parameters
+auth:
+  ## @param auth.rootPassword MariaDB root password
+  rootPassword: ""
+  ## @param auth.database MariaDB custom database
+  database: my_database
+  ## @param auth.username MariaDB custom user name
+  username: ""
+  ## @param auth.password MariaDB custom user password
+  password: ""
+  ## @param auth.replicationUser MariaDB replication user
+  replicationUser: replicator
+  ## @param auth.replicationPassword MariaDB replication user password
+  replicationPassword: ""
+  ## @param auth.existingSecret Name of existing secret to use for MariaDB credentials
+  existingSecret: ""
+  ## @param auth.forcePassword Force users to specify required passwords
+  forcePassword: false
+  ## @param auth.usePasswordFiles Mount credentials as files instead of using environment variables
+  usePasswordFiles: false
+  ## @param auth.customPasswordFiles Use custom password files when `auth.usePasswordFiles` is set to `true`
+  customPasswordFiles: {}
+
+## @section MariaDB Primary parameters
+architecture: standalone
+
+primary:
+  ## @param primary.name Name of the primary database (used by the chart when `architecture=replication`)
+  name: primary
+  ## @param primary.command Override default container command on MariaDB Primary container(s) (useful when using custom images)
+  command: []
+  ## @param primary.args Override default container args on MariaDB Primary container(s) (useful when using custom images)
+  args: []
+  ## @param primary.lifecycleHooks for the MariaDB Primary container(s) to automate configuration before or after startup
+  lifecycleHooks: {}
+  ## @param primary.hostAliases MariaDB Primary pods host aliases
+  hostAliases: []
+  ## @param primary.configuration [string] MariaDB Primary configuration to be injected as ConfigMap
+  configuration: |-
+    [mysqld]
+    skip-name-resolve
+    explicit_defaults_for_timestamp
+    basedir=/usr
+    datadir=/var/lib/mysql
+    port=3306
+    socket=/run/mysqld/mysqld.sock
+    tmpdir=/tmp
+    max_allowed_packet=16M
+    bind-address=*
+    pid-file=/run/mysqld/mysqld.pid
+    log-error=/var/log/mysql/error.log
+    character-set-server=UTF8
+    collation-server=utf8_general_ci
+    slow_query_log=0
+    slow_query_log_file=/var/log/mysql/slow.log
+    long_query_time=10.0
+
+    [client]
+    port=3306
+    socket=/run/mysqld/mysqld.sock
+    default-character-set=UTF8
+
+    [manager]
+    port=3306
+    socket=/run/mysqld/mysqld.sock
+    pid-file=/run/mysqld/mysqld.pid
+  ## @param primary.existingConfigmap Name of existing ConfigMap with MariaDB Primary configuration
+  existingConfigmap: ""
+
+  ## @param primary.updateStrategy.type MariaDB Primary statefulset strategy type
+  updateStrategy:
+    type: RollingUpdate
+
+  ## @param primary.rollingUpdatePartition Partition update strategy for MariaDB Primary statefulset
+  rollingUpdatePartition: ""
+  ## @param primary.podAnnotations Additional pod annotations for MariaDB Primary pods
+  podAnnotations: {}
+  ## @param primary.podLabels Extra labels for MariaDB primary pods
+  podLabels: {}
+  ## @param primary.podAffinityPreset Pod affinity preset. Ignored if `primary.affinity` is set. Allowed values: `soft` or `hard`
+  podAffinityPreset: ""
+  ## @param primary.podAntiAffinityPreset Pod anti-affinity preset. Allowed values: `soft` or `hard`
+  podAntiAffinityPreset: soft
+  ## Node affinity preset
+  nodeAffinityPreset:
+    ## @param primary.nodeAffinityPreset.type Node affinity preset type. Ignored if `primary.affinity` is set. Allowed values: `soft` or `hard`
+    type: ""
+    ## @param primary.nodeAffinityPreset.key Node label key to match. Ignored if `primary.affinity` is set
+    key: ""
+    ## @param primary.nodeAffinityPreset.values Node label values to match. Ignored if `primary.affinity` is set
+    values: []
+  ## @param primary.affinity Affinity for MariaDB Primary pods assignment
+  affinity: {}
+  ## @param primary.nodeSelector Node labels for MariaDB Primary pods assignment
+  nodeSelector: {}
+  ## @param primary.tolerations Tolerations for MariaDB Primary pods assignment
+  tolerations: []
+  ## @param primary.topologySpreadConstraints Topology Spread Constraints for MariaDB Primary pod assignment
+  topologySpreadConstraints: []
+  ## @param primary.schedulerName Name of the k8s scheduler (other than default)
+  schedulerName: ""
+  ## @param primary.terminationGracePeriodSeconds In seconds, time given to the MariaDB primary pod to terminate gracefully
+  terminationGracePeriodSeconds: ""
+  ## @param primary.priorityClassName MariaDB Primary pods' priorityClassName
+  priorityClassName: ""
+  ## @param primary.runtimeClassName MariaDB Primary pods' runtimeClassName
+  runtimeClassName: ""
+
+  ## MariaDB Primary Pod security context
+  podSecurityContext:
+    ## @param primary.podSecurityContext.enabled Enable security context for MariaDB Primary pods
+    enabled: true
+    ## @param primary.podSecurityContext.fsGroup Group ID for the volumes of the MariaDB Primary pod(s)
+    fsGroup: 999
+    ## @param primary.podSecurityContext.fsGroupChangePolicy Set filesystem group change policy
+    fsGroupChangePolicy: Always
+    ## @param primary.podSecurityContext.sysctls Set kernel settings using the sysctl interface
+    sysctls: []
+    ## @param primary.podSecurityContext.supplementalGroups Set filesystem extra groups
+    supplementalGroups: []
+    ## @param primary.podSecurityContext.seccompProfile.type Set seccomp profile
+    seccompProfile:
+      type: RuntimeDefault
+
+  ## MariaDB Primary container security context
+  containerSecurityContext:
+    ## @param primary.containerSecurityContext.enabled MariaDB Primary container securityContext
+    enabled: true
+    ## @param primary.containerSecurityContext.seLinuxOptions Set SELinux options in container
+    seLinuxOptions: {}
+    ## @param primary.containerSecurityContext.runAsUser User ID for the MariaDB Primary container
+    runAsUser: 999
+    ## @param primary.containerSecurityContext.runAsGroup Group ID for the MariaDB Primary container
+    runAsGroup: 999
+    ## @param primary.containerSecurityContext.runAsNonRoot Set MariaDB Primary container's Security Context runAsNonRoot
+    runAsNonRoot: true
+    ## @param primary.containerSecurityContext.privileged Set primary container's Security Context privileged
+    privileged: false
+    ## @param primary.containerSecurityContext.allowPrivilegeEscalation Set primary container's Security Context allowPrivilegeEscalation
+    allowPrivilegeEscalation: false
+    ## @param primary.containerSecurityContext.readOnlyRootFilesystem Set container's Security Context readOnlyRootFilesystem
+    readOnlyRootFilesystem: false
+    ## @param primary.containerSecurityContext.capabilities.drop List of capabilities to be dropped
+    capabilities:
+      drop: ["ALL"]
+    ## @param primary.containerSecurityContext.seccompProfile.type Set container's Security Context seccomp profile
+    seccompProfile:
+      type: RuntimeDefault
+
+  ## MariaDB Primary container's resource requests and limits
+  resourcesPreset: "micro"
+  ## @param primary.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  resources: {}
+
+  ## Configure extra options for MariaDB Primary containers' liveness probe
+  livenessProbe:
+    ## @param primary.livenessProbe.enabled Enable livenessProbe on MariaDB Primary containers
+    enabled: true
+    ## @param primary.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+    initialDelaySeconds: 120
+    ## @param primary.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 10
+    ## @param primary.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 1
+    ## @param primary.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    ## @param primary.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+  ## Configure extra options for MariaDB Primary containers' readiness probe
+  readinessProbe:
+    ## @param primary.readinessProbe.enabled Enable readinessProbe on MariaDB Primary containers
+    enabled: true
+    ## @param primary.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+    initialDelaySeconds: 30
+    ## @param primary.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 10
+    ## @param primary.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 1
+    ## @param primary.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 3
+    ## @param primary.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+  ## Configure extra options for MariaDB Primary containers' startup probe
+  startupProbe:
+    ## @param primary.startupProbe.enabled Enable startupProbe on MariaDB Primary containers
+    enabled: false
+    ## @param primary.startupProbe.initialDelaySeconds Initial delay seconds for startupProbe
+    initialDelaySeconds: 120
+    ## @param primary.startupProbe.periodSeconds Period seconds for startupProbe
+    periodSeconds: 15
+    ## @param primary.startupProbe.timeoutSeconds Timeout seconds for startupProbe
+    timeoutSeconds: 5
+    ## @param primary.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 10
+    ## @param primary.startupProbe.successThreshold Success threshold for startupProbe
+    successThreshold: 1
+
+  ## @param primary.customLivenessProbe Custom livenessProbe that overrides the default one
+  customLivenessProbe: {}
+  ## @param primary.customReadinessProbe Custom readinessProbe that overrides the default one
+  customReadinessProbe: {}
+  ## @param primary.customStartupProbe Custom startupProbe that overrides the default one
+  customStartupProbe: {}
+  ## @param primary.extraFlags MariaDB Primary additional command line flags
+  extraFlags: ""
+  ## @param primary.extraEnvVars Array with extra environment variables to add to MariaDB Primary containers
+  extraEnvVars: []
+  ## @param primary.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for MariaDB Primary containers
+  extraEnvVarsCM: ""
+  ## @param primary.extraEnvVarsSecret Name of existing Secret containing extra env vars for MariaDB Primary containers
+  extraEnvVarsSecret: ""
+
+  ## Enable persistence using Persistent Volume Claims
+  persistence:
+    ## @param primary.persistence.enabled Enable persistence on MariaDB Primary replicas using a `PersistentVolumeClaim`
+    enabled: true
+    ## @param primary.persistence.existingClaim Name of an existing `PersistentVolumeClaim` for MariaDB Primary replicas
+    existingClaim: ""
+    ## @param primary.persistence.subPath The name of a volume's sub path to mount for persistence
+    subPath: ""
+    ## @param primary.persistence.storageClass MariaDB Primary persistent volume storage Class
+    storageClass: ""
+    ## @param primary.persistence.labels Labels for the PVC
+    labels: {}
+    ## @param primary.persistence.annotations Annotations for the PVC
+    annotations: {}
+    ## @param primary.persistence.accessModes MariaDB Primary persistent volume access Modes
+    accessModes:
+      - ReadWriteOnce
+    ## @param primary.persistence.size MariaDB Primary persistent volume size
+    size: 8Gi
+    ## @param primary.persistence.selector Selector to match an existing Persistent Volume
+    selector: {}
+    ## @param primary.persistence.dataSource Custom PVC data source
+    dataSource: {}
+
+  ## @param primary.extraVolumes Optionally specify extra list of additional volumes for the MariaDB Primary pod(s)
+  extraVolumes: []
+  ## @param primary.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the MariaDB Primary container(s)
+  extraVolumeMounts: []
+  ## @param primary.initContainers Add additional init containers for the MariaDB Primary pod(s)
+  initContainers: []
+  ## @param primary.sidecars Add additional sidecar containers for the MariaDB Primary pod(s)
+  sidecars: []
+
+  ## MariaDB Primary Service parameters
+  service:
+    ## @param primary.service.type MariaDB Primary Kubernetes service type
+    type: ClusterIP
+    ## @param primary.service.ports.mysql MariaDB Primary Kubernetes service port
+    ports:
+      mysql: 3306
+    ## @param primary.service.nodePorts.mysql Node port for MariaDB Primary
+    nodePorts:
+      mysql: ""
+    ## @param primary.service.clusterIP MariaDB Primary Kubernetes service clusterIP IP
+    clusterIP: ""
+    ## @param primary.service.loadBalancerIP MariaDB Primary loadBalancerIP if service type is `LoadBalancer`
+    loadBalancerIP: ""
+    ## @param primary.service.externalTrafficPolicy MariaDB Primary service external traffic policy
+    externalTrafficPolicy: Cluster
+    ## @param primary.service.loadBalancerSourceRanges MariaDB Primary service Load Balancer sources
+    loadBalancerSourceRanges: []
+    ## @param primary.service.extraPorts Extra ports to expose
+    extraPorts: []
+    ## @param primary.service.annotations Additional custom annotations for MariaDB Primary service
+    annotations: {}
+    ## @param primary.service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
+    sessionAffinity: None
+    ## @param primary.service.sessionAffinityConfig Additional settings for the sessionAffinity
+    sessionAffinityConfig: {}
+    ## @param primary.service.headless.annotations Annotations for the headless service.
+    headless:
+      ## @param primary.service.headless.enabled Whether to create the headless service for the primary StatefulSet. Defaults to true when `architecture=replication`.
+      # enabled: false
+      annotations: {}
+
+## @section MariaDB Secondary parameters
+secondary:
+  ## @param secondary.replicaCount Number of MariaDB secondary replicas
+  replicaCount: 1
+  ## @param secondary.name Name of the secondary database (used by the chart when `architecture=replication`)
+  name: secondary
+  ## @param secondary.command Override default container command on MariaDB Secondary container(s) (useful when using custom images)
+  command: []
+  ## @param secondary.args Override default container args on MariaDB Secondary container(s) (useful when using custom images)
+  args: []
+  ## @param secondary.lifecycleHooks for the MariaDB Secondary container(s) to automate configuration before or after startup
+  lifecycleHooks: {}
+  ## @param secondary.hostAliases MariaDB Secondary pods host aliases
+  hostAliases: []
+  ## @param secondary.configuration [string] MariaDB Secondary configuration to be injected as ConfigMap
+  configuration: |-
+    [mysqld]
+    skip-name-resolve
+    explicit_defaults_for_timestamp
+    basedir=/usr
+    datadir=/var/lib/mysql
+    port=3306
+    socket=/run/mysqld/mysqld.sock
+    tmpdir=/tmp
+    max_allowed_packet=16M
+    bind-address=0.0.0.0
+    pid-file=/run/mysqld/mysqld.pid
+    log-error=/var/log/mysql/error.log
+    character-set-server=UTF8
+    collation-server=utf8_general_ci
+    slow_query_log=0
+    slow_query_log_file=/var/log/mysql/slow.log
+    long_query_time=10.0
+
+    [client]
+    port=3306
+    socket=/run/mysqld/mysqld.sock
+    default-character-set=UTF8
+
+    [manager]
+    port=3306
+    socket=/run/mysqld/mysqld.sock
+    pid-file=/run/mysqld/mysqld.pid
+  ## @param secondary.existingConfigmap Name of existing ConfigMap with MariaDB Secondary configuration
+  existingConfigmap: ""
+
+  ## @param secondary.updateStrategy.type MariaDB Secondary statefulset strategy type
+  updateStrategy:
+    type: RollingUpdate
+
+  ## @param secondary.rollingUpdatePartition Partition update strategy for MariaDB Secondary statefulset
+  rollingUpdatePartition: ""
+  ## @param secondary.podAnnotations Additional pod annotations for MariaDB Secondary pods
+  podAnnotations: {}
+  ## @param secondary.podLabels Extra labels for MariaDB secondary pods
+  podLabels: {}
+  ## @param secondary.podAffinityPreset Pod affinity preset. Ignored if `secondary.affinity` is set. Allowed values: `soft` or `hard`
+  podAffinityPreset: ""
+  ## @param secondary.podAntiAffinityPreset Pod anti-affinity preset. Allowed values: `soft` or `hard`
+  podAntiAffinityPreset: soft
+  ## Node affinity preset
+  nodeAffinityPreset:
+    ## @param secondary.nodeAffinityPreset.type Node affinity preset type. Ignored if `secondary.affinity` is set. Allowed values: `soft` or `hard`
+    type: ""
+    ## @param secondary.nodeAffinityPreset.key Node label key to match. Ignored if `secondary.affinity` is set
+    key: ""
+    ## @param secondary.nodeAffinityPreset.values Node label values to match. Ignored if `secondary.affinity` is set
+    values: []
+  ## @param secondary.affinity Affinity for MariaDB Secondary pods assignment
+  affinity: {}
+  ## @param secondary.nodeSelector Node labels for MariaDB Secondary pods assignment
+  nodeSelector: {}
+  ## @param secondary.tolerations Tolerations for MariaDB Secondary pods assignment
+  tolerations: []
+  ## @param secondary.topologySpreadConstraints Topology Spread Constraints for MariaDB Secondary pod assignment
+  topologySpreadConstraints: []
+  ## @param secondary.schedulerName Name of the k8s scheduler (other than default)
+  schedulerName: ""
+  ## @param secondary.terminationGracePeriodSeconds In seconds, time given to the MariaDB secondary pod to terminate gracefully
+  terminationGracePeriodSeconds: ""
+  ## @param secondary.priorityClassName MariaDB Secondary pods' priorityClassName
+  priorityClassName: ""
+  ## @param secondary.runtimeClassName MariaDB Secondary pods' runtimeClassName
+  runtimeClassName: ""
+
+  ## MariaDB Secondary Pod security context
+  podSecurityContext:
+    ## @param secondary.podSecurityContext.enabled Enable security context for MariaDB Secondary pods
+    enabled: true
+    ## @param secondary.podSecurityContext.fsGroup Group ID for the volumes of the MariaDB Secondary pod(s)
+    fsGroup: 999
+    ## @param secondary.podSecurityContext.fsGroupChangePolicy Set filesystem group change policy
+    fsGroupChangePolicy: Always
+    ## @param secondary.podSecurityContext.sysctls Set kernel settings using the sysctl interface
+    sysctls: []
+    ## @param secondary.podSecurityContext.supplementalGroups Set filesystem extra groups
+    supplementalGroups: []
+    ## @param secondary.podSecurityContext.seccompProfile.type Set seccomp profile
+    seccompProfile:
+      type: RuntimeDefault
+
+  ## MariaDB Secondary container security context
+  containerSecurityContext:
+    ## @param secondary.containerSecurityContext.enabled MariaDB Secondary container securityContext
+    enabled: true
+    ## @param secondary.containerSecurityContext.seLinuxOptions Set SELinux options in container
+    seLinuxOptions: {}
+    ## @param secondary.containerSecurityContext.runAsUser User ID for the MariaDB Secondary container
+    runAsUser: 999
+    ## @param secondary.containerSecurityContext.runAsGroup Group ID for the MariaDB Secondary container
+    runAsGroup: 999
+    ## @param secondary.containerSecurityContext.runAsNonRoot Set MariaDB Secondary container's Security Context runAsNonRoot
+    runAsNonRoot: true
+    ## @param secondary.containerSecurityContext.privileged Set secondary container's Security Context privileged
+    privileged: false
+    ## @param secondary.containerSecurityContext.allowPrivilegeEscalation Set secondary container's Security Context allowPrivilegeEscalation
+    allowPrivilegeEscalation: false
+    ## @param secondary.containerSecurityContext.readOnlyRootFilesystem Set container's Security Context readOnlyRootFilesystem
+    readOnlyRootFilesystem: false
+    ## @param secondary.containerSecurityContext.capabilities.drop List of capabilities to be dropped
+    capabilities:
+      drop: ["ALL"]
+    ## @param secondary.containerSecurityContext.seccompProfile.type Set container's Security Context seccomp profile
+    seccompProfile:
+      type: RuntimeDefault
+
+  ## MariaDB Secondary container's resource requests and limits
+  resourcesPreset: "micro"
+  ## @param secondary.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  resources: {}
+
+  ## Configure extra options for MariaDB Secondary containers' liveness probe
+  livenessProbe:
+    ## @param secondary.livenessProbe.enabled Enable livenessProbe on MariaDB Secondary containers
+    enabled: true
+    ## @param secondary.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+    initialDelaySeconds: 120
+    ## @param secondary.livenessProbe.periodSeconds Period seconds for livenessProbe
+    periodSeconds: 10
+    ## @param secondary.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    timeoutSeconds: 1
+    ## @param secondary.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    failureThreshold: 3
+    ## @param secondary.livenessProbe.successThreshold Success threshold for livenessProbe
+    successThreshold: 1
+  ## Configure extra options for MariaDB Secondary containers' readiness probe
+  readinessProbe:
+    ## @param secondary.readinessProbe.enabled Enable readinessProbe on MariaDB Secondary containers
+    enabled: true
+    ## @param secondary.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+    initialDelaySeconds: 30
+    ## @param secondary.readinessProbe.periodSeconds Period seconds for readinessProbe
+    periodSeconds: 10
+    ## @param secondary.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    timeoutSeconds: 1
+    ## @param secondary.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    failureThreshold: 3
+    ## @param secondary.readinessProbe.successThreshold Success threshold for readinessProbe
+    successThreshold: 1
+  ## Configure extra options for MariaDB Secondary containers' startup probe
+  startupProbe:
+    ## @param secondary.startupProbe.enabled Enable startupProbe on MariaDB Secondary containers
+    enabled: false
+    ## @param secondary.startupProbe.initialDelaySeconds Initial delay seconds for startupProbe
+    initialDelaySeconds: 120
+    ## @param secondary.startupProb.periodSeconds Period seconds for startupProbe
+    periodSeconds: 15
+    ## @param secondary.startupProbe.timeoutSeconds Timeout seconds for startupProbe
+    timeoutSeconds: 5
+    ## @param secondary.startupProbe.failureThreshold Failure threshold for startupProbe
+    failureThreshold: 10
+    ## @param secondary.startupProbe.successThreshold Success threshold for startupProbe
+    successThreshold: 1
+
+  ## @param secondary.customLivenessProbe Custom livenessProbe that overrides the default one
+  customLivenessProbe: {}
+  ## @param secondary.customReadinessProbe Custom readinessProbe that overrides the default one
+  customReadinessProbe: {}
+  ## @param secondary.customStartupProbe Custom startupProbe that overrides the default one
+  customStartupProbe: {}
+  ## @param secondary.extraFlags MariaDB Secondary additional command line flags
+  extraFlags: ""
+  ## @param secondary.extraEnvVars Array with extra environment variables to add to MariaDB Secondary containers
+  extraEnvVars: []
+  ## @param secondary.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for MariaDB Secondary containers
+  extraEnvVarsCM: ""
+  ## @param secondary.extraEnvVarsSecret Name of existing Secret containing extra env vars for MariaDB Secondary containers
+  extraEnvVarsSecret: ""
+
+  ## Enable persistence using Persistent Volume Claims
+  persistence:
+    ## @param secondary.persistence.enabled Enable persistence on MariaDB Secondary replicas using a `PersistentVolumeClaim`
+    enabled: true
+    ## @param secondary.persistence.existingClaim Name of an existing `PersistentVolumeClaim` for MariaDB Secondary replicas
+    existingClaim: ""
+    ## @param secondary.persistence.subPath The name of a volume's sub path to mount for persistence
+    subPath: ""
+    ## @param secondary.persistence.storageClass MariaDB Secondary persistent volume storage Class
+    storageClass: ""
+    ## @param secondary.persistence.labels Labels for the PVC
+    labels: {}
+    ## @param secondary.persistence.annotations Annotations for the PVC
+    annotations: {}
+    ## @param secondary.persistence.accessModes MariaDB Secondary persistent volume access Modes
+    accessModes:
+      - ReadWriteOnce
+    ## @param secondary.persistence.size MariaDB Secondary persistent volume size
+    size: 8Gi
+    ## @param secondary.persistence.selector Selector to match an existing Persistent Volume
+    selector: {}
+    ## @param secondary.persistence.dataSource Custom PVC data source
+    dataSource: {}
+
+  ## @param secondary.extraVolumes Optionally specify extra list of additional volumes for the MariaDB Secondary pod(s)
+  extraVolumes: []
+  ## @param secondary.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the MariaDB Secondary container(s)
+  extraVolumeMounts: []
+  ## @param secondary.initContainers Add additional init containers for the MariaDB Secondary pod(s)
+  initContainers: []
+  ## @param secondary.sidecars Add additional sidecar containers for the MariaDB Secondary pod(s)
+  sidecars: []
+
+  ## MariaDB Secondary Service parameters
+  service:
+    ## @param secondary.service.type MariaDB Secondary Kubernetes service type
+    type: ClusterIP
+    ## @param secondary.service.ports.mysql MariaDB Secondary Kubernetes service port
+    ports:
+      mysql: 3306
+    ## @param secondary.service.nodePorts.mysql Node port for MariaDB Secondary
+    nodePorts:
+      mysql: ""
+    ## @param secondary.service.clusterIP MariaDB Secondary Kubernetes service clusterIP IP
+    clusterIP: ""
+    ## @param secondary.service.loadBalancerIP MariaDB Secondary loadBalancerIP if service type is `LoadBalancer`
+    loadBalancerIP: ""
+    ## @param secondary.service.externalTrafficPolicy MariaDB Secondary service external traffic policy
+    externalTrafficPolicy: Cluster
+    ## @param secondary.service.loadBalancerSourceRanges MariaDB Secondary service Load Balancer sources
+    loadBalancerSourceRanges: []
+    ## @param secondary.service.extraPorts Extra ports to expose
+    extraPorts: []
+    ## @param secondary.service.annotations Additional custom annotations for MariaDB Secondary service
+    annotations: {}
+    ## @param secondary.service.sessionAffinity Session Affinity for Kubernetes service, can be "None" or "ClientIP"
+    sessionAffinity: None
+    ## @param secondary.service.sessionAffinityConfig Additional settings for the sessionAffinity
+    sessionAffinityConfig: {}
+    ## @param secondary.service.headless.annotations Annotations for the headless service.
+    headless:
+      annotations: {}
+
+## @section Other Parameters
+serviceAccount:
+  ## @param serviceAccount.create Specifies whether a ServiceAccount should be created
+  create: true
+  ## @param serviceAccount.name Name of the service account to use. If not set and create is true, a name is generated using the fullname template.
+  name: ""
+  ## @param serviceAccount.annotations Additional Service Account annotations (evaluated as a template)
+  annotations: {}
+  ## @param serviceAccount.automountServiceAccountToken Automount service account token for the server service account
+  automountServiceAccountToken: false
+
+## @section RBAC configuration
+rbac:
+  ## @param rbac.create Specifies whether RBAC resources should be created
+  create: false
+
+## Init containers parameters:
+volumePermissions:
+  ## @param volumePermissions.enabled Enable init container that changes the owner/group of the PV mount point to `runAsUser:fsGroup`
+  enabled: false
+  ## @param volumePermissions.image.registry [default: REGISTRY_NAME] OS Shell + Utility image registry
+  ## @param volumePermissions.image.repository [default: REPOSITORY_NAME/os-shell] OS Shell + Utility image repository
+  ## @param volumePermissions.image.digest OS Shell + Utility image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+  ## @param volumePermissions.image.pullPolicy OS Shell + Utility image pull policy
+  ## @param volumePermissions.image.pullSecrets OS Shell + Utility image pull secrets
+  image:
+    registry: docker.io
+    repository: alpine
+    tag: 3.22.1
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+  ## Init container's resource requests and limits
+  ## ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+  ## @param volumePermissions.resourcesPreset Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if volumePermissions.resources is set (volumePermissions.resources is recommended for production).
+  resourcesPreset: "nano"
+  ## @param volumePermissions.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  resources: {}
+  ## Init container Container Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  ## @param volumePermissions.containerSecurityContext.seLinuxOptions [object,nullable] Set SELinux options in container
+  ## @param volumePermissions.containerSecurityContext.runAsUser Set init container's Security Context runAsUser
+  containerSecurityContext:
+    seLinuxOptions: {}
+    runAsUser: 0
+
+## @section Metrics Parameters
+metrics:
+  ## @param metrics.enabled Start a prometheus exporter
+  enabled: false
+  ## Bitnami MySQL Exporter image
+  ## ref: https://hub.docker.com/r/bitnami/mysqld-exporter/tags/
+  ## @param metrics.image.registry [default: REGISTRY_NAME] MariaDB Prometheus exporter image registry
+  ## @param metrics.image.repository [default: REPOSITORY_NAME/mysqld-exporter] MariaDB Prometheus exporter image repository
+  ## @param metrics.image.digest MariaDB Prometheus exporter image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
+  ## @param metrics.image.pullPolicy MariaDB Prometheus exporter image pull policy
+  ## @param metrics.image.pullSecrets MariaDB Prometheus exporter image pull secrets
+  image:
+    registry: docker.io
+    repository: prom/mysqld-exporter
+    tag: v0.15.1
+    digest: ""
+    pullPolicy: IfNotPresent
+    pullSecrets: []
+  ## @param metrics.annotations [object] Additional annotations for Metrics exporter pod
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9104"
+  ## @param metrics.extraArgs Extra args to be passed to mysqld_exporter
+  extraArgs:
+    - --collect.info_schema.processlist
+    - --collect.info_schema.innodb_metrics
+    - --collect.info_schema.tablestats
+    - --collect.info_schema.tables
+    - --collect.info_schema.userstats
+    - --collect.engine_innodb_status
+  ## Metrics exporter container security context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  ## @param metrics.containerSecurityContext.enabled Enabled containers' Security Context
+  ## @param metrics.containerSecurityContext.seLinuxOptions [object,nullable] Set SELinux options in container
+  ## @param metrics.containerSecurityContext.runAsUser Set containers' Security Context runAsUser
+  ## @param metrics.containerSecurityContext.runAsGroup Set containers' Security Context runAsGroup
+  ## @param metrics.containerSecurityContext.runAsNonRoot Set container's Security Context runAsNonRoot
+  ## @param metrics.containerSecurityContext.privileged Set container's Security Context privileged
+  ## @param metrics.containerSecurityContext.readOnlyRootFilesystem Set container's Security Context readOnlyRootFilesystem
+  ## @param metrics.containerSecurityContext.allowPrivilegeEscalation Set container's Security Context allowPrivilegeEscalation
+  ## @param metrics.containerSecurityContext.capabilities.drop List of capabilities to be dropped
+  ## @param metrics.containerSecurityContext.seccompProfile.type Set container's Security Context seccomp profile
+  containerSecurityContext:
+    enabled: true
+    seLinuxOptions: {}
+    runAsUser: 1001
+    runAsGroup: 1001
+    runAsNonRoot: true
+    privileged: false
+    readOnlyRootFilesystem: false
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop: ["ALL"]
+    seccompProfile:
+      type: "RuntimeDefault"
+  ## Metrics exporter resource requests and limits
+  ## ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+  ## @param metrics.resourcesPreset Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if metrics.resources is set (metrics.resources is recommended for production).
+  resourcesPreset: "nano"
+  ## @param metrics.resources Set container requests and limits for different resources like CPU or memory (essential for production workloads)
+  resources: {}
+  ## Configure extra options for Metrics containers' liveness probe
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
+  ## @param metrics.livenessProbe.enabled Enable livenessProbe on Metrics containers
+  ## @param metrics.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+  ## @param metrics.livenessProbe.periodSeconds Period seconds for livenessProbe
+  ## @param metrics.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+  ## @param metrics.livenessProbe.failureThreshold Failure threshold for livenessProbe
+  ## @param metrics.livenessProbe.successThreshold Success threshold for livenessProbe
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 120
+    periodSeconds: 10
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 3
+  ## Configure extra options for Metrics containers' readiness probe
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes
+  ## @param metrics.readinessProbe.enabled Enable readinessProbe on Metrics containers
+  ## @param metrics.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+  ## @param metrics.readinessProbe.periodSeconds Period seconds for readinessProbe
+  ## @param metrics.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+  ## @param metrics.readinessProbe.failureThreshold Failure threshold for readinessProbe
+  ## @param metrics.readinessProbe.successThreshold Success threshold for readinessProbe
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 3
+  ## @param metrics.customLivenessProbe Custom livenessProbe that overrides the default one
+  customLivenessProbe: {}
+  ## @param metrics.customReadinessProbe Custom readinessProbe that overrides the default one
+  customReadinessProbe: {}
+
+  ## Prometheus Service Monitor
+  ## ref: https://github.com/coreos/prometheus-operator
+  serviceMonitor:
+    ## @param metrics.serviceMonitor.enabled Create ServiceMonitor Resource for scraping metrics using Prometheus Operator
+    enabled: false
+    ## @param metrics.serviceMonitor.namespace The namespace in which the ServiceMonitor will be created
+    namespace: ""
+    ## @param metrics.serviceMonitor.interval The interval at which metrics should be scraped
+    interval: 30s
+    ## @param metrics.serviceMonitor.scrapeTimeout The timeout after which the scrape is ended
+    scrapeTimeout: ""
+    ## @param metrics.serviceMonitor.relabellings Metrics RelabelConfigs to apply to samples before scraping.
+    relabellings: []
+    ## @param metrics.serviceMonitor.metricRelabellings Metrics RelabelConfigs to apply to samples before ingestion.
+    metricRelabellings: []
+    ## @param metrics.serviceMonitor.honorLabels Specify honorLabels parameter to add the scrape endpoint
+    honorLabels: false
+    ## @param metrics.serviceMonitor.additionalLabels Additional labels that can be used so ServiceMonitor will be discovered by Prometheus
+    additionalLabels: {}
+    ## @param metrics.serviceMonitor.labels Used to pass Labels that are required by the installed Prometheus Operator
+    ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#prometheusspec
+    labels: {}
+    ## @param metrics.serviceMonitor.annotations Additional annotations for the ServiceMonitor
+    annotations: {}
+    ## @param metrics.serviceMonitor.jobLabel The name of the label on the target service to use as the job name in prometheus.
+    jobLabel: ""
+
+  ## Custom PrometheusRule to be defined
+  ## ref: https://github.com/coreos/prometheus-operator#customresourcedefinitions
+  prometheusRule:
+    ## @param metrics.prometheusRule.enabled Create a custom prometheusRule Resource for scraping metrics using PrometheusOperator
+    enabled: false
+    ## @param metrics.prometheusRule.namespace The namespace in which the prometheusRule will be created
+    namespace: ""
+    ## @param metrics.prometheusRule.additionalLabels Additional labels for the prometheusRule
+    additionalLabels: {}
+    ## @param metrics.prometheusRule.rules Custom Prometheus rules
+    ## e.g:
+    ## rules:
+    ##   - alert: MariaDB-Down
+    ##     expr: mysql_up == 0
+    ##     for: 0m
+    ##     labels:
+    ##       severity: critical
+    ##     annotations:
+    ##       summary: MariaDB instance is down
+    ##       description: MariaDB database is down on {{ $labels.instance }}
+    ##   - alert: MariaDB-Restarted
+    ##     expr: mysql_global_status_uptime < 60
+    ##     for: 0m
+    ##     labels:
+    ##       severity: info
+    ##     annotations:
+    ##       summary: MariaDB restarted
+    ##       description: MariaDB has just been restarted, uptime is less than one minute on {{ $labels.instance }}
+    rules: []
+
+## @section NetworkPolicy parameters
+networkPolicy:
+  ## @param networkPolicy.enabled Specifies whether a NetworkPolicy should be created
+  enabled: true
+  ## @param networkPolicy.allowExternal Don't require server label for connections
+  ## The Policy model to apply. When set to false, only pods with the correct
+  ## server label will have network access to the ports MariaDB is listening
+  ## on. When true, MariaDB will accept connections from any source
+  ## (with the correct destination port).
+  allowExternal: true
+  ## @param networkPolicy.allowExternalEgress Allow the pod to access any range of port and all destinations.
+  allowExternalEgress: true
+  ## @param networkPolicy.extraIngress [array] Add extra ingress rules to the NetworkPolicy
+  ## e.g:
+  ## extraIngress:
+  ##   - ports:
+  ##       - port: 1234
+  ##     from:
+  ##       - podSelector:
+  ##           - matchLabels:
+  ##               - role: frontend
+  ##       - podSelector:
+  ##           - matchExpressions:
+  ##               - key: role
+  ##                 operator: In
+  ##                 values:
+  ##                   - frontend
+  extraIngress: []
+  ## @param networkPolicy.extraEgress [array] Add extra ingress rules to the NetworkPolicy
+  ## e.g:
+  ## extraEgress:
+  ##   - ports:
+  ##       - port: 1234
+  ##     to:
+  ##       - podSelector:
+  ##           - matchLabels:
+  ##               - role: frontend
+  ##       - podSelector:
+  ##           - matchExpressions:
+  ##               - key: role
+  ##                 operator: In
+  ##                 values:
+  ##                   - frontend
+  ##
+  extraEgress: []
+  ## @param networkPolicy.ingressNSMatchLabels [object] Labels to match to allow traffic from other namespaces
+  ## @param networkPolicy.ingressNSPodMatchLabels [object] Pod labels to match to allow traffic from other namespaces
+  ingressNSMatchLabels: {}
+  ingressNSPodMatchLabels: {}

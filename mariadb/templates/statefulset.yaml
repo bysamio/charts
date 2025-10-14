@@ -1,0 +1,599 @@
+{{- $primaryHeadlessEnabled := eq (include "mariadb.primary.headlessEnabled" .) "true" -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "mariadb.primary.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: primary
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations:
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      {{- include "mariadb.primary.selectorLabels" . | nindent 6 }}
+  serviceName: {{ if $primaryHeadlessEnabled }}{{ printf "%s-headless" (include "mariadb.primary.fullname" .) }}{{ else }}{{ include "mariadb.primary.fullname" . }}{{ end }}
+  {{- if .Values.primary.updateStrategy }}
+  updateStrategy: {{- toYaml .Values.primary.updateStrategy | nindent 4 }}
+  {{- end }}
+  {{- if and .Values.primary.rollingUpdatePartition .Values.primary.updateStrategy (eq .Values.primary.updateStrategy.type "RollingUpdate") }}
+  rollingUpdatePartition: {{ .Values.primary.rollingUpdatePartition }}
+  {{- end }}
+  template:
+    metadata:
+      annotations:
+        checksum/configuration: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- if .Values.primary.podAnnotations }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.primary.podAnnotations "context" $ ) | nindent 8 }}
+        {{- end }}
+        {{- if .Values.commonAnnotations }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "mariadb.primary.selectorLabels" . | nindent 8 }}
+        {{- if .Values.primary.podLabels }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.primary.podLabels "context" $ ) | nindent 8 }}
+        {{- end }}
+        {{- if .Values.commonLabels }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.primary.schedulerName }}
+      schedulerName: {{ .Values.primary.schedulerName | quote }}
+      {{- end }}
+      serviceAccountName: {{ include "mariadb.serviceAccountName" . }}
+      {{- if .Values.primary.hostAliases }}
+      hostAliases: {{- include "common.tplvalues.render" (dict "value" .Values.primary.hostAliases "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if not (empty .Values.primary.affinity) }}
+      affinity: {{- include "common.tplvalues.render" ( dict "value" .Values.primary.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      {{- $podLabelSet := dict -}}
+      {{- range $key, $value := .Values.primary.podLabels }}
+        {{- $_ := set $podLabelSet $key $value -}}
+      {{- end }}
+      {{- range $key, $value := .Values.commonLabels }}
+        {{- $_ := set $podLabelSet $key $value -}}
+      {{- end }}
+      {{- $podAffinity := include "common.affinities.pods" (dict "type" .Values.primary.podAffinityPreset "component" "primary" "customLabels" $podLabelSet "context" $) }}
+      {{- $podAntiAffinity := include "common.affinities.pods" (dict "type" (default "soft" .Values.primary.podAntiAffinityPreset) "component" "primary" "customLabels" $podLabelSet "context" $) }}
+      {{- $nodeAffinity := include "common.affinities.nodes" (dict "type" .Values.primary.nodeAffinityPreset.type "key" .Values.primary.nodeAffinityPreset.key "values" .Values.primary.nodeAffinityPreset.values) }}
+      {{- if or ($podAffinity | trim) ($podAntiAffinity | trim) ($nodeAffinity | trim) }}
+      affinity:
+        {{- if ($podAffinity | trim) }}
+        podAffinity: {{- $podAffinity | nindent 10 }}
+        {{- end }}
+        {{- if ($podAntiAffinity | trim) }}
+        podAntiAffinity: {{- $podAntiAffinity | nindent 10 }}
+        {{- end }}
+        {{- if ($nodeAffinity | trim) }}
+        nodeAffinity: {{- $nodeAffinity | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.primary.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" ( dict "value" .Values.primary.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.primary.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.primary.tolerations "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.primary.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- include "common.tplvalues.render" (dict "value" .Values.primary.topologySpreadConstraints "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.primary.priorityClassName }}
+      priorityClassName: {{ .Values.primary.priorityClassName | quote }}
+      {{- end }}
+      {{- if .Values.primary.runtimeClassName }}
+      runtimeClassName: {{ .Values.primary.runtimeClassName | quote }}
+      {{- end }}
+      {{- if and .Values.primary.podSecurityContext .Values.primary.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.primary.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.primary.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.primary.terminationGracePeriodSeconds }}
+      {{- end }}
+      {{- include "mariadb.imagePullSecrets" . | nindent 6 }}
+      {{- if .Values.primary.initContainers }}
+      initContainers: {{- include "common.tplvalues.render" (dict "value" .Values.primary.initContainers "context" $) | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: mariadb
+          image: {{ template "mariadb.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if and .Values.primary.containerSecurityContext .Values.primary.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.primary.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.image.debug }}
+          command:
+            - /bin/bash
+          args:
+            - -ec
+            - |
+              sleep infinity
+          {{- else }}
+          {{- if .Values.primary.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.primary.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.primary.args }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.primary.args "context" $) | nindent 12 }}
+          {{- end }}
+          {{- end }}
+          {{- if .Values.primary.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.primary.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          env:
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mariadb.secretName" . }}
+                  key: mariadb-root-password
+            {{- if .Values.auth.username }}
+            - name: MARIADB_USER
+              value: {{ .Values.auth.username | quote }}
+            - name: MARIADB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mariadb.secretName" . }}
+                  key: mariadb-password
+            {{- end }}
+            {{- if .Values.auth.database }}
+            - name: MARIADB_DATABASE
+              value: {{ .Values.auth.database | quote }}
+            {{- end }}
+            {{- if eq .Values.architecture "replication" }}
+            - name: MARIADB_REPLICATION_MODE
+              value: "master"
+            - name: MARIADB_REPLICATION_USER
+              value: {{ .Values.auth.replicationUser | quote }}
+            - name: MARIADB_REPLICATION_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mariadb.secretName" . }}
+                  key: mariadb-replication-password
+            {{- end }}
+            - name: MARIADB_ROOT_HOST
+              value: {{ .Values.auth.rootHost | default "%" | quote }}
+            {{- if .Values.primary.extraFlags }}
+            - name: MARIADB_EXTRA_FLAGS
+              value: {{ .Values.primary.extraFlags | quote }}
+            {{- end }}
+            {{- if .Values.primary.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.primary.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          {{- if or .Values.primary.extraEnvVarsCM .Values.primary.extraEnvVarsSecret }}
+          envFrom:
+            {{- if .Values.primary.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.primary.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.primary.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.primary.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          {{- end }}
+          ports:
+            - name: mysql
+              containerPort: 3306
+          {{- if not .Values.image.debug }}
+          {{- if .Values.primary.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.primary.customLivenessProbe "context" $) | nindent 12 }}
+          {{- else if and .Values.primary.livenessProbe .Values.primary.livenessProbe.enabled }}
+          livenessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -ec
+                - |
+                  password_aux="${MARIADB_ROOT_PASSWORD:-}"
+                  if [[ -f "${MARIADB_ROOT_PASSWORD_FILE:-}" ]]; then
+                      password_aux=$(cat "$MARIADB_ROOT_PASSWORD_FILE")
+                  fi
+                  mariadb-admin status -uroot -p"${password_aux}"
+            initialDelaySeconds: {{ default 120 .Values.primary.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ default 10 .Values.primary.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ default 1 .Values.primary.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ default 1 .Values.primary.livenessProbe.successThreshold }}
+            failureThreshold: {{ default 3 .Values.primary.livenessProbe.failureThreshold }}
+          {{- end }}
+          {{- if .Values.primary.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.primary.customReadinessProbe "context" $) | nindent 12 }}
+          {{- else if and .Values.primary.readinessProbe .Values.primary.readinessProbe.enabled }}
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -ec
+                - |
+                  password_aux="${MARIADB_ROOT_PASSWORD:-}"
+                  if [[ -f "${MARIADB_ROOT_PASSWORD_FILE:-}" ]]; then
+                      password_aux=$(cat "$MARIADB_ROOT_PASSWORD_FILE")
+                  fi
+                  mariadb-admin status -uroot -p"${password_aux}"
+            initialDelaySeconds: {{ default 30 .Values.primary.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ default 10 .Values.primary.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ default 1 .Values.primary.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ default 1 .Values.primary.readinessProbe.successThreshold }}
+            failureThreshold: {{ default 3 .Values.primary.readinessProbe.failureThreshold }}
+          {{- end }}
+          {{- if .Values.primary.customStartupProbe }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.primary.customStartupProbe "context" $) | nindent 12 }}
+          {{- else if and .Values.primary.startupProbe .Values.primary.startupProbe.enabled }}
+          startupProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -ec
+                - |
+                  password_aux="${MARIADB_ROOT_PASSWORD:-}"
+                  if [[ -f "${MARIADB_ROOT_PASSWORD_FILE:-}" ]]; then
+                      password_aux=$(cat "$MARIADB_ROOT_PASSWORD_FILE")
+                  fi
+                  mariadb-admin status -uroot -p"${password_aux}"
+            initialDelaySeconds: {{ default 120 .Values.primary.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ default 15 .Values.primary.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ default 1 .Values.primary.startupProbe.timeoutSeconds }}
+            successThreshold: {{ default 1 .Values.primary.startupProbe.successThreshold }}
+            failureThreshold: {{ default 10 .Values.primary.startupProbe.failureThreshold }}
+          {{- end }}
+          {{- end }}
+          {{- if .Values.primary.resources }}
+          resources: {{- toYaml .Values.primary.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+              {{- if and .Values.primary.persistence .Values.primary.persistence.subPath }}
+              subPath: {{ .Values.primary.persistence.subPath }}
+              {{- end }}
+            - name: config
+              mountPath: /etc/mysql/conf.d/my.cnf
+              subPath: my.cnf
+            {{- if .Values.primary.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.primary.extraVolumeMounts "context" $) | nindent 12 }}
+            {{- end }}
+        {{- if .Values.primary.sidecars }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.primary.sidecars "context" $) | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "mariadb.primary.configmapName" . }}
+        {{- if .Values.primary.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.primary.extraVolumes "context" $) | nindent 8 }}
+        {{- end }}
+  {{- if and .Values.primary.persistence.enabled .Values.primary.persistence.existingClaim }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ tpl .Values.primary.persistence.existingClaim $ }}
+  {{- else if not .Values.primary.persistence.enabled }}
+        - name: data
+          emptyDir: {}
+  {{- else }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          {{- include "mariadb.primary.selectorLabels" . | nindent 10 }}
+          {{- if .Values.primary.persistence.labels }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.primary.persistence.labels "context" $) | nindent 10 }}
+          {{- end }}
+        {{- if .Values.primary.persistence.annotations }}
+        annotations:
+          {{- include "common.tplvalues.render" (dict "value" .Values.primary.persistence.annotations "context" $) | nindent 10 }}
+        {{- end }}
+      spec:
+        accessModes:
+        {{- range .Values.primary.persistence.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
+        {{- if .Values.primary.persistence.dataSource }}
+        dataSource: {{- include "common.tplvalues.render" (dict "value" .Values.primary.persistence.dataSource "context" $) | nindent 10 }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.primary.persistence.size | quote }}
+        {{- if .Values.primary.persistence.selector }}
+        selector: {{- include "common.tplvalues.render" (dict "value" .Values.primary.persistence.selector "context" $) | nindent 10 }}
+        {{- end }}
+        {{- include "common.storage.class" (dict "persistence" .Values.primary.persistence "global" .Values.global) | nindent 8 }}
+  {{- end }}
+---
+{{- if eq .Values.architecture "replication" }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "mariadb.secondary.fullname" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+    app.kubernetes.io/component: secondary
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations:
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.secondary.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "mariadb.secondary.selectorLabels" . | nindent 6 }}
+  serviceName: {{ printf "%s-headless" (include "mariadb.secondary.fullname" .) }}
+  {{- if .Values.secondary.updateStrategy }}
+  updateStrategy: {{- toYaml .Values.secondary.updateStrategy | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      annotations:
+        checksum/configuration: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- if .Values.secondary.podAnnotations }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.secondary.podAnnotations "context" $ ) | nindent 8 }}
+        {{- end }}
+        {{- if .Values.commonAnnotations }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "mariadb.secondary.selectorLabels" . | nindent 8 }}
+        {{- if .Values.secondary.podLabels }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.secondary.podLabels "context" $ ) | nindent 8 }}
+        {{- end }}
+        {{- if .Values.commonLabels }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.secondary.schedulerName }}
+      schedulerName: {{ .Values.secondary.schedulerName | quote }}
+      {{- end }}
+      serviceAccountName: {{ include "mariadb.serviceAccountName" . }}
+      {{- if .Values.secondary.hostAliases }}
+      hostAliases: {{- include "common.tplvalues.render" (dict "value" .Values.secondary.hostAliases "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if not (empty .Values.secondary.affinity) }}
+      affinity: {{- include "common.tplvalues.render" ( dict "value" .Values.secondary.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      {{- $secondaryPodLabels := dict -}}
+      {{- range $key, $value := .Values.secondary.podLabels }}
+        {{- $_ := set $secondaryPodLabels $key $value -}}
+      {{- end }}
+      {{- range $key, $value := .Values.commonLabels }}
+        {{- $_ := set $secondaryPodLabels $key $value -}}
+      {{- end }}
+      {{- $secondaryPodAffinity := include "common.affinities.pods" (dict "type" .Values.secondary.podAffinityPreset "component" "secondary" "customLabels" $secondaryPodLabels "context" $) }}
+      {{- $secondaryPodAntiAffinity := include "common.affinities.pods" (dict "type" (default "soft" .Values.secondary.podAntiAffinityPreset) "component" "secondary" "customLabels" $secondaryPodLabels "context" $) }}
+      {{- $secondaryNodeAffinity := include "common.affinities.nodes" (dict "type" .Values.secondary.nodeAffinityPreset.type "key" .Values.secondary.nodeAffinityPreset.key "values" .Values.secondary.nodeAffinityPreset.values) }}
+      {{- if or ($secondaryPodAffinity | trim) ($secondaryPodAntiAffinity | trim) ($secondaryNodeAffinity | trim) }}
+      affinity:
+        {{- if ($secondaryPodAffinity | trim) }}
+        podAffinity: {{- $secondaryPodAffinity | nindent 10 }}
+        {{- end }}
+        {{- if ($secondaryPodAntiAffinity | trim) }}
+        podAntiAffinity: {{- $secondaryPodAntiAffinity | nindent 10 }}
+        {{- end }}
+        {{- if ($secondaryNodeAffinity | trim) }}
+        nodeAffinity: {{- $secondaryNodeAffinity | nindent 10 }}
+        {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.secondary.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" ( dict "value" .Values.secondary.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.secondary.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.secondary.tolerations "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.secondary.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- include "common.tplvalues.render" (dict "value" .Values.secondary.topologySpreadConstraints "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.secondary.priorityClassName }}
+      priorityClassName: {{ .Values.secondary.priorityClassName | quote }}
+      {{- end }}
+      {{- if .Values.secondary.runtimeClassName }}
+      runtimeClassName: {{ .Values.secondary.runtimeClassName | quote }}
+      {{- end }}
+      {{- if and .Values.secondary.podSecurityContext .Values.secondary.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.secondary.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.secondary.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.secondary.terminationGracePeriodSeconds }}
+      {{- end }}
+      {{- include "mariadb.imagePullSecrets" . | nindent 6 }}
+      {{- if .Values.secondary.initContainers }}
+      initContainers: {{- include "common.tplvalues.render" (dict "value" .Values.secondary.initContainers "context" $) | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: mariadb
+          image: {{ template "mariadb.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if and .Values.secondary.containerSecurityContext .Values.secondary.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.secondary.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.image.debug }}
+          command:
+            - /bin/bash
+          args:
+            - -ec
+            - |
+              sleep infinity
+          {{- else }}
+          {{- if .Values.secondary.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.secondary.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.secondary.args }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.secondary.args "context" $) | nindent 12 }}
+          {{- end }}
+          {{- end }}
+          {{- if .Values.secondary.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.secondary.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          env:
+            - name: MARIADB_REPLICATION_MODE
+              value: "slave"
+            - name: MARIADB_MASTER_HOST
+              value: {{ include "mariadb.primary.fullname" . }}
+            - name: MARIADB_MASTER_PORT_NUMBER
+              value: {{ include "mariadb.servicePort" . | quote }}
+            - name: MARIADB_MASTER_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mariadb.secretName" . }}
+                  key: mariadb-root-password
+            - name: MARIADB_REPLICATION_USER
+              value: {{ .Values.auth.replicationUser | quote }}
+            - name: MARIADB_REPLICATION_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "mariadb.secretName" . }}
+                  key: mariadb-replication-password
+            {{- if .Values.secondary.extraFlags }}
+            - name: MARIADB_EXTRA_FLAGS
+              value: {{ .Values.secondary.extraFlags | quote }}
+            {{- end }}
+            {{- if .Values.secondary.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.secondary.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          {{- if or .Values.secondary.extraEnvVarsCM .Values.secondary.extraEnvVarsSecret }}
+          envFrom:
+            {{- if .Values.secondary.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.secondary.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.secondary.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.secondary.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          {{- end }}
+          ports:
+            - name: mysql
+              containerPort: 3306
+          {{- if not .Values.image.debug }}
+          {{- if .Values.secondary.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.secondary.customLivenessProbe "context" $) | nindent 12 }}
+          {{- else if and .Values.secondary.livenessProbe .Values.secondary.livenessProbe.enabled }}
+          livenessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -ec
+                - |
+                  password_aux="${MARIADB_MASTER_ROOT_PASSWORD:-}"
+                  if [[ -f "${MARIADB_MASTER_ROOT_PASSWORD_FILE:-}" ]]; then
+                      password_aux=$(cat "$MARIADB_MASTER_ROOT_PASSWORD_FILE")
+                  fi
+                  mariadb-admin status -uroot -p"${password_aux}"
+            initialDelaySeconds: {{ default 120 .Values.secondary.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ default 10 .Values.secondary.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ default 1 .Values.secondary.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ default 1 .Values.secondary.livenessProbe.successThreshold }}
+            failureThreshold: {{ default 3 .Values.secondary.livenessProbe.failureThreshold }}
+          {{- end }}
+          {{- if .Values.secondary.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.secondary.customReadinessProbe "context" $) | nindent 12 }}
+          {{- else if .Values.secondary.readinessProbe.enabled }}
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -ec
+                - |
+                  password_aux="${MARIADB_MASTER_ROOT_PASSWORD:-}"
+                  if [[ -f "${MARIADB_MASTER_ROOT_PASSWORD_FILE:-}" ]]; then
+                      password_aux=$(cat "$MARIADB_MASTER_ROOT_PASSWORD_FILE")
+                  fi
+                  mariadb-admin status -uroot -p"${password_aux}"
+            initialDelaySeconds: {{ .Values.secondary.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.secondary.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.secondary.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.secondary.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.secondary.readinessProbe.failureThreshold }}
+          {{- end }}
+          {{- if .Values.secondary.customStartupProbe }}
+          startupProbe: {{- include "common.tplvalues.render" (dict "value" .Values.secondary.customStartupProbe "context" $) | nindent 12 }}
+          {{- else if .Values.secondary.startupProbe.enabled }}
+          startupProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -ec
+                - |
+                  password_aux="${MARIADB_MASTER_ROOT_PASSWORD:-}"
+                  if [[ -f "${MARIADB_MASTER_ROOT_PASSWORD_FILE:-}" ]]; then
+                      password_aux=$(cat "$MARIADB_MASTER_ROOT_PASSWORD_FILE")
+                  fi
+                  mariadb-admin status -uroot -p"${password_aux}"
+            initialDelaySeconds: {{ .Values.secondary.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.secondary.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.secondary.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.secondary.startupProbe.successThreshold }}
+            failureThreshold: {{ .Values.secondary.startupProbe.failureThreshold }}
+          {{- end }}
+          {{- end }}
+          {{- if .Values.secondary.resources }}
+          resources: {{- toYaml .Values.secondary.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+              {{- if and .Values.secondary.persistence .Values.secondary.persistence.subPath }}
+              subPath: {{ .Values.secondary.persistence.subPath }}
+              {{- end }}
+            - name: config
+              mountPath: /etc/mysql/conf.d/my.cnf
+              subPath: my.cnf
+            {{- if .Values.secondary.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.secondary.extraVolumeMounts "context" $) | nindent 12 }}
+            {{- end }}
+        {{- if .Values.secondary.sidecars }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.secondary.sidecars "context" $) | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "mariadb.secondary.configmapName" . }}
+        {{- if .Values.secondary.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.secondary.extraVolumes "context" $) | nindent 8 }}
+        {{- end }}
+  {{- if and .Values.secondary.persistence.enabled .Values.secondary.persistence.existingClaim }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ tpl .Values.secondary.persistence.existingClaim $ }}
+  {{- else if not .Values.secondary.persistence.enabled }}
+        - name: data
+          emptyDir: {}
+  {{- else }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        labels:
+          {{- include "mariadb.secondary.selectorLabels" . | nindent 10 }}
+          {{- if .Values.secondary.persistence.labels }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.secondary.persistence.labels "context" $) | nindent 10 }}
+          {{- end }}
+        {{- if .Values.secondary.persistence.annotations }}
+        annotations:
+          {{- include "common.tplvalues.render" (dict "value" .Values.secondary.persistence.annotations "context" $) | nindent 10 }}
+        {{- end }}
+      spec:
+        accessModes:
+        {{- range .Values.secondary.persistence.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
+        {{- if .Values.secondary.persistence.dataSource }}
+        dataSource: {{- include "common.tplvalues.render" (dict "value" .Values.secondary.persistence.dataSource "context" $) | nindent 10 }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.secondary.persistence.size | quote }}
+        {{- if .Values.secondary.persistence.selector }}
+        selector: {{- include "common.tplvalues.render" (dict "value" .Values.secondary.persistence.selector "context" $) | nindent 10 }}
+        {{- end }}
+        {{- include "common.storage.class" (dict "persistence" .values.secondary.persistence "global" .Values.global) | nindent 8 }}
+  {{- end }}
+{{- end }}

@@ -1,0 +1,99 @@
+{{- if not .Values.primary.existingConfigmap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mariadb.primary.configmapName" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations:
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+data:
+  my.cnf: |-
+    {{- if .Values.primary.configuration }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.primary.configuration "context" $) | nindent 4 }}
+    {{- else }}
+    [mysqld]
+    skip-name-resolve
+    explicit_defaults_for_timestamp
+    basedir=/usr
+    datadir=/var/lib/mysql
+    port=3306
+    socket=/run/mysqld/mysqld.sock
+    tmpdir=/tmp
+    max_allowed_packet=16M
+    bind-address=*
+    pid-file=/run/mysqld/mysqld.pid
+    log-error=/var/log/mysql/error.log
+    character-set-server=UTF8
+    collation-server=utf8_general_ci
+    slow_query_log=0
+    slow_query_log_file=/var/log/mysql/slow.log
+    long_query_time=10.0
+
+    [client]
+    port=3306
+    socket=/run/mysqld/mysqld.sock
+    default-character-set=UTF8
+
+    [manager]
+    port=3306
+    socket=/run/mysqld/mysqld.sock
+    pid-file=/run/mysqld/mysqld.pid
+    {{- end }}
+{{- end }}
+---
+{{- if and (eq .Values.architecture "replication") (not .Values.secondary.existingConfigmap) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "mariadb.secondary.configmapName" . }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels:
+    {{- include "mariadb.labels" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations:
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+data:
+  my.cnf: |-
+    {{- if .Values.secondary.configuration }}
+    {{- include "common.tplvalues.render" (dict "value" .Values.secondary.configuration "context" $) | nindent 4 }}
+    {{- else }}
+    [mysqld]
+    skip-name-resolve
+    explicit_defaults_for_timestamp
+    basedir=/usr
+    datadir=/var/lib/mysql
+    port=3306
+    socket=/run/mysqld/mysqld.sock
+    tmpdir=/tmp
+    max_allowed_packet=16M
+    bind-address=0.0.0.0
+    pid-file=/run/mysqld/mysqld.pid
+    log-error=/var/log/mysql/error.log
+    character-set-server=UTF8
+    collation-server=utf8_general_ci
+    slow_query_log=0
+    slow_query_log_file=/var/log/mysql/slow.log
+    long_query_time=10.0
+
+    [client]
+    port=3306
+    socket=/run/mysqld/mysqld.sock
+    default-character-set=UTF8
+
+    [manager]
+    port=3306
+    socket=/run/mysqld/mysqld.sock
+    pid-file=/run/mysqld/mysqld.pid
+    {{- end }}
+{{- end }}

@@ -1,0 +1,39 @@
+apiVersion: v2
+name: wordpress
+description: WordPress deployment with auto-installation using official Docker images
+type: application
+version: 1.0.4
+appVersion: "6.8.2"
+home: https://wordpress.org/
+icon: https://wordpress.org/favicon.ico
+sources:
+  - https://github.com/sammyeby/charts
+  - https://github.com/WordPress/WordPress
+maintainers:
+  - name: BySam Charts
+    email: charts@bysam.dev
+keywords:
+  - wordpress
+  - cms
+  - blog
+  - http
+  - web
+  - application
+  - php
+dependencies:
+  - name: mariadb
+    version: ~1.0.2
+    repository: "file://../mariadb"
+    condition: mariadb.enabled
+  - name: memcached
+    version: ~1.0.1
+    repository: "file://../memcached"
+    condition: memcached.enabled
+annotations:
+  category: CMS
+  licenses: GPL-2.0+
+  images: |
+    - name: wordpress
+      image: docker.io/wordpress:6.8.2-apache
+    - name: curl
+      image: docker.io/curlimages/curl:8.11.0

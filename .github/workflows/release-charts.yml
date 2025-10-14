@@ -1,0 +1,79 @@
+name: Release Charts
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "/*/Chart.yaml"
+  release:
+    types: [published]
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+
+      - name: Log in to GitHub Container Registry
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${{ env.REGISTRY }} --username ${{ github.actor }} --password-stdin
+
+      - name: Create packages directory
+        run: mkdir -p ./packages
+
+      - name: Package and Push Charts
+        run: |
+          # Define the charts we want to publish
+          CHARTS_TO_PUBLISH=("memcached" "mariadb" "wordpress")
+
+          # First, package the common chart (base dependency)
+          if [ -d "bitnami/common" ]; then
+            echo "Processing chart: common"
+            helm package bitnami/common --destination ./packages
+            helm push "./packages/common-"*.tgz "oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts"
+          fi
+
+          # Then package the specified charts
+          for chart_name in "${CHARTS_TO_PUBLISH[@]}"; do
+            # Skip common chart as it's already processed
+            if [ "$chart_name" = "common" ]; then
+              continue
+            fi
+            
+            chart_dir="bitnami/$chart_name"
+            
+            # Check if chart directory exists
+            if [ ! -d "$chart_dir" ]; then
+              echo "Warning: Chart directory $chart_dir does not exist, skipping..."
+              continue
+            fi
+            
+            echo "Processing chart: $chart_name"
+            
+            # Update dependencies before packaging
+            helm dependency update "$chart_dir" || echo "Warning: Could not update dependencies for $chart_name"
+            
+            # Package the chart
+            helm package "$chart_dir" --destination ./packages
+            
+            # Push to GHCR
+            helm push "./packages/${chart_name}-"*.tgz "oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts"
+          done
