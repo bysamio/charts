@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BySam Helm Charts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 40px;
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        .section {
+            margin: 30px 0;
+        }
+        .section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .code-block {
+            background: #f5f5f5;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+        .charts-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .chart-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .chart-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+        }
+        .chart-name {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+        .chart-version {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+        .link-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        .link-button:hover {
+            background: #764ba2;
+        }
+        .link-button.secondary {
+            background: #6c757d;
+        }
+        .link-button.secondary:hover {
+            background: #5a6268;
+        }
+        code {
+            color: #667eea;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 BySam Helm Charts</h1>
+        <p class="subtitle">Official Helm Charts Repository</p>
+
+        <div class="section">
+            <h2>📦 Available Charts</h2>
+            <div class="charts-list">
+                <div class="chart-card">
+                    <div class="chart-name">WordPress</div>
+                    <div class="chart-version">v1.0.4 • App v6.8.2</div>
+                    <p style="margin-top: 10px; font-size: 0.9em;">WordPress CMS with auto-installation</p>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-name">MariaDB</div>
+                    <div class="chart-version">v1.0.2 • App v12.0.2</div>
+                    <p style="margin-top: 10px; font-size: 0.9em;">MariaDB database deployment</p>
+                </div>
+                <div class="chart-card">
+                    <div class="chart-name">Memcached</div>
+                    <div class="chart-version">v1.0.1 • App v1.6.24</div>
+                    <p style="margin-top: 10px; font-size: 0.9em;">Memcached caching system</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🚀 Quick Start - OCI Registry (Recommended)</h2>
+            <div class="code-block">
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress<br>
+helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb<br>
+helm install my-memcached oci://ghcr.io/bysamio/charts/memcached
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📚 Traditional Helm Repository</h2>
+            <div class="code-block">
+helm repo add bysamio https://bysamio.github.io/charts/<br>
+helm repo update<br>
+helm install my-wordpress bysamio/wordpress
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>🔗 Links</h2>
+            <div class="links">
+                <a href="https://artifacthub.io/packages/search?repo=bysamio-charts" class="link-button">Artifact Hub</a>
+                <a href="https://github.com/bysamio/charts" class="link-button">GitHub Repository</a>
+                <a href="index.yaml" class="link-button secondary">index.yaml</a>
+                <a href="artifacthub-repo.yml" class="link-button secondary">artifacthub-repo.yml</a>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>📖 Documentation</h2>
+            <p>For detailed documentation, visit the <a href="https://github.com/bysamio/charts" style="color: #667eea;">GitHub repository</a>.</p>
+        </div>
+    </div>
+</body>
+</html>
