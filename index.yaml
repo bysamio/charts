@@ -1,0 +1,107 @@
+apiVersion: v1
+entries:
+  mariadb:
+  - annotations:
+      category: Database
+      images: |
+        - name: mariadb
+          image: docker.io/mariadb:12.0.2
+      licenses: GPL-2.0+
+    apiVersion: v2
+    appVersion: 12.0.2
+    created: "2025-10-31T22:13:04.827610422Z"
+    description: MariaDB database deployment using official Docker images
+    digest: 66fdc4461f1454e3638d8c773ac250eba75ffe792c14937e928e0add0d4ce589
+    home: https://mariadb.org/
+    icon: https://mariadb.org/wp-content/uploads/2019/11/mariadb-logo-vert_blue-transparent.png
+    keywords:
+    - mariadb
+    - mysql
+    - database
+    - sql
+    maintainers:
+    - email: admin@bysam.io
+      name: BySam Charts
+    name: mariadb
+    sources:
+    - https://github.com/bysamio/charts
+    - https://github.com/MariaDB/server
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/mariadb-1.0.2/mariadb-1.0.2.tgz
+    version: 1.0.2
+  memcached:
+  - annotations:
+      category: Database
+      images: |
+        - name: memcached
+          image: docker.io/memcached:1.6.24-alpine
+      licenses: BSD-3-Clause
+    apiVersion: v2
+    appVersion: 1.6.24
+    created: "2025-10-31T22:13:04.964448938Z"
+    description: Memcached caching system deployment using official Docker images
+    digest: 92b6463b664bd96fc618827ca909175495ebd3c32bf2eccde57e53d249464c05
+    home: https://memcached.org/
+    icon: https://memcached.org/images/memcached.png
+    keywords:
+    - memcached
+    - cache
+    - in-memory
+    maintainers:
+    - email: admin@bysam.io
+      name: BySam Charts
+    name: memcached
+    sources:
+    - https://github.com/bysamio/charts
+    - https://github.com/memcached/memcached
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/memcached-1.0.1/memcached-1.0.1.tgz
+    version: 1.0.1
+  wordpress:
+  - annotations:
+      category: CMS
+      images: |
+        - name: wordpress
+          image: docker.io/wordpress:6.8.2-apache
+        - name: curl
+          image: docker.io/curlimages/curl:8.11.0
+      licenses: GPL-2.0+
+    apiVersion: v2
+    appVersion: 6.8.2
+    created: "2025-10-31T22:13:05.119019886Z"
+    dependencies:
+    - condition: mariadb.enabled
+      name: mariadb
+      repository: file://../mariadb
+      version: ~1.0.2
+    - condition: memcached.enabled
+      name: memcached
+      repository: file://../memcached
+      version: ~1.0.1
+    description: WordPress deployment with auto-installation using official Docker
+      images
+    digest: dc915311ea93a6e8a0d7d033782e1e7249601c432d502ccf76615dc4f3737d7e
+    home: https://wordpress.org/
+    icon: https://wordpress.org/favicon.ico
+    keywords:
+    - wordpress
+    - cms
+    - blog
+    - http
+    - web
+    - application
+    - php
+    maintainers:
+    - email: admin@bysam.io
+      name: BySam Charts
+    name: wordpress
+    sources:
+    - https://github.com/bysamio/charts
+    - https://github.com/WordPress/WordPress
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
+    version: 1.0.4
+generated: "2025-10-31T22:13:05.119029533Z"
