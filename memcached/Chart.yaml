@@ -7,11 +7,11 @@ appVersion: "1.6.24"
 home: https://memcached.org/
 icon: https://memcached.org/images/memcached.png
 sources:
-  - https://github.com/sammyeby/charts
+  - https://github.com/bysamio/charts
   - https://github.com/memcached/memcached
 maintainers:
   - name: BySam Charts
-    email: charts@bysam.dev
+    email: admin@bysam.io
 keywords:
   - memcached
   - cache

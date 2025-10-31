@@ -1,79 +1,105 @@
-name: Release Charts
+name: Release Helm Charts
 
 on:
   push:
     branches:
       - main
     paths:
-      - "/*/Chart.yaml"
-  release:
-    types: [published]
+      - 'wordpress/**'
+      - 'mariadb/**'
+      - 'memcached/**'
+      - 'artifacthub-repo.yml'
+      - '.github/workflows/release-charts.yml'
+  workflow_dispatch:
 
-env:
-  REGISTRY: ghcr.io
+permissions:
+  contents: write
+  packages: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Configure Git
+      - name: Configure Git user
         run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
 
-      - name: Install Helm
-        uses: azure/setup-helm@v3
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.4
 
-      - name: Log in to GitHub Container Registry
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update chart dependencies
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${{ env.REGISTRY }} --username ${{ github.actor }} --password-stdin
-
-      - name: Create packages directory
-        run: mkdir -p ./packages
-
-      - name: Package and Push Charts
-        run: |
-          # Define the charts we want to publish
-          CHARTS_TO_PUBLISH=("memcached" "mariadb" "wordpress")
-
-          # First, package the common chart (base dependency)
-          if [ -d "bitnami/common" ]; then
-            echo "Processing chart: common"
-            helm package bitnami/common --destination ./packages
-            helm push "./packages/common-"*.tgz "oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts"
-          fi
-
-          # Then package the specified charts
-          for chart_name in "${CHARTS_TO_PUBLISH[@]}"; do
-            # Skip common chart as it's already processed
-            if [ "$chart_name" = "common" ]; then
-              continue
+          set -euo pipefail
+          charts=(mariadb memcached wordpress)
+          for chart in "${charts[@]}"; do
+            if [ -f "${chart}/Chart.yaml" ]; then
+              helm dependency build "${chart}"
             fi
-            
-            chart_dir="bitnami/$chart_name"
-            
-            # Check if chart directory exists
-            if [ ! -d "$chart_dir" ]; then
-              echo "Warning: Chart directory $chart_dir does not exist, skipping..."
-              continue
-            fi
-            
-            echo "Processing chart: $chart_name"
-            
-            # Update dependencies before packaging
-            helm dependency update "$chart_dir" || echo "Warning: Could not update dependencies for $chart_name"
-            
-            # Package the chart
-            helm package "$chart_dir" --destination ./packages
-            
-            # Push to GHCR
-            helm push "./packages/${chart_name}-"*.tgz "oci://${{ env.REGISTRY }}/${{ github.repository_owner }}/charts"
           done
+
+      - name: Lint Helm charts
+        run: |
+          set -euo pipefail
+          for chart in mariadb memcached wordpress; do
+            helm lint "$chart"
+          done
+
+      - name: Package Helm charts
+        run: |
+          set -euo pipefail
+          mkdir -p .cr-release-packages
+          for chart in mariadb memcached wordpress; do
+            helm package "$chart" --destination .cr-release-packages
+          done
+
+      - name: Push charts to OCI registry
+        run: |
+          set -euo pipefail
+          for package in .cr-release-packages/*.tgz; do
+            if [ -f "$package" ]; then
+              echo "Pushing $package to OCI registry..."
+              helm push "$package" oci://ghcr.io/${{ github.repository_owner }}/charts
+            fi
+          done
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.6.0
+        with:
+          charts_dir: .
+          skip_existing: true
+          skip_packaging: true
+        env:
+          CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout gh-pages branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages-dir
+
+      - name: Copy artifacthub-repo.yml to gh-pages
+        run: |
+          if [ -f "artifacthub-repo.yml" ]; then
+            cp artifacthub-repo.yml gh-pages-dir/
+            cd gh-pages-dir
+            git config user.name "${GITHUB_ACTOR}"
+            git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+            git add artifacthub-repo.yml
+            git diff --staged --quiet || git commit -m "Update artifacthub-repo.yml"
+            git push
+          fi

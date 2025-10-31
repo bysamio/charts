@@ -7,11 +7,11 @@ appVersion: "12.0.2"
 home: https://mariadb.org/
 icon: https://mariadb.org/wp-content/uploads/2019/11/mariadb-logo-vert_blue-transparent.png
 sources:
-  - https://github.com/sammyeby/charts
+  - https://github.com/bysamio/charts
   - https://github.com/MariaDB/server
 maintainers:
   - name: BySam Charts
-    email: charts@bysam.dev
+    email: admin@bysam.io
 keywords:
   - mariadb
   - mysql

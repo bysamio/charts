@@ -1,5 +1,63 @@
 # BySam Helm Charts
 
+Official Helm charts repository for WordPress, MariaDB, and Memcached deployments.
+
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/bysamio-charts)](https://artifacthub.io/packages/search?repo=bysamio-charts)
+
+## 🚀 Quick Start
+
+### OCI Registry (Recommended for Helm 3.8+)
+
+Install charts directly from GitHub Container Registry:
+
+```bash
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.4
+helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
+helm install my-memcached oci://ghcr.io/bysamio/charts/memcached --version 1.0.1
+```
+
+### Traditional Helm Repository
+
+```bash
+helm repo add bysamio https://bysamio.github.io/charts/
+helm repo update
+helm install my-wordpress bysamio/wordpress
+```
+
+## 📦 Available Charts
+
+| Chart | Description | Version | App Version |
+|-------|-------------|---------|-------------|
+| [wordpress](./wordpress/) | WordPress CMS with auto-installation | 1.0.4 | 6.8.2 |
+| [mariadb](./mariadb/) | MariaDB database | 1.0.2 | 12.0.2 |
+| [memcached](./memcached/) | Memcached caching system | 1.0.1 | 1.6.24 |
+
+## 📖 Documentation
+
+- [Setup Guide](./ARTIFACT_HUB_SETUP.md) - Complete setup and configuration guide
+- [WordPress Chart](./wordpress/README.md) - WordPress chart documentation
+
+## 🔗 Links
+
+- **Artifact Hub**: https://artifacthub.io/packages/search?repo=bysamio-charts
+- **GitHub Repository**: https://github.com/bysamio/charts
+- **Helm Repository**: https://bysamio.github.io/charts/
+- **OCI Registry**: `oci://ghcr.io/bysamio/charts`
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📄 License
+
+See individual chart directories for licensing information.
+
+## 👤 Maintainer
+
+**BySam Charts**
+- Email: admin@bysam.io
+- GitHub: [@bysamio](https://github.com/bysamio)
+
 A collection of production-ready Helm charts for deploying WordPress with MariaDB and Memcached using official Docker images.
 
 ## Overview
