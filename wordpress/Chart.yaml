@@ -23,11 +23,11 @@ keywords:
 dependencies:
   - name: mariadb
     version: ~1.0.2
-    repository: "file://../mariadb"
+    repository: "oci://ghcr.io/bysamio/charts"
     condition: mariadb.enabled
   - name: memcached
     version: ~1.0.1
-    repository: "file://../memcached"
+    repository: "oci://ghcr.io/bysamio/charts"
     condition: memcached.enabled
 annotations:
   category: CMS
