@@ -59,6 +59,19 @@ jobs:
             helm lint "$chart"
           done
 
+      - name: Check and create gh-pages branch
+        run: |
+          if ! git ls-remote --heads origin gh-pages | grep gh-pages; then
+            echo "gh-pages branch does not exist. Creating it..."
+            git checkout --orphan gh-pages
+            git reset --hard
+            git commit --allow-empty -m "Initialize gh-pages branch"
+            git push origin gh-pages
+            git checkout main
+          else
+            echo "gh-pages branch already exists."
+          fi
+
       - name: Package Helm charts
         run: |
           set -euo pipefail
