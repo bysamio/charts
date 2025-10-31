@@ -5,7 +5,7 @@ type: application
 version: 1.0.4
 appVersion: "6.8.2"
 home: https://wordpress.org/
-icon: https://wordpress.org/favicon.ico
+icon: https://s.w.org/style/images/about/WordPress-logotype-wmark.png
 sources:
   - https://github.com/bysamio/charts
   - https://github.com/WordPress/WordPress

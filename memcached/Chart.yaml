@@ -5,7 +5,7 @@ type: application
 version: 1.0.1
 appVersion: "1.6.24"
 home: https://memcached.org/
-icon: https://memcached.org/images/memcached.png
+icon: https://github.com/docker-library/docs/raw/master/memcached/logo.png
 sources:
   - https://github.com/bysamio/charts
   - https://github.com/memcached/memcached
