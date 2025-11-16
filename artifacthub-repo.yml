@@ -1,6 +1,6 @@
 # Artifact Hub repository metadata file
 # https://github.com/artifacthub/hub/blob/master/docs/metadata/artifacthub-repo.yml
-repositoryID: bysamio
+repositoryID: ad3c4c1e-a60c-49e3-b714-2e59ef2d116c
 owners:
   - name: bysamio
     email: admin@bysam.io
