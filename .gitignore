@@ -2,3 +2,9 @@
 /.idea/*
 .vscode
 .DS_Store
+temp-values.yaml
+test-values.yaml
+verify-secret.sh
+COMPATIBILITY_REPORT.md
+PACKAGING-SUMMARY.md
+COMPLETION_SUMMARY.md

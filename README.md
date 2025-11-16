@@ -2,7 +2,7 @@
 
 Official Helm charts repository for WordPress, MariaDB, and Memcached deployments.
 
-[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/bysamio-charts)](https://artifacthub.io/packages/search?repo=bysamio-charts)
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/bysamio-charts)](https://artifacthub.io/packages/search?repo=bysamio)
 
 ## 🚀 Quick Start
 
