@@ -11,7 +11,7 @@ Official Helm charts repository for WordPress, MariaDB, and Memcached deployment
 Install charts directly from GitHub Container Registry:
 
 ```bash
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.4
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.6
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
 helm install my-memcached oci://ghcr.io/bysamio/charts/memcached --version 1.0.1
 ```
@@ -28,7 +28,7 @@ helm install my-wordpress bysamio/wordpress
 
 | Chart | Description | Version | App Version |
 |-------|-------------|---------|-------------|
-| [wordpress](./wordpress/) | WordPress CMS with auto-installation | 1.0.4 | 6.8.2 |
+| [wordpress](./wordpress/) | WordPress CMS with auto-installation | 1.0.6 | 6.8.3 |
 | [mariadb](./mariadb/) | MariaDB database | 1.0.2 | 12.0.2 |
 | [memcached](./memcached/) | Memcached caching system | 1.0.1 | 1.6.24 |
 
@@ -39,7 +39,7 @@ helm install my-wordpress bysamio/wordpress
 
 ## 🔗 Links
 
-- **Artifact Hub**: https://artifacthub.io/packages/search?repo=bysamio-charts
+- **Artifact Hub**: https://artifacthub.io/packages/search?repo=bysamio
 - **GitHub Repository**: https://github.com/bysamio/charts
 - **Helm Repository**: https://bysamio.github.io/charts/
 - **OCI Registry**: `oci://ghcr.io/bysamio/charts`
@@ -64,7 +64,7 @@ A collection of production-ready Helm charts for deploying WordPress with MariaD
 
 The BySam chart collection provides a complete WordPress stack with the following components:
 
-- **WordPress**: Official WordPress 6.8.2 with Apache
+- **WordPress**: Official WordPress 6.8.3 with Apache
 - **MariaDB**: Official MariaDB 12.0.2 database
 - **Memcached**: Official Memcached 1.6.24 for caching
 
@@ -89,7 +89,7 @@ The BySam chart collection provides a complete WordPress stack with the followin
 
 ### WordPress (`bysam/wordpress`)
 
-- **Base Image**: `wordpress:6.8.2-apache`
+- **Base Image**: `wordpress:6.8.3-apache`
 - **Features**: Full WordPress functionality with Apache, PHP, and MySQL/MariaDB support
 - **Security Context**: Uses standard `www-data` user (UID 33)
 - **Configuration**: Standard WordPress environment variables
@@ -130,7 +130,7 @@ helm install my-wordpress bysam/wordpress \\
 image:
   registry: docker.io
   repository: wordpress
-  tag: "6.8.2-apache"
+  tag: "6.8.3-apache"
 
 wordpressUsername: admin
 wordpressEmail: admin@example.com

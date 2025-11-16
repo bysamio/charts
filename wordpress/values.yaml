@@ -19,7 +19,7 @@ extraDeploy: []
 image:
   registry: docker.io
   repository: wordpress
-  tag: "6.8.2-apache"
+  tag: "6.8.3-apache"
   digest: ""
   pullPolicy: IfNotPresent
   pullSecrets: []

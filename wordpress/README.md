@@ -9,7 +9,7 @@ This chart deploys WordPress with automatic initial setup, MariaDB database back
 ## Features
 
 - **Auto-Installation**: Automatically completes WordPress initial setup when credentials are provided
-- **Official Images**: Uses `wordpress:6.8.2-apache` official Docker image
+- **Official Images**: Uses `wordpress:6.8.3-apache` official Docker image
 - **Database Integration**: Includes MariaDB as a subchart dependency
 - **Caching Support**: Optional Memcached integration for improved performance
 - **Health Checks**: Comprehensive liveness and readiness probes
