@@ -67,10 +67,10 @@ The MariaDB chart is now **fully functional** with all necessary Kubernetes reso
 
 ### Verification:
 
-✅ **Template Syntax**: All templates render without errors  
-✅ **Resource Generation**: Produces valid Kubernetes manifests  
-✅ **Configuration**: Uses official MariaDB-compatible settings  
-✅ **Security**: Proper non-root user configuration  
+✅ **Template Syntax**: All templates render without errors
+✅ **Resource Generation**: Produces valid Kubernetes manifests
+✅ **Configuration**: Uses official MariaDB-compatible settings
+✅ **Security**: Proper non-root user configuration
 ✅ **Dependencies**: No external dependencies required
 
 ### Usage:

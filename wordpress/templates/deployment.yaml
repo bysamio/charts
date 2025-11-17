@@ -161,7 +161,7 @@ spec:
               value: {{ .Values.smtpProtocol | quote }}
             {{- end }}
             {{- if .Values.smtpFromEmail }}
-            - name: WORDPRESS_SMTP_FROM_EMAIL  
+            - name: WORDPRESS_SMTP_FROM_EMAIL
               value: {{ .Values.smtpFromEmail | quote }}
             {{- end }}
             {{- if .Values.allowEmptyPassword }}

@@ -8,3 +8,7 @@ verify-secret.sh
 COMPATIBILITY_REPORT.md
 PACKAGING-SUMMARY.md
 COMPLETION_SUMMARY.md
+
+# Pre-commit
+.pre-commit-config.yaml.bak
+PRE_COMMIT_SETUP.md

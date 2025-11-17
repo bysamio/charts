@@ -1,0 +1,46 @@
+# Pre-commit hooks for Helm charts
+# See https://pre-commit.com for more information
+# Install with: pre-commit install
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: '\.tgz$|\.lock$'
+      - id: end-of-file-fixer
+        exclude: '\.tgz$|\.lock$'
+      - id: check-yaml
+        exclude: '\.lock$|templates/.*\.yaml$|templates/.*\.tpl$'
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+      - id: check-case-conflict
+
+  # Helm lint and template validation
+  - repo: local
+    hooks:
+      - id: helm-lint
+        name: Helm Lint
+        entry: bash -c 'scripts/pre-commit-helm-lint.sh'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
+      - id: helm-template
+        name: Helm Template Test
+        entry: bash -c 'scripts/pre-commit-helm-template.sh'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
+
+      - id: helm-dependency-check
+        name: Helm Dependency Check
+        entry: bash -c 'scripts/pre-commit-helm-deps.sh'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]

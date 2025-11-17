@@ -226,3 +226,16 @@ wordpress: database
     Alternatively, you can use an existing secret with the database credentials.
 {{- end -}}
 {{- end -}}
+
+{{/*
+Common template rendering function
+Used to render values that may contain templates
+*/}}
+{{- define "common.tplvalues.render" -}}
+{{- $value := typeIs "string" .value | ternary .value (.value | toYaml) }}
+{{- if .context }}
+{{- tpl $value .context }}
+{{- else }}
+{{- $value }}
+{{- end }}
+{{- end -}}
