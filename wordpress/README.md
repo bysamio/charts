@@ -230,7 +230,7 @@ helm uninstall my-wordpress
 
 This chart depends on the following subcharts:
 
-- `mariadb` (version ~1.0.1) - Database backend
+- `mariadb` (version ~1.0.2) - Database backend
 - `memcached` (version ~1.0.1) - Optional caching layer
 
 ## Contributing

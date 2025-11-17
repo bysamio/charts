@@ -63,6 +63,7 @@ Create the name of the service account to use
 
 {{/*
 Return the proper WordPress image name
+Uses the official WordPress Docker image: wordpress:6.8.3-apache
 */}}
 {{- define "wordpress.image" -}}
 {{- $registryName := .Values.image.registry -}}
@@ -232,12 +233,11 @@ Common template rendering function
 Used to render values that may contain templates
 */}}
 {{- define "common.tplvalues.render" -}}
-{{- $value := typeIs "string" .value | ternary .value (.value | toYaml) }}
-{{- if .context }}
-{{- tpl $value .context }}
-{{- else }}
-{{- $value }}
-{{- end }}
+    {{- if typeIs "string" .value }}
+        {{- tpl .value .context }}
+    {{- else }}
+        {{- tpl (.value | toYaml) .context }}
+    {{- end }}
 {{- end -}}
 
 {{/*

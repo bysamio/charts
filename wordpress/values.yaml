@@ -1,5 +1,6 @@
 # Default values for WordPress using official WordPress Docker image
 # This is a YAML-formatted file.
+# Base image: docker.io/wordpress:6.8.3-apache (official WordPress image with Apache web server)
 
 ## @section Global parameters
 global:
