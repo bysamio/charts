@@ -239,3 +239,22 @@ Used to render values that may contain templates
 {{- $value }}
 {{- end }}
 {{- end -}}
+
+{{/*
+Return the proper Storage Class
+*/}}
+{{- define "common.storage.class" -}}
+{{- $storageClass := .persistence.storageClass -}}
+{{- if .global -}}
+    {{- if .global.storageClass -}}
+        {{- $storageClass = .global.storageClass -}}
+    {{- end -}}
+{{- end -}}
+{{- if $storageClass -}}
+  {{- if (eq "-" $storageClass) -}}
+      {{- printf "storageClassName: \"\"" -}}
+  {{- else }}
+      {{- printf "storageClassName: %s" $storageClass -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}

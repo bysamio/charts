@@ -2,7 +2,7 @@ apiVersion: v2
 name: wordpress
 description: WordPress deployment with auto-installation using official Docker images
 type: application
-version: 1.0.7
+version: 1.0.8
 appVersion: "6.8.3"
 home: https://wordpress.org/
 icon: https://s.w.org/style/images/about/WordPress-logotype-wmark.png

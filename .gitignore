@@ -12,3 +12,4 @@ COMPLETION_SUMMARY.md
 # Pre-commit
 .pre-commit-config.yaml.bak
 PRE_COMMIT_SETUP.md
+ARGOCD_UPDATE_GUIDE.md
