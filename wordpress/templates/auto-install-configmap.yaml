@@ -22,8 +22,9 @@ data:
 
     # Wait for WordPress container to be ready
     echo "Waiting for WordPress to be ready..."
+    WORDPRESS_PORT={{ .Values.containerPorts.http }}
     for i in $(seq 1 60); do
-      if curl -f -s http://localhost/wp-admin/install.php > /dev/null 2>&1; then
+      if curl -f -s http://localhost:${WORDPRESS_PORT}/wp-admin/install.php > /dev/null 2>&1; then
         echo "WordPress is ready!"
         break
       elif [ $i -eq 60 ]; then
@@ -35,14 +36,14 @@ data:
     done
 
     # Check if WordPress is already installed
-    if curl -s http://localhost/wp-login.php | grep -q "login"; then
+    if curl -s http://localhost:${WORDPRESS_PORT}/wp-login.php | grep -q "login"; then
       echo "WordPress is already installed."
     else
       echo "WordPress not installed, starting auto-installation..."
 
       # Submit installation form
       echo "Submitting WordPress installation form..."
-      curl -X POST "http://localhost/wp-admin/install.php?step=2" \
+      curl -X POST "http://localhost:${WORDPRESS_PORT}/wp-admin/install.php?step=2" \
         --data-urlencode "weblog_title=$WORDPRESS_BLOG_NAME" \
         --data-urlencode "user_name=$WORDPRESS_USERNAME" \
         --data-urlencode "admin_password=$WORDPRESS_PASSWORD" \
@@ -71,6 +72,7 @@ data:
     set -e
 
     echo "Starting WordPress auto-installation script..."
+    WORDPRESS_PORT={{ .Values.containerPorts.http }}
 
     # Wait for database to be ready using PHP
     echo "Waiting for database to be ready..."
@@ -119,11 +121,11 @@ data:
 
       # First, check if installation page is available
       for i in {1..10}; do
-        if curl -f -s http://localhost/wp-admin/install.php > /dev/null; then
+        if curl -f -s http://localhost:${WORDPRESS_PORT}/wp-admin/install.php > /dev/null; then
           echo "WordPress installation page is available, proceeding..."
 
           # Submit installation form
-          curl -X POST "http://localhost/wp-admin/install.php?step=2" \
+          curl -X POST "http://localhost:${WORDPRESS_PORT}/wp-admin/install.php?step=2" \
             --data-urlencode "weblog_title=$WORDPRESS_BLOG_NAME" \
             --data-urlencode "user_name=$WORDPRESS_USERNAME" \
             --data-urlencode "admin_password=$WORDPRESS_PASSWORD" \

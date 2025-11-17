@@ -217,6 +217,11 @@ spec:
               {{- if .Values.persistence.subPath }}
               subPath: {{ .Values.persistence.subPath }}
               {{- end }}
+            {{- if and .Values.containerPorts.http (ne (int .Values.containerPorts.http) 80) }}
+            - name: apache-config
+              mountPath: /etc/apache2/ports.conf
+              subPath: ports.conf
+            {{- end }}
             {{- if .Values.extraVolumeMounts }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" $) | nindent 12 }}
             {{- end }}
@@ -276,6 +281,11 @@ spec:
           configMap:
             name: {{ include "wordpress.fullname" . }}-auto-install
             defaultMode: 0755
+        {{- end }}
+        {{- if and .Values.containerPorts.http (ne (int .Values.containerPorts.http) 80) }}
+        - name: apache-config
+          configMap:
+            name: {{ include "wordpress.fullname" . }}-apache-config
         {{- end }}
         {{- if .Values.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}

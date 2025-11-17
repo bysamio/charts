@@ -127,8 +127,8 @@ resources: {}
 
 ## Container ports
 containerPorts:
-  http: 80
-  https: 443
+  http: 8080
+  https: 8443
 
 extraContainerPorts: []
 
@@ -152,7 +152,7 @@ containerSecurityContext:
   allowPrivilegeEscalation: false
   capabilities:
     drop: ["ALL"]
-    add: ["NET_BIND_SERVICE"] # Required to bind to port 80 as non-root user
+    # No capabilities needed when using non-privileged ports (8080/8443)
   seccompProfile:
     type: "RuntimeDefault"
 

@@ -1,0 +1,29 @@
+{{- if and .Values.containerPorts.http (ne (int .Values.containerPorts.http) 80) }}
+{{- /* Create Apache config to use non-privileged ports when containerPorts.http is not 80 */}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "wordpress.fullname" . }}-apache-config
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "wordpress.labels" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations:
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+data:
+  ports.conf: |
+    # Apache ports configuration for non-privileged ports
+    Listen {{ .Values.containerPorts.http }}
+    {{- if .Values.containerPorts.https }}
+    <IfModule ssl_module>
+      Listen {{ .Values.containerPorts.https }}
+    </IfModule>
+    {{- end }}
+    <IfModule mod_gnutls.c>
+      Listen {{ .Values.containerPorts.https }}
+    </IfModule>
+{{- end }}
