@@ -11,7 +11,7 @@ Official Helm charts repository for WordPress, MariaDB, and Memcached deployment
 Install charts directly from GitHub Container Registry:
 
 ```bash
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.11
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.15
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
 helm install my-memcached oci://ghcr.io/bysamio/charts/memcached --version 1.0.1
 ```
@@ -28,7 +28,7 @@ helm install my-wordpress bysamio/wordpress
 
 | Chart | Description | Version | App Version |
 |-------|-------------|---------|-------------|
-| [wordpress](./wordpress/) | WordPress CMS with auto-installation | 1.0.11 | 6.8.3 |
+| [wordpress](./wordpress/) | WordPress CMS with auto-installation | 1.0.15 | 6.8.3 |
 | [mariadb](./mariadb/) | MariaDB database | 1.0.2 | 12.0.2 |
 | [memcached](./memcached/) | Memcached caching system | 1.0.1 | 1.6.24 |
 
