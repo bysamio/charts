@@ -59,7 +59,7 @@ spec:
   tls:
     {{- if $hasDefaultTls }}
     - hosts:
-        {{- $host := tpl .Values.ingress.hostname $ -}}
+        {{- $host := tpl .Values.ingress.hostname $ }}
         - {{ $host | quote }}
         {{- if and .Values.ingress.tlsWwwPrefix (not (hasPrefix "www." $host)) }}
         - {{ printf "www.%s" $host | quote }}
