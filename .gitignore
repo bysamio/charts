@@ -4,6 +4,7 @@
 .DS_Store
 temp-values.yaml
 test-values.yaml
+test-minikube-values.yaml
 verify-secret.sh
 COMPATIBILITY_REPORT.md
 PACKAGING-SUMMARY.md
@@ -13,3 +14,4 @@ COMPLETION_SUMMARY.md
 .pre-commit-config.yaml.bak
 PRE_COMMIT_SETUP.md
 ARGOCD_UPDATE_GUIDE.md
+TROUBLESHOOTING_NET_BIND_SERVICE.md
