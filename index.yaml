@@ -70,6 +70,50 @@ entries:
       licenses: GPL-2.0+
     apiVersion: v2
     appVersion: 6.8.3
+    created: "2025-11-17T16:17:53.522944837Z"
+    dependencies:
+    - condition: mariadb.enabled
+      name: mariadb
+      repository: oci://ghcr.io/bysamio/charts
+      version: ~1.0.2
+    - condition: memcached.enabled
+      name: memcached
+      repository: oci://ghcr.io/bysamio/charts
+      version: ~1.0.1
+    description: WordPress deployment with auto-installation using official Docker
+      images (wordpress:6.8.3-apache)
+    digest: a9844dfe3dc0442fbf73f8ff437f2e0f7d5fd6c45b8b6454f2a9c5a1ab328007
+    home: https://wordpress.org/
+    icon: https://s.w.org/style/images/about/WordPress-logotype-wmark.png
+    keywords:
+    - wordpress
+    - cms
+    - blog
+    - http
+    - web
+    - application
+    - php
+    maintainers:
+    - email: admin@bysam.io
+      name: BySam Charts
+    name: wordpress
+    sources:
+    - https://github.com/bysamio/charts
+    - https://github.com/WordPress/WordPress
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/wordpress-1.0.10/wordpress-1.0.10.tgz
+    version: 1.0.10
+  - annotations:
+      category: CMS
+      images: |
+        - name: wordpress
+          image: docker.io/wordpress:6.8.3-apache
+        - name: curl
+          image: docker.io/curlimages/curl:8.11.0
+      licenses: GPL-2.0+
+    apiVersion: v2
+    appVersion: 6.8.3
     created: "2025-11-17T11:37:05.352265788Z"
     dependencies:
     - condition: mariadb.enabled
@@ -324,4 +368,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2025-11-17T11:37:05.35229381Z"
+generated: "2025-11-17T16:17:53.522976757Z"
