@@ -22,7 +22,7 @@ Install directly from GitHub Container Registry:
 
 ```bash
 # Install wordpress
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.15
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.16
 
 # Install mariadb
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
@@ -137,14 +137,14 @@ Enhanced workflow that:
 
 ```bash
 # Pull and inspect
-helm pull oci://ghcr.io/bysamio/charts/wordpress --version 1.0.15
-helm show values oci://ghcr.io/bysamio/charts/wordpress --version 1.0.15
+helm pull oci://ghcr.io/bysamio/charts/wordpress --version 1.0.16
+helm show values oci://ghcr.io/bysamio/charts/wordpress --version 1.0.16
 
 # Install
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.15
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.16
 
 # Upgrade
-helm upgrade my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.15
+helm upgrade my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.16
 ```
 
 ### Traditional Repository Method
@@ -158,10 +158,10 @@ helm repo update
 helm search repo bysamio
 
 # Install
-helm install my-wordpress bysamio/wordpress --version 1.0.15
+helm install my-wordpress bysamio/wordpress --version 1.0.16
 
 # Upgrade
-helm upgrade my-wordpress bysamio/wordpress --version 1.0.15
+helm upgrade my-wordpress bysamio/wordpress --version 1.0.16
 ```
 
 ## Viewing on Artifact Hub
