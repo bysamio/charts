@@ -29,6 +29,7 @@ data:
   000-default.conf: |
     <VirtualHost *:{{ .Values.containerPorts.http }}>
       ServerAdmin webmaster@localhost
+      ServerName localhost
       DocumentRoot /var/www/html
 
       <Directory /var/www/html>
@@ -37,151 +38,80 @@ data:
         Require all granted
       </Directory>
 
-      ErrorLog ${APACHE_LOG_DIR}/error.log
-      CustomLog ${APACHE_LOG_DIR}/access.log combined
+      # Enable PHP error logging to stderr (so it appears in container logs)
+      php_flag display_errors Off
+      php_flag log_errors On
+      php_value error_log /proc/self/fd/2
+      php_value error_reporting E_ALL
+
+      ErrorLog /proc/self/fd/2
+      CustomLog /proc/self/fd/1 combined
+      LogLevel error
     </VirtualHost>
   custom-entrypoint.sh: |
     #!/bin/bash
-    set -e
 
-    # Make script executable (in case permissions weren't set correctly)
-    chmod +x /etc/apache2/custom-entrypoint.sh 2>/dev/null || true
+    set -euo pipefail
 
-    echo "=== WordPress Custom Entrypoint ==="
-    echo "Using non-privileged port: {{ .Values.containerPorts.http }}"
+    APACHE_PORT="${APACHE_PORT:-8080}"
 
-    # Verify Apache configs are mounted
+    WWW_DIR="/var/www/html"
+
+    echo "=== WordPress Kubernetes Entrypoint ==="
+
+    echo "Using non-privileged port: ${APACHE_PORT}"
+
+    # If custom apache config is mounted into /etc/apache2, leave it alone.
+
+    # Ensure ServerName exists to suppress the warning (only possible as root).
+
+    if [ "$(id -u)" -eq 0 ]; then
+
+      if [ ! -f /etc/apache2/conf-available/servername.conf ]; then
+
+        echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf
+
+        a2enconf servername >/dev/null 2>&1 || true
+
+      fi
+
+    fi
+
+    # If files were copied by root during image build or an init step, fix ownership
+
+    # only when running as root (avoid failing when container runs as non-root).
+
+    if [ -d "${WWW_DIR}" ] && [ "$(id -u)" -eq 0 ]; then
+
+      echo "Fixing ownership and permissions for ${WWW_DIR} ..."
+
+      chown -R www-data:www-data "${WWW_DIR}" || true
+
+      # Ensure wp-content is writable by www-data
+
+      mkdir -p "${WWW_DIR}/wp-content"
+
+      chmod -R g+rwX "${WWW_DIR}/wp-content" || true
+
+    fi
+
+    # Quick sanity checks (non-fatal): ensure key files or apache configs exist
+
+    if [ ! -f "${WWW_DIR}/index.php" ]; then
+
+      echo "WARNING: ${WWW_DIR}/index.php not found. WordPress files may be missing."
+
+    fi
+
     if [ ! -f /etc/apache2/ports.conf ]; then
-      echo "ERROR: /etc/apache2/ports.conf not found!"
-      exit 1
-    fi
-    if [ ! -f /etc/apache2/sites-enabled/000-default.conf ]; then
-      echo "ERROR: /etc/apache2/sites-enabled/000-default.conf not found!"
-      exit 1
+
+      echo "WARNING: /etc/apache2/ports.conf not found. Make sure your ConfigMap is mounted."
+
     fi
 
-    echo "Apache configs verified:"
-    echo "--- ports.conf ---"
-    cat /etc/apache2/ports.conf
-    echo "--- 000-default.conf ---"
-    cat /etc/apache2/sites-enabled/000-default.conf
-    echo "=================="
+    echo "Starting official WordPress entrypoint (apache2 in foreground)..."
 
-    # Run WordPress initialization using the official entrypoint script
-    # This handles: copying files, creating wp-config.php, etc.
-    echo "Running WordPress initialization..."
-    cd /var/www/html
+    # Exec official entrypoint so it becomes PID 1 and receives signals.
 
-    # Start entrypoint in background to handle initialization
-    # Note: tar permission warnings are harmless (files still copy correctly)
-    /usr/local/bin/docker-entrypoint.sh apache2-foreground > /dev/null 2>&1 &
-    ENTRYPOINT_PID=$!
-
-    # Wait for WordPress initialization to complete
-    # The entrypoint script: 1) copies files, 2) creates wp-config.php, 3) starts Apache
-    echo "Waiting for WordPress initialization (files + wp-config.php)..."
-    INIT_COMPLETE=0
-    FILES_COPIED=0
-    for i in {1..120}; do
-      # Check if WordPress files exist
-      if [ -f /var/www/html/index.php ] && [ $FILES_COPIED -eq 0 ]; then
-        echo "WordPress files copied successfully"
-        FILES_COPIED=1
-      fi
-
-      # Check if wp-config.php exists (this is created by the entrypoint)
-      if [ -f /var/www/html/wp-config.php ]; then
-        echo "WordPress initialization complete! (wp-config.php found after ${i}s)"
-        INIT_COMPLETE=1
-        # Give Apache a moment to start and verify it's running
-        sleep 3
-        # Verify Apache started (check if process is still running)
-        if ! kill -0 $ENTRYPOINT_PID 2>/dev/null; then
-          echo "WARNING: Entrypoint process exited unexpectedly"
-        fi
-        break
-      fi
-
-      # Progress indicator every 10 seconds
-      if [ $((i % 10)) -eq 0 ] && [ $i -gt 0 ]; then
-        if [ $FILES_COPIED -eq 1 ]; then
-          echo "Still waiting for wp-config.php... (${i}s elapsed)"
-        else
-          echo "Waiting for WordPress files... (${i}s elapsed)"
-        fi
-      fi
-      sleep 1
-    done
-
-    if [ $INIT_COMPLETE -eq 0 ]; then
-      echo "WARNING: WordPress initialization incomplete - wp-config.php not found after 120s"
-      if [ $FILES_COPIED -eq 0 ]; then
-        echo "ERROR: WordPress files were not copied. Check entrypoint logs above."
-      else
-        echo "Attempting to create wp-config.php manually from template..."
-        # Try to create wp-config.php from wp-config-docker.php if it exists
-        if [ -f /var/www/html/wp-config-docker.php ]; then
-          cp /var/www/html/wp-config-docker.php /var/www/html/wp-config.php
-          echo "Created wp-config.php from wp-config-docker.php template"
-          echo "NOTE: This is a fallback. The WordPress entrypoint should have created this."
-        else
-          echo "ERROR: wp-config-docker.php template not found. WordPress may not function correctly."
-        fi
-      fi
-    fi
-
-    # Stop the entrypoint's Apache (it started on port 80)
-    echo "Stopping Apache started by entrypoint (port 80)..."
-    if kill -0 $ENTRYPOINT_PID 2>/dev/null; then
-      kill -TERM $ENTRYPOINT_PID 2>/dev/null || true
-      # Wait for graceful shutdown (up to 10 seconds)
-      for i in {1..10}; do
-        if ! kill -0 $ENTRYPOINT_PID 2>/dev/null; then
-          echo "Apache stopped gracefully"
-          break
-        fi
-        sleep 1
-      done
-      # Force kill if still running
-      if kill -0 $ENTRYPOINT_PID 2>/dev/null; then
-        echo "Force killing Apache process..."
-        kill -KILL $ENTRYPOINT_PID 2>/dev/null || true
-        wait $ENTRYPOINT_PID 2>/dev/null || true
-      fi
-    else
-      echo "Entrypoint process already stopped"
-    fi
-    sleep 2
-
-    # Verify no process on port 80
-    echo "Verifying port 80 is free..."
-    if command -v ss >/dev/null 2>&1; then
-      if ss -tlnp 2>/dev/null | grep -q ":80 "; then
-        echo "WARNING: Process still listening on port 80"
-        ss -tlnp 2>/dev/null | grep ":80 " || true
-      else
-        echo "Port 80 is free ✓"
-      fi
-    elif command -v netstat >/dev/null 2>&1; then
-      if netstat -tlnp 2>/dev/null | grep -q ":80 "; then
-        echo "WARNING: Process still listening on port 80"
-      else
-        echo "Port 80 is free ✓"
-      fi
-    fi
-
-    # Final verification before starting Apache
-    if [ ! -f /etc/apache2/ports.conf ]; then
-      echo "ERROR: ports.conf not found! Cannot start Apache."
-      exit 1
-    fi
-    if [ ! -f /etc/apache2/sites-enabled/000-default.conf ]; then
-      echo "ERROR: 000-default.conf not found! Cannot start Apache."
-      exit 1
-    fi
-
-    # Start Apache with our custom configs (port {{ .Values.containerPorts.http }})
-    echo "Starting Apache on port {{ .Values.containerPorts.http }}..."
-    echo "Apache configuration verified. Starting in foreground mode..."
-    exec apache2-foreground
+    exec /usr/local/bin/docker-entrypoint.sh apache2-foreground
 {{- end }}

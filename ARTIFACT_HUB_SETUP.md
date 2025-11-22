@@ -22,7 +22,7 @@ Install directly from GitHub Container Registry:
 
 ```bash
 # Install wordpress
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.17
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
 
 # Install mariadb
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
@@ -137,14 +137,14 @@ Enhanced workflow that:
 
 ```bash
 # Pull and inspect
-helm pull oci://ghcr.io/bysamio/charts/wordpress --version 1.0.17
-helm show values oci://ghcr.io/bysamio/charts/wordpress --version 1.0.17
+helm pull oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
+helm show values oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
 
 # Install
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.17
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
 
 # Upgrade
-helm upgrade my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.17
+helm upgrade my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
 ```
 
 ### Traditional Repository Method
@@ -158,10 +158,10 @@ helm repo update
 helm search repo bysamio
 
 # Install
-helm install my-wordpress bysamio/wordpress --version 1.0.16
+helm install my-wordpress bysamio/wordpress --version 1.0.18
 
 # Upgrade
-helm upgrade my-wordpress bysamio/wordpress --version 1.0.16
+helm upgrade my-wordpress bysamio/wordpress --version 1.0.18
 ```
 
 ## Viewing on Artifact Hub
@@ -209,6 +209,23 @@ To release a new version:
 2. Update the `appVersion` if the application version changed
 3. Commit and push to main branch
 4. The workflow will automatically create a new release
+
+## Recent Changes
+
+### WordPress Chart v1.0.18
+
+**Key Improvements:**
+- **Simplified Custom Entrypoint**: Replaced complex entrypoint script with a cleaner, more maintainable version
+- **Better Error Logging**: PHP and Apache errors now log to stderr/stdout, making them visible via `kubectl logs`
+- **Improved Reliability**: Direct execution of official WordPress entrypoint ensures proper initialization
+- **Enhanced Configuration**: Apache VirtualHost includes `ServerName` directive to suppress warnings
+- **Non-Privileged Ports**: Full support for running on ports 8080/8443 without `NET_BIND_SERVICE` capability
+
+**Technical Details:**
+- Uses simplified `custom-entrypoint.sh` that execs the official WordPress entrypoint
+- Apache configs (ports.conf, 000-default.conf) mounted via ConfigMap
+- PHP error logging configured to `/proc/self/fd/2` (stderr)
+- Apache error/custom logs configured to `/proc/self/fd/2` and `/proc/self/fd/1` respectively
 
 ## Additional Resources
 

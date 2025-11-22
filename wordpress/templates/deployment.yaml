@@ -173,6 +173,10 @@ spec:
             - name: ALLOW_EMPTY_PASSWORD
               value: {{ ternary "yes" "no" .Values.allowEmptyPassword | quote }}
             {{- end }}
+            {{- if and .Values.containerPorts.http (ne (int .Values.containerPorts.http) 80) }}
+            - name: APACHE_PORT
+              value: {{ .Values.containerPorts.http | quote }}
+            {{- end }}
             {{- if .Values.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraEnvVars "context" $) | nindent 12 }}
             {{- end }}
