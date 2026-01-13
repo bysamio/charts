@@ -2,23 +2,26 @@ apiVersion: v2
 name: wordpress
 description: A Helm chart for WordPress using the official WordPress Docker image
 type: application
-version: 1.0.20
+version: 1.0.21
 appVersion: "6.9.0"
 keywords:
   - wordpress
   - cms
   - blog
 home: https://wordpress.org/
+icon: https://s.w.org/style/images/about/WordPress-logotype-wmark.png
 sources:
-  - https://github.com/wordpress/wordpress
+- https://github.com/bysamio/charts
+- https://github.com/WordPress/WordPress
 maintainers:
-  - name: bysam.io
+- email: admin@bysam.io
+  name: BySam Charts
 dependencies:
   - name: mariadb
     version: "1.0.2"
-    repository: "https://bysamio.github.io/charts/"
+    repository: oci://ghcr.io/bysamio/charts
     condition: mariadb.enabled
   - name: memcached
     version: "1.0.1"
-    repository: "https://bysamio.github.io/charts/"
+    repository: oci://ghcr.io/bysamio/charts
     condition: memcached.enabled

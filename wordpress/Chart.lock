@@ -1,9 +1,9 @@
 dependencies:
 - name: mariadb
-  repository: https://bysamio.github.io/charts/
+  repository: oci://ghcr.io/bysamio/charts
   version: 1.0.2
 - name: memcached
-  repository: https://bysamio.github.io/charts/
+  repository: oci://ghcr.io/bysamio/charts
   version: 1.0.1
-digest: sha256:115398c86042367ac94aee8d1413d7e5252758733ad14961a6a3aacfc486aa30
-generated: "2026-01-08T20:06:00.949482+01:00"
+digest: sha256:ce2f8df91e0936cd02ba46277381e90c398bdd349c0991f26f43b963a77714b6
+generated: "2026-01-13T23:58:53.555589+01:00"
