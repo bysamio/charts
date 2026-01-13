@@ -1,0 +1,47 @@
+{{- if .Values.phpConfiguration.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.phpConfiguration.configMapName | default (printf "%s-php" (include "wordpress.fullname" .)) }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "wordpress.labels" . | nindent 4 }}
+  {{- with .Values.phpConfiguration.labels }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  {{- if .Values.phpConfiguration.customIni }}
+  {{- .Values.phpConfiguration.customIniFileName | default "php-custom.ini" }}: |
+{{ .Values.phpConfiguration.customIni | indent 4 }}
+  {{- else }}
+  php-custom.ini: |
+    {{- if .Values.phpConfiguration.uploadMaxFilesize }}
+    upload_max_filesize = {{ .Values.phpConfiguration.uploadMaxFilesize }}
+    {{- end }}
+    {{- if .Values.phpConfiguration.postMaxSize }}
+    post_max_size = {{ .Values.phpConfiguration.postMaxSize }}
+    {{- end }}
+    {{- if .Values.phpConfiguration.maxExecutionTime }}
+    max_execution_time = {{ .Values.phpConfiguration.maxExecutionTime }}
+    {{- end }}
+    {{- if .Values.phpConfiguration.maxInputTime }}
+    max_input_time = {{ .Values.phpConfiguration.maxInputTime }}
+    {{- end }}
+    {{- if .Values.phpConfiguration.memoryLimit }}
+    memory_limit = {{ .Values.phpConfiguration.memoryLimit }}
+    {{- end }}
+    {{- if .Values.phpConfiguration.maxInputVars }}
+    max_input_vars = {{ .Values.phpConfiguration.maxInputVars }}
+    {{- end }}
+    {{- if .Values.phpConfiguration.uploadTmpDir }}
+    upload_tmp_dir = {{ .Values.phpConfiguration.uploadTmpDir }}
+    {{- end }}
+    {{- if .Values.phpConfiguration.additionalSettings }}
+{{ .Values.phpConfiguration.additionalSettings | indent 4 }}
+    {{- end }}
+  {{- end }}
+{{- end }}

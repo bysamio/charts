@@ -1,0 +1,51 @@
+1. Get the WordPress URL by running these commands:
+{{- if .Values.ingress.enabled }}
+{{- if .Values.ingress.hostname }}
+  http{{ if .Values.ingress.tls }}s{{ end }}://{{ .Values.ingress.hostname }}{{ .Values.ingress.path }}
+{{- else if .Values.secondaryIngress.enabled }}
+{{- if .Values.secondaryIngress.hostname }}
+  http{{ if .Values.secondaryIngress.tls }}s{{ end }}://{{ .Values.secondaryIngress.hostname }}{{ .Values.secondaryIngress.path }}
+{{- end }}
+{{- end }}
+{{- else if contains "NodePort" .Values.service.type }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "wordpress.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- else if contains "LoadBalancer" .Values.service.type }}
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           Watch the status with: 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "wordpress.fullname" . }}'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "wordpress.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:{{ .Values.service.ports.http }}
+{{- else if contains "ClusterIP" .Values.service.type }}
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "wordpress.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+{{- end }}
+
+2. Login with the following credentials:
+{{- if .Values.existingSecret }}
+  Username: Check your existing secret '{{ .Values.existingSecret }}' for the username
+  Password: Check your existing secret '{{ .Values.existingSecret }}' for the password
+{{- else }}
+  Username: {{ .Values.wordpressUsername }}
+  Password: {{ if .Values.wordpressPassword }}{{ .Values.wordpressPassword }}{{ else }}Check the secret '{{ include "wordpress.secretName" . }}' for the generated password{{ end }}
+{{- end }}
+
+{{- if .Values.mariadb.enabled }}
+3. Database credentials:
+  Username: {{ .Values.mariadb.auth.username }}
+  Database: {{ .Values.mariadb.auth.database }}
+  Password: Check the secret '{{ printf "%s-mariadb" (include "wordpress.fullname" .) }}' for the password
+{{- else }}
+3. Using external database:
+  Host: {{ .Values.externalDatabase.host }}
+  Port: {{ .Values.externalDatabase.port }}
+  Database: {{ .Values.externalDatabase.database }}
+  Username: {{ .Values.externalDatabase.user }}
+{{- end }}
+
+{{- if .Values.metrics.enabled }}
+4. Metrics endpoint available at:
+  http://{{ include "wordpress.fullname" . }}-metrics:{{ .Values.metrics.service.ports.metrics }}/metrics
+{{- end }}

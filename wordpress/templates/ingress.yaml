@@ -1,193 +1,280 @@
-{{- $svcPortName := "http" -}}
 {{- if .Values.ingress.enabled }}
-{{- $fullName := include "wordpress.fullname" . -}}
-{{- $ingressApiVersion := default "networking.k8s.io/v1" .Values.ingress.apiVersion -}}
-apiVersion: {{ $ingressApiVersion }}
+{{- $fullName := include "wordpress.fullname" . }}
+{{- $svcPort := .Values.service.ports.http }}
+{{- if and .Values.ingress.className (not (hasPrefix "nginx" .Values.ingress.className)) }}
+  {{- $_ := set .Values.ingress "className" (printf "nginx-%s" .Values.ingress.className) }}
+{{- end }}
+{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
 kind: Ingress
 metadata:
   name: {{ $fullName }}
-  namespace: {{ .Release.Namespace | quote }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "wordpress.labels" . | nindent 4 }}
-  {{- if or .Values.ingress.annotations .Values.commonAnnotations }}
+  {{- with .Values.ingress.annotations }}
   annotations:
-    {{- if .Values.ingress.annotations }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.ingress.annotations "context" $ ) | nindent 4 }}
-    {{- end }}
-    {{- if .Values.commonAnnotations }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
-    {{- end }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if .Values.ingress.ingressClassName }}
-  ingressClassName: {{ .Values.ingress.ingressClassName | quote }}
+  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- if .Values.ingress.tls }}
+  tls:
+    {{- if .Values.ingress.secrets }}
+    {{- range .Values.ingress.secrets }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+    {{- else }}
+    - hosts:
+        - {{ .Values.ingress.hostname | quote }}
+        {{- if .Values.ingress.tlsWwwPrefix }}
+        - www.{{ .Values.ingress.hostname | quote }}
+        {{- end }}
+        {{- range .Values.ingress.extraHosts }}
+        - {{ .host | quote }}
+        {{- end }}
+      {{- if .Values.ingress.selfSigned }}
+      secretName: {{ $fullName }}-tls
+      {{- else }}
+      secretName: {{ $fullName }}-tls
+      {{- end }}
+    {{- end }}
+    {{- range .Values.ingress.extraTls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
   {{- end }}
   rules:
     {{- if .Values.ingress.hostname }}
-    - host: {{ tpl .Values.ingress.hostname $ | quote }}
+    - host: {{ .Values.ingress.hostname | quote }}
       http:
         paths:
-          {{- if .Values.ingress.extraPaths }}
-          {{- include "common.tplvalues.render" ( dict "value" .Values.ingress.extraPaths "context" $ ) | nindent 10 }}
-          {{- end }}
-          - path: {{ .Values.ingress.path | default "/" }}
-            pathType: {{ .Values.ingress.pathType | default "ImplementationSpecific" }}
+          {{- if .Values.ingress.path }}
+          - path: {{ .Values.ingress.path }}
+            {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+            pathType: {{ .Values.ingress.pathType }}
+            {{- end }}
             backend:
+              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
               service:
                 name: {{ $fullName }}
                 port:
-                  name: {{ $svcPortName }}
+                  number: {{ $svcPort }}
+              {{- else }}
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+              {{- end }}
+          {{- end }}
+          {{- range .Values.ingress.extraPaths }}
+          - path: {{ .path }}
+            {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+            pathType: {{ .pathType }}
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPort }}
+              {{- else }}
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+              {{- end }}
+          {{- end }}
     {{- end }}
     {{- range .Values.ingress.extraHosts }}
-    - host: {{ tpl .name $ | quote }}
+    - host: {{ .host | quote }}
       http:
         paths:
-          - path: {{ default "/" .path }}
-            pathType: {{ default "ImplementationSpecific" .pathType }}
+          {{- if .path }}
+          - path: {{ .path }}
+            {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+            pathType: {{ .pathType }}
+            {{- end }}
             backend:
+              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
               service:
                 name: {{ $fullName }}
                 port:
-                  name: {{ $svcPortName }}
+                  number: {{ $svcPort }}
+              {{- else }}
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+              {{- end }}
+          {{- end }}
+          {{- range .paths }}
+          - path: {{ .path }}
+            {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+            pathType: {{ .pathType }}
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPort }}
+              {{- else }}
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+              {{- end }}
+          {{- end }}
     {{- end }}
-    {{- if .Values.ingress.extraRules }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.ingress.extraRules "context" $ ) | nindent 4 }}
+    {{- range .Values.ingress.extraRules }}
+    {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- $hasDefaultTls := and .Values.ingress.tls .Values.ingress.hostname }}
-  {{- $hasExtraTls := gt (len .Values.ingress.extraTls) 0 }}
-  {{- if or $hasDefaultTls $hasExtraTls }}
-  tls:
-    {{- if $hasDefaultTls }}
-    - hosts:
-        {{- $host := tpl .Values.ingress.hostname $ }}
-        - {{ $host | quote }}
-        {{- if and .Values.ingress.tlsWwwPrefix (not (hasPrefix "www." $host)) }}
-        - {{ printf "www.%s" $host | quote }}
-        {{- end }}
-      secretName: {{ printf "%s-tls" $host | quote }}
-    {{- end }}
-    {{- if $hasExtraTls }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.ingress.extraTls "context" $ ) | nindent 4 }}
-    {{- end }}
-  {{- end }}
-{{- end }}
-
-{{- if and .Values.ingress.enabled .Values.ingress.secrets }}
-{{- range .Values.ingress.secrets }}
-{{- if and .name .certificate .key }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ tpl .name $ | quote }}
-  namespace: {{ $.Release.Namespace | quote }}
-  labels:
-    {{- include "wordpress.labels" $ | nindent 4 }}
-  {{- if $.Values.commonAnnotations }}
-  annotations:
-    {{- include "common.tplvalues.render" ( dict "value" $.Values.commonAnnotations "context" $ ) | nindent 4 }}
-  {{- end }}
-type: kubernetes.io/tls
-data:
-  tls.crt: {{ .certificate | b64enc }}
-  tls.key: {{ .key | b64enc }}
-{{- end }}
-{{- end }}
 {{- end }}
 
 {{- if .Values.secondaryIngress.enabled }}
-{{- $secondaryName := printf "%s-secondary" (include "wordpress.fullname" .) -}}
-{{- $secondaryApiVersion := default "networking.k8s.io/v1" .Values.secondaryIngress.apiVersion -}}
 ---
-apiVersion: {{ $secondaryApiVersion }}
+{{- $fullName := include "wordpress.fullname" . }}
+{{- $svcPort := .Values.service.ports.http }}
+{{- if and .Values.secondaryIngress.className (not (hasPrefix "nginx" .Values.secondaryIngress.className)) }}
+  {{- $_ := set .Values.secondaryIngress "className" (printf "nginx-%s" .Values.secondaryIngress.className) }}
+{{- end }}
+{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
 kind: Ingress
 metadata:
-  name: {{ $secondaryName }}
-  namespace: {{ .Release.Namespace | quote }}
+  name: {{ $fullName }}-secondary
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "wordpress.labels" . | nindent 4 }}
-  {{- if or .Values.secondaryIngress.annotations .Values.commonAnnotations }}
+  {{- with .Values.secondaryIngress.annotations }}
   annotations:
-    {{- if .Values.secondaryIngress.annotations }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.secondaryIngress.annotations "context" $ ) | nindent 4 }}
-    {{- end }}
-    {{- if .Values.commonAnnotations }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
-    {{- end }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if .Values.secondaryIngress.ingressClassName }}
-  ingressClassName: {{ .Values.secondaryIngress.ingressClassName | quote }}
+  {{- if and .Values.secondaryIngress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ .Values.secondaryIngress.className }}
+  {{- end }}
+  {{- if .Values.secondaryIngress.tls }}
+  tls:
+    {{- if .Values.secondaryIngress.secrets }}
+    {{- range .Values.secondaryIngress.secrets }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+    {{- else }}
+    - hosts:
+        - {{ .Values.secondaryIngress.hostname | quote }}
+        {{- if .Values.secondaryIngress.tlsWwwPrefix }}
+        - www.{{ .Values.secondaryIngress.hostname | quote }}
+        {{- end }}
+        {{- range .Values.secondaryIngress.extraHosts }}
+        - {{ .host | quote }}
+        {{- end }}
+      {{- if .Values.secondaryIngress.selfSigned }}
+      secretName: {{ $fullName }}-secondary-tls
+      {{- else }}
+      secretName: {{ $fullName }}-secondary-tls
+      {{- end }}
+    {{- end }}
+    {{- range .Values.secondaryIngress.extraTls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
   {{- end }}
   rules:
     {{- if .Values.secondaryIngress.hostname }}
-    - host: {{ tpl .Values.secondaryIngress.hostname $ | quote }}
+    - host: {{ .Values.secondaryIngress.hostname | quote }}
       http:
         paths:
-          {{- if .Values.secondaryIngress.extraPaths }}
-          {{- include "common.tplvalues.render" ( dict "value" .Values.secondaryIngress.extraPaths "context" $ ) | nindent 10 }}
-          {{- end }}
-          - path: {{ .Values.secondaryIngress.path | default "/" }}
-            pathType: {{ .Values.secondaryIngress.pathType | default "ImplementationSpecific" }}
+          {{- if .Values.secondaryIngress.path }}
+          - path: {{ .Values.secondaryIngress.path }}
+            {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+            pathType: {{ .Values.secondaryIngress.pathType }}
+            {{- end }}
             backend:
+              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ include "wordpress.fullname" . }}
+                name: {{ $fullName }}
                 port:
-                  name: {{ $svcPortName }}
+                  number: {{ $svcPort }}
+              {{- else }}
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+              {{- end }}
+          {{- end }}
+          {{- range .Values.secondaryIngress.extraPaths }}
+          - path: {{ .path }}
+            {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+            pathType: {{ .pathType }}
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPort }}
+              {{- else }}
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+              {{- end }}
+          {{- end }}
     {{- end }}
     {{- range .Values.secondaryIngress.extraHosts }}
-    - host: {{ tpl .name $ | quote }}
+    - host: {{ .host | quote }}
       http:
         paths:
-          - path: {{ default "/" .path }}
-            pathType: {{ default "ImplementationSpecific" .pathType }}
+          {{- if .path }}
+          - path: {{ .path }}
+            {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+            pathType: {{ .pathType }}
+            {{- end }}
             backend:
+              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
               service:
-                name: {{ include "wordpress.fullname" $ }}
+                name: {{ $fullName }}
                 port:
-                  name: {{ $svcPortName }}
+                  number: {{ $svcPort }}
+              {{- else }}
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+              {{- end }}
+          {{- end }}
+          {{- range .paths }}
+          - path: {{ .path }}
+            {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+            pathType: {{ .pathType }}
+            {{- end }}
+            backend:
+              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: {{ $svcPort }}
+              {{- else }}
+              serviceName: {{ $fullName }}
+              servicePort: {{ $svcPort }}
+              {{- end }}
+          {{- end }}
     {{- end }}
-    {{- if .Values.secondaryIngress.extraRules }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.secondaryIngress.extraRules "context" $ ) | nindent 4 }}
+    {{- range .Values.secondaryIngress.extraRules }}
+    {{- toYaml . | nindent 4 }}
     {{- end }}
-  {{- $secHasDefaultTls := and .Values.secondaryIngress.tls .Values.secondaryIngress.hostname }}
-  {{- $secHasExtraTls := gt (len .Values.secondaryIngress.extraTls) 0 }}
-  {{- if or $secHasDefaultTls $secHasExtraTls }}
-  tls:
-    {{- if $secHasDefaultTls }}
-    - hosts:
-        {{- $secHost := tpl .Values.secondaryIngress.hostname $ -}}
-        - {{ $secHost | quote }}
-        {{- if and .Values.secondaryIngress.tlsWwwPrefix (not (hasPrefix "www." $secHost)) }}
-        - {{ printf "www.%s" $secHost | quote }}
-        {{- end }}
-      secretName: {{ printf "%s-tls" $secHost | quote }}
-    {{- end }}
-    {{- if $secHasExtraTls }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.secondaryIngress.extraTls "context" $ ) | nindent 4 }}
-    {{- end }}
-  {{- end }}
-{{- end }}
-
-{{- if and .Values.secondaryIngress.enabled .Values.secondaryIngress.secrets }}
-{{- range .Values.secondaryIngress.secrets }}
-{{- if and .name .certificate .key }}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ tpl .name $ | quote }}
-  namespace: {{ $.Release.Namespace | quote }}
-  labels:
-    {{- include "wordpress.labels" $ | nindent 4 }}
-  {{- if $.Values.commonAnnotations }}
-  annotations:
-    {{- include "common.tplvalues.render" ( dict "value" $.Values.commonAnnotations "context" $ ) | nindent 4 }}
-  {{- end }}
-type: kubernetes.io/tls
-data:
-  tls.crt: {{ .certificate | b64enc }}
-  tls.key: {{ .key | b64enc }}
-{{- end }}
-{{- end }}
 {{- end }}

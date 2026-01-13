@@ -31,8 +31,15 @@ for chart in "${CHARTS[@]}"; do
     for kube_version in "${KUBE_VERSIONS[@]}"; do
         echo "  ↳ Testing with kube-version: $kube_version"
 
+        # Chart-specific test values
+        TEST_ARGS=""
+        if [ "$chart" == "wordpress" ]; then
+            TEST_ARGS="--set wordpressPassword=test-password --set mariadb.auth.rootPassword=test-root-password --set mariadb.auth.password=test-db-password"
+        fi
+
         if helm template "test-$chart" "$chart" \
             --kube-version "$kube_version" \
+            $TEST_ARGS \
             --debug > /dev/null 2>&1; then
             echo "    ✅ $chart ($kube_version): Passed"
         else
@@ -40,6 +47,7 @@ for chart in "${CHARTS[@]}"; do
             echo "    Running with debug to show errors:"
             helm template "test-$chart" "$chart" \
                 --kube-version "$kube_version" \
+                $TEST_ARGS \
                 --debug 2>&1 | head -50
             FAILED=1
         fi

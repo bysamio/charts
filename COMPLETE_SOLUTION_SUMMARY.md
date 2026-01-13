@@ -10,7 +10,7 @@ The complete BySam Helm chart collection is now **fully functional** and ready f
 
 | Chart         | Status          | Templates   | Image                     | Security Context     |
 | ------------- | --------------- | ----------- | ------------------------- | -------------------- |
-| **WordPress** | ✅ **Complete** | 6 templates | `wordpress:6.8.3-apache`  | www-data (UID 33)    |
+| **WordPress** | ✅ **Complete** | 6 templates | `wordpress:6.9.0-apache`  | www-data (UID 33)    |
 | **MariaDB**   | ✅ **Complete** | 7 templates | `mariadb:12.0.2`          | mysql (UID 999)      |
 | **Memcached** | ✅ **Complete** | 8 templates | `memcached:1.6.24-alpine` | memcache (UID 11211) |
 

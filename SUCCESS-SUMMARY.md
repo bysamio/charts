@@ -28,7 +28,7 @@ We have successfully created, tested, and packaged a complete WordPress Helm cha
 
 #### ✅ Production Ready Features
 
-- Official Docker images (WordPress 6.8.3, MariaDB 12.0.2, Memcached 1.6.24)
+- Official Docker images (WordPress 6.9.0, MariaDB 12.0.2, Memcached 1.6.24)
 - Comprehensive health checks with MariaDB compatibility fixes
 - Security contexts and pod security standards
 - Resource management and scaling capabilities

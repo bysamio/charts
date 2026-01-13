@@ -1,22 +1,14 @@
-{{- if and .Values.persistence.enabled (empty .Values.persistence.existingClaim) }}
+{{- if .Values.persistence.enabled }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: {{ include "wordpress.fullname" . }}
-  namespace: {{ .Release.Namespace | quote }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "wordpress.labels" . | nindent 4 }}
-    {{- if .Values.commonLabels }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
-    {{- end }}
-  {{- if or .Values.persistence.annotations .Values.commonAnnotations }}
+  {{- with .Values.persistence.annotations }}
   annotations:
-    {{- if .Values.persistence.annotations }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.persistence.annotations "context" $) | nindent 4 }}
-    {{- end }}
-    {{- if .Values.commonAnnotations }}
-    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
-    {{- end }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
   accessModes:
@@ -26,11 +18,21 @@ spec:
   resources:
     requests:
       storage: {{ .Values.persistence.size | quote }}
-  {{- if .Values.persistence.selector }}
-  selector: {{- include "common.tplvalues.render" (dict "value" .Values.persistence.selector "context" $) | nindent 4 }}
+  {{- if .Values.persistence.storageClass }}
+  {{- if (eq "-" .Values.persistence.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: {{ .Values.persistence.storageClass | quote }}
   {{- end }}
-  {{- include "common.storage.class" (dict "persistence" .Values.persistence "global" .Values.global) | nindent 2 }}
-  {{- if .Values.persistence.dataSource }}
-  dataSource: {{- include "common.tplvalues.render" (dict "value" .Values.persistence.dataSource "context" $) | nindent 4 }}
+  {{- else if .Values.global.defaultStorageClass }}
+  storageClassName: {{ .Values.global.defaultStorageClass | quote }}
+  {{- end }}
+  {{- with .Values.persistence.selector }}
+  selector:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.persistence.dataSource }}
+  dataSource:
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 {{- end }}

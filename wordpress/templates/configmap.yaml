@@ -1,0 +1,18 @@
+{{- if or .Values.wordpressExtraConfigContent .Values.apacheConfiguration }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "wordpress.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "wordpress.labels" . | nindent 4 }}
+data:
+  {{- if .Values.wordpressExtraConfigContent }}
+  wp-config.php: |
+{{ .Values.wordpressExtraConfigContent | indent 4 }}
+  {{- end }}
+  {{- if .Values.apacheConfiguration }}
+  apache.conf: |
+{{ .Values.apacheConfiguration | indent 4 }}
+  {{- end }}
+{{- end }}

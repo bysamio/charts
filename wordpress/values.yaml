@@ -1,6 +1,7 @@
 # Default values for WordPress using official WordPress Docker image
 # This is a YAML-formatted file.
-# Base image: docker.io/wordpress:6.8.3-apache (official WordPress image with Apache web server)
+# Base image: docker.io/wordpress:6.9.0-apache (official WordPress image with Apache web server)
+# Compatible with Minikube and MicroK8s single-node clusters
 
 ## @section Global parameters
 global:
@@ -20,9 +21,9 @@ extraDeploy: []
 image:
   registry: docker.io
   repository: wordpress
-  tag: "6.8.3-apache"
-  digest: ""
-  pullPolicy: IfNotPresent
+  tag: "6.9.0-apache"  # Latest stable WordPress with Apache (compatible with Minikube and MicroK8s)
+  digest: ""  # Use digest for production (e.g., "sha256:...") for immutable images
+  pullPolicy: IfNotPresent  # Set to "Always" for production to ensure latest security patches
   pullSecrets: []
   debug: false
 
@@ -47,15 +48,53 @@ wordpressLastName: LastName
 wordpressBlogName: User's Blog!
 wordpressTablePrefix: wp_
 wordpressScheme: http
-wordpressSkipInstall: false
+wordpressSiteUrl: ""  # Leave empty to auto-detect, or set explicit URL (e.g., http://localhost:8080)
+wordpressSkipInstall: false  # Set to true to skip automatic installation and use web installer
 wordpressExtraConfigContent: ""
 wordpressConfiguration: ""
 existingWordPressConfigurationSecret: ""
+# Official WordPress image supported env vars (see https://hub.docker.com/_/wordpress)
+wordpressDebug: false  # Sets WORDPRESS_DEBUG (enables WP_DEBUG in wp-config.php)
+wordpressConfigExtra: ""  # Sets WORDPRESS_CONFIG_EXTRA (evaluated by eval() in wp-config.php)
+# Memcached configuration for WordPress
+# Note: The official WordPress image doesn't include PHP memcached extension by default.
+# You'll need to either:
+# 1. Install a WordPress plugin like "Memcached" or "Redis Object Cache" that handles caching
+# 2. Use a custom WordPress image with PHP memcached extension installed
+wordpressEnableMemcached: true  # Set environment variables for Memcached (plugins can use these)
+# WordPress security keys (optional - auto-generated if not provided)
+wordpressAuthKey: ""
+wordpressSecureAuthKey: ""
+wordpressLoggedInKey: ""
+wordpressNonceKey: ""
+wordpressAuthSalt: ""
+wordpressSecureAuthSalt: ""
+wordpressLoggedInSalt: ""
+wordpressNonceSalt: ""
 wordpressConfigureCache: false
 wordpressPlugins: none
 apacheConfiguration: ""
 existingApacheConfigurationConfigMap: ""
 customPostInitScripts: {}
+
+## @section PHP Configuration
+## PHP configuration via ConfigMap (mounted to /usr/local/etc/php/conf.d/)
+phpConfiguration:
+  enabled: false
+  configMapName: ""  # Leave empty to use default name, or specify custom name
+  customIniFileName: "php-custom.ini"  # Name of the .ini file in the ConfigMap
+  # Option 1: Use individual settings (recommended)
+  uploadMaxFilesize: ""  # e.g., "256M"
+  postMaxSize: ""  # e.g., "256M"
+  maxExecutionTime: ""  # e.g., 360
+  maxInputTime: ""  # e.g., 360
+  memoryLimit: ""  # e.g., "512M"
+  maxInputVars: ""  # e.g., 3000
+  uploadTmpDir: ""  # Optional: custom upload temp directory
+  additionalSettings: ""  # Additional PHP settings (will be appended to the ini file)
+  # Option 2: Use customIni for complete control (overrides individual settings)
+  customIni: ""  # Complete PHP ini content (if set, individual settings are ignored)
+  labels: {}  # Additional labels for the ConfigMap
 
 ## SMTP mail delivery configuration
 smtpHost: ""
@@ -67,7 +106,7 @@ smtpFromEmail: ""
 smtpFromName: ""
 smtpExistingSecret: ""
 
-allowEmptyPassword: true
+allowEmptyPassword: false  # SECURITY: Require passwords by default for production
 allowOverrideNone: false
 overrideDatabaseSettings: false
 htaccessPersistenceEnabled: false
@@ -87,10 +126,13 @@ multisite:
   enableNipIoRedirect: false
 
 ## @section WordPress deployment parameters
-replicaCount: 1
+replicaCount: 1  # Set to 2+ for production high availability
 
 updateStrategy:
   type: RollingUpdate
+  rollingUpdate:
+    maxSurge: ""  # Default: 1 (safe for production)
+    maxUnavailable: ""  # Default: 0 (zero-downtime updates)
 
 schedulerName: ""
 terminationGracePeriodSeconds: ""
@@ -123,12 +165,23 @@ nodeSelector: {}
 tolerations: []
 
 resourcesPreset: "micro"
-resources: {}
+# SECURITY: Set resource limits to prevent resource exhaustion attacks
+resources:
+  limits: {}
+  requests: {}
+  # Example production values:
+  # limits:
+  #   cpu: 1000m
+  #   memory: 1Gi
+  # requests:
+  #   cpu: 500m
+  #   memory: 512Mi
 
 ## Container ports
+## Official WordPress image uses port 80 for HTTP (Apache)
 containerPorts:
-  http: 8080
-  https: 8443
+  http: 80
+  https: 443
 
 extraContainerPorts: []
 
@@ -226,7 +279,8 @@ ingress:
   hostname: wordpress.local
   path: /
   annotations: {}
-  tls: false
+  # SECURITY: Enable TLS by default for production
+  tls: false  # Set to true and configure cert-manager for production
   tlsWwwPrefix: false
   selfSigned: false
   extraHosts: []
@@ -254,9 +308,11 @@ secondaryIngress:
   extraRules: []
 
 ## @section Persistence Parameters
+## For MicroK8s: use storageClass: "microk8s-hostpath" or leave empty for default
+## For Minikube: leave empty to use default storage class
 persistence:
   enabled: true
-  storageClass: ""
+  storageClass: ""  # Empty uses default storage class (works for Minikube and MicroK8s)
   accessModes:
     - ReadWriteOnce
   size: 10Gi
@@ -290,8 +346,9 @@ serviceAccount:
 
 pdb:
   create: true
-  minAvailable: ""
-  maxUnavailable: ""
+  # SECURITY: Set defaults for high availability
+  minAvailable: ""  # Recommended: "50%" or 1 for 2+ replicas
+  maxUnavailable: ""  # Recommended: "25%" for production
 
 autoscaling:
   enabled: false
@@ -370,10 +427,11 @@ metrics:
     jobLabel: ""
 
 ## @section NetworkPolicy parameters
+## SECURITY: Restrict network access by default for production
 networkPolicy:
   enabled: true
-  allowExternal: true
-  allowExternalEgress: true
+  allowExternal: true  # Set to false and configure specific ingress rules for production
+  allowExternalEgress: true  # Set to false and configure specific egress rules for production
   extraIngress: []
   extraEgress: []
   ingressNSMatchLabels: {}
@@ -386,13 +444,13 @@ mariadb:
   architecture: standalone
   auth:
     rootPassword: ""
-    database: bitnami_wordpress
-    username: bn_wordpress
+    database: bysam_wordpress
+    username: bs_wordpress
     password: ""
   primary:
     persistence:
       enabled: true
-      storageClass: ""
+      storageClass: ""  # Empty uses default storage class (works for Minikube and MicroK8s)
       accessModes:
         - ReadWriteOnce
       size: 8Gi
@@ -405,10 +463,11 @@ externalDatabase:
   port: 3306
   user: bn_wordpress
   password: ""
-  database: bitnami_wordpress
+  database: bysam_wordpress
   existingSecret: ""
 
 ## Memcached chart configuration
+## Memcached improves WordPress performance by caching database queries and objects
 memcached:
   enabled: false
   auth:
@@ -416,12 +475,12 @@ memcached:
     username: ""
     password: ""
     existingPasswordSecret: ""
-  service:
-    port: 11211
+  replicaCount: 1
   resourcesPreset: "nano"
   resources: {}
 
 ## External Memcached Configuration
+## Use this if you have an external Memcached instance instead of the subchart
 externalCache:
   host: localhost
   port: 11211

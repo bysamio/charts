@@ -7,8 +7,6 @@ Expand the name of the chart.
 
 {{/*
 Create a default fully qualified app name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-If release name contains chart name it will be used as a full name.
 */}}
 {{- define "wordpress.fullname" -}}
 {{- if .Values.fullnameOverride }}
@@ -40,6 +38,9 @@ helm.sh/chart: {{ include "wordpress.chart" . }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- with .Values.commonLabels }}
+{{- toYaml . }}
+{{- end }}
 {{- end }}
 
 {{/*
@@ -62,199 +63,103 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
-Return the proper WordPress image name
-Uses the official WordPress Docker image: wordpress:6.8.3-apache
+Image
 */}}
 {{- define "wordpress.image" -}}
-{{- $registryName := .Values.image.registry -}}
-{{- $repositoryName := .Values.image.repository -}}
-{{- $tag := .Values.image.tag | toString -}}
+{{- if .Values.image.digest }}
 {{- if .Values.global.imageRegistry }}
-    {{- printf "%s/%s:%s" .Values.global.imageRegistry $repositoryName $tag -}}
-{{- else -}}
-    {{- printf "%s/%s:%s" $registryName $repositoryName $tag -}}
-{{- end -}}
+{{- printf "%s/%s@%s" .Values.global.imageRegistry .Values.image.repository .Values.image.digest }}
+{{- else if .Values.image.registry }}
+{{- printf "%s/%s@%s" .Values.image.registry .Values.image.repository .Values.image.digest }}
+{{- else }}
+{{- printf "%s@%s" .Values.image.repository .Values.image.digest }}
 {{- end }}
-
-{{/*
-Return the proper Docker Image Registry Secret Names
-*/}}
-{{- define "wordpress.imagePullSecrets" -}}
-{{- if .Values.global.imagePullSecrets }}
-{{- range .Values.global.imagePullSecrets }}
-  - name: {{ . }}
-{{- end }}
-{{- else if .Values.image.pullSecrets }}
-{{- range .Values.image.pullSecrets }}
-  - name: {{ . }}
+{{- else }}
+{{- if .Values.global.imageRegistry }}
+{{- printf "%s/%s:%s" .Values.global.imageRegistry .Values.image.repository (.Values.image.tag | default .Chart.AppVersion) }}
+{{- else if .Values.image.registry }}
+{{- printf "%s/%s:%s" .Values.image.registry .Values.image.repository (.Values.image.tag | default .Chart.AppVersion) }}
+{{- else }}
+{{- printf "%s:%s" .Values.image.repository (.Values.image.tag | default .Chart.AppVersion) }}
 {{- end }}
 {{- end }}
 {{- end }}
 
 {{/*
-Create a default fully qualified mariadb name.
-We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
-*/}}
-{{- define "wordpress.mariadb.fullname" -}}
-{{- include "mariadb.primary.fullname" .Subcharts.mariadb -}}
-{{- end }}
-
-{{/*
-Return the MariaDB Hostname
+Database host
 */}}
 {{- define "wordpress.databaseHost" -}}
 {{- if .Values.mariadb.enabled }}
-    {{- if eq .Values.mariadb.architecture "replication" }}
-        {{- printf "%s-%s" (include "wordpress.mariadb.fullname" .) "primary" | trunc 63 | trimSuffix "-" -}}
-    {{- else -}}
-        {{- printf "%s" (include "wordpress.mariadb.fullname" .) -}}
-    {{- end -}}
-{{- else -}}
-    {{- printf "%s" .Values.externalDatabase.host -}}
-{{- end -}}
+{{- printf "%s-mariadb" .Release.Name }}
+{{- else }}
+{{- .Values.externalDatabase.host }}
+{{- end }}
 {{- end }}
 
 {{/*
-Return the MariaDB Port
-*/}}
-{{- define "wordpress.databasePort" -}}
-{{- if .Values.mariadb.enabled }}
-    {{- printf "3306" -}}
-{{- else -}}
-    {{- printf "%d" (.Values.externalDatabase.port | int ) -}}
-{{- end -}}
-{{- end }}
-
-{{/*
-Return the MariaDB Database Name
+Database name
 */}}
 {{- define "wordpress.databaseName" -}}
 {{- if .Values.mariadb.enabled }}
-    {{- printf "%s" .Values.mariadb.auth.database -}}
-{{- else -}}
-    {{- printf "%s" .Values.externalDatabase.database -}}
-{{- end -}}
+{{- .Values.mariadb.auth.database }}
+{{- else }}
+{{- .Values.externalDatabase.database }}
+{{- end }}
 {{- end }}
 
 {{/*
-Return the MariaDB Username
+Database user
 */}}
-{{- define "wordpress.databaseUsername" -}}
+{{- define "wordpress.databaseUser" -}}
 {{- if .Values.mariadb.enabled }}
-    {{- printf "%s" .Values.mariadb.auth.username -}}
-{{- else -}}
-    {{- printf "%s" .Values.externalDatabase.user -}}
-{{- end -}}
+{{- .Values.mariadb.auth.username }}
+{{- else }}
+{{- .Values.externalDatabase.user }}
+{{- end }}
 {{- end }}
 
 {{/*
-Return the MariaDB Secret Name
+Database password secret name
 */}}
-{{- define "wordpress.databaseSecretName" -}}
+{{- define "wordpress.databasePasswordSecret" -}}
 {{- if .Values.mariadb.enabled }}
-    {{- if .Values.mariadb.auth.existingSecret }}
-        {{- printf "%s" .Values.mariadb.auth.existingSecret -}}
-    {{- else -}}
-        {{- printf "%s" (include "wordpress.mariadb.fullname" .) -}}
-    {{- end -}}
+{{- printf "%s-mariadb" .Release.Name }}
 {{- else if .Values.externalDatabase.existingSecret }}
-    {{- printf "%s" .Values.externalDatabase.existingSecret -}}
-{{- else -}}
-    {{- printf "%s-%s" (include "wordpress.fullname" .) "externaldb" -}}
-{{- end -}}
+{{- .Values.externalDatabase.existingSecret }}
+{{- else }}
+{{- printf "%s-db" (include "wordpress.fullname" .) }}
+{{- end }}
 {{- end }}
 
 {{/*
-Return the database password key
-*/}}
-{{- define "wordpress.databasePasswordKey" -}}
-{{- if .Values.mariadb.enabled -}}
-mariadb-password
-{{- else -}}
-mariadb-password
-{{- end -}}
-{{- end }}
-
-{{/*
-Return the WordPress Secret Name
+WordPress secret name
 */}}
 {{- define "wordpress.secretName" -}}
 {{- if .Values.existingSecret }}
-    {{- printf "%s" .Values.existingSecret -}}
-{{- else -}}
-    {{- printf "%s" (include "wordpress.fullname" .) -}}
-{{- end -}}
+{{- .Values.existingSecret }}
+{{- else }}
+{{- printf "%s" (include "wordpress.fullname" .) }}
+{{- end }}
 {{- end }}
 
 {{/*
-Return the SMTP Secret Name
+Memcached host
 */}}
-{{- define "wordpress.smtpSecretName" -}}
-{{- if .Values.smtpExistingSecret }}
-    {{- printf "%s" .Values.smtpExistingSecret -}}
-{{- else -}}
-    {{- printf "%s" (include "wordpress.fullname" .) -}}
-{{- end -}}
+{{- define "wordpress.memcachedHost" -}}
+{{- if .Values.memcached.enabled }}
+{{- printf "%s-memcached" .Release.Name }}
+{{- else }}
+{{- .Values.externalCache.host }}
+{{- end }}
 {{- end }}
 
 {{/*
-Compile all warnings into a single message.
+Memcached port
 */}}
-{{- define "wordpress.validateValues" -}}
-{{- $messages := list -}}
-{{- $messages := append $messages (include "wordpress.validateValues.database" .) -}}
-{{- $messages := without $messages "" -}}
-{{- $message := join "\n" $messages -}}
-
-{{- if $message -}}
-{{- printf "\nVALUES VALIDATION:\n%s" $message -}}
-{{- end -}}
+{{- define "wordpress.memcachedPort" -}}
+{{- if .Values.memcached.enabled }}
+11211
+{{- else }}
+{{- .Values.externalCache.port }}
 {{- end }}
-
-{{/* Validate values of WordPress - Database */}}
-{{- define "wordpress.validateValues.database" -}}
-{{- if and (not .Values.mariadb.enabled) (not .Values.externalDatabase.host) -}}
-wordpress: database
-    You disabled the MariaDB installation but you did not provide the required parameters
-    to use an external database. To use an external database, please ensure you provide
-    (at least) the following values:
-
-        externalDatabase.host=DB_SERVER_HOST
-        externalDatabase.database=DB_NAME
-        externalDatabase.user=DB_USERNAME
-        externalDatabase.password=DB_PASSWORD
-
-    Alternatively, you can use an existing secret with the database credentials.
-{{- end -}}
-{{- end -}}
-
-{{/*
-Common template rendering function
-Used to render values that may contain templates
-*/}}
-{{- define "common.tplvalues.render" -}}
-    {{- if typeIs "string" .value }}
-        {{- tpl .value .context }}
-    {{- else }}
-        {{- tpl (.value | toYaml) .context }}
-    {{- end }}
-{{- end -}}
-
-{{/*
-Return the proper Storage Class
-*/}}
-{{- define "common.storage.class" -}}
-{{- $storageClass := .persistence.storageClass -}}
-{{- if .global -}}
-    {{- if .global.storageClass -}}
-        {{- $storageClass = .global.storageClass -}}
-    {{- end -}}
-{{- end -}}
-{{- if $storageClass -}}
-  {{- if (eq "-" $storageClass) -}}
-      {{- printf "storageClassName: \"\"" -}}
-  {{- else }}
-      {{- printf "storageClassName: %s" $storageClass -}}
-  {{- end -}}
-{{- end -}}
-{{- end -}}
+{{- end }}
