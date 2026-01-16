@@ -22,7 +22,7 @@ Install directly from GitHub Container Registry:
 
 ```bash
 # Install wordpress
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.25
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.26
 
 # Install mariadb
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
@@ -141,10 +141,10 @@ helm pull oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
 helm show values oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
 
 # Install
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.25
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.26
 
 # Upgrade
-helm upgrade my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.25
+helm upgrade my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.26
 ```
 
 ### Traditional Repository Method
@@ -158,10 +158,10 @@ helm repo update
 helm search repo bysamio
 
 # Install
-helm install my-wordpress bysamio/wordpress --version 1.0.25
+helm install my-wordpress bysamio/wordpress --version 1.0.26
 
 # Upgrade
-helm upgrade my-wordpress bysamio/wordpress --version 1.0.25
+helm upgrade my-wordpress bysamio/wordpress --version 1.0.26
 ```
 
 ## Viewing on Artifact Hub
@@ -211,6 +211,16 @@ To release a new version:
 4. The workflow will automatically create a new release
 
 ## Recent Changes
+
+### WordPress Chart v1.0.26
+
+**Key Improvements:**
+- **Fixed CAP_NET_BIND_SERVICE capability**: Apache can now bind to port 80 even with `drop: ALL` capabilities
+- Added `NET_BIND_SERVICE` capability to allow privileged port binding while maintaining security
+
+**Technical Details:**
+- Added `capabilities.add: ["NET_BIND_SERVICE"]` to containerSecurityContext
+- This allows Apache to bind to port 80 even when other capabilities are dropped
 
 ### WordPress Chart v1.0.25
 
