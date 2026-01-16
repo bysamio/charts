@@ -22,7 +22,7 @@ Install directly from GitHub Container Registry:
 
 ```bash
 # Install wordpress
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.23
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.24
 
 # Install mariadb
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
@@ -141,10 +141,10 @@ helm pull oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
 helm show values oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
 
 # Install
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.23
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.24
 
 # Upgrade
-helm upgrade my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.23
+helm upgrade my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.24
 ```
 
 ### Traditional Repository Method
@@ -158,10 +158,10 @@ helm repo update
 helm search repo bysamio
 
 # Install
-helm install my-wordpress bysamio/wordpress --version 1.0.23
+helm install my-wordpress bysamio/wordpress --version 1.0.24
 
 # Upgrade
-helm upgrade my-wordpress bysamio/wordpress --version 1.0.23
+helm upgrade my-wordpress bysamio/wordpress --version 1.0.24
 ```
 
 ## Viewing on Artifact Hub
@@ -211,6 +211,16 @@ To release a new version:
 4. The workflow will automatically create a new release
 
 ## Recent Changes
+
+### WordPress Chart v1.0.24
+
+**Key Improvements:**
+- **Fixed MariaDB existingSecret support**: WordPress deployment now correctly uses `mariadb.auth.existingSecret` for database password instead of always looking for `{release-name}-mariadb` secret
+- Both WordPress container and installer sidecar now respect the existingSecret configuration
+
+**Technical Details:**
+- Fixed WORDPRESS_DB_PASSWORD secretKeyRef to check for mariadb.auth.existingSecret first
+- Uses mariadb.auth.password as the key name when existingSecret is set
 
 ### WordPress Chart v1.0.23
 

@@ -135,8 +135,13 @@ spec:
           {{- if .Values.mariadb.enabled }}
           valueFrom:
             secretKeyRef:
+              {{- if .Values.mariadb.auth.existingSecret }}
+              name: {{ .Values.mariadb.auth.existingSecret }}
+              key: {{ .Values.mariadb.auth.password | default "mariadb-password" }}
+              {{- else }}
               name: {{ printf "%s-mariadb" .Release.Name }}
               key: mariadb-password
+              {{- end }}
           {{- else if .Values.externalDatabase.existingSecret }}
           valueFrom:
             secretKeyRef:
@@ -407,8 +412,13 @@ spec:
         - name: WORDPRESS_DB_PASSWORD
           valueFrom:
             secretKeyRef:
+              {{- if .Values.mariadb.auth.existingSecret }}
+              name: {{ .Values.mariadb.auth.existingSecret }}
+              key: {{ .Values.mariadb.auth.password | default "mariadb-password" }}
+              {{- else }}
               name: {{ printf "%s-mariadb" .Release.Name }}
               key: mariadb-password
+              {{- end }}
         - name: WORDPRESS_TABLE_PREFIX
           value: {{ .Values.wordpressTablePrefix | quote }}
         - name: WP_ADMIN_USER
