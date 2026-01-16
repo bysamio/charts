@@ -2,7 +2,7 @@ apiVersion: v2
 name: wordpress
 description: A Helm chart for WordPress using the official WordPress Docker image
 type: application
-version: 1.0.24
+version: 1.0.25
 appVersion: "6.9.0"
 keywords:
   - wordpress
