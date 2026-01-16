@@ -1,4 +1,8 @@
 {{- if .Values.pdb.create }}
+{{/*
+PodDisruptionBudget - Kubernetes only allows ONE of minAvailable or maxUnavailable.
+Priority: minAvailable takes precedence if both are set.
+*/}}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
@@ -9,8 +13,7 @@ metadata:
 spec:
   {{- if .Values.pdb.minAvailable }}
   minAvailable: {{ .Values.pdb.minAvailable }}
-  {{- end }}
-  {{- if .Values.pdb.maxUnavailable }}
+  {{- else if .Values.pdb.maxUnavailable }}
   maxUnavailable: {{ .Values.pdb.maxUnavailable }}
   {{- end }}
   selector:

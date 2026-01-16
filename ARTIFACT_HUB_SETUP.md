@@ -22,7 +22,7 @@ Install directly from GitHub Container Registry:
 
 ```bash
 # Install wordpress
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.22
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.23
 
 # Install mariadb
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
@@ -141,10 +141,10 @@ helm pull oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
 helm show values oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
 
 # Install
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.22
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.23
 
 # Upgrade
-helm upgrade my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
+helm upgrade my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.23
 ```
 
 ### Traditional Repository Method
@@ -158,10 +158,10 @@ helm repo update
 helm search repo bysamio
 
 # Install
-helm install my-wordpress bysamio/wordpress --version 1.0.22
+helm install my-wordpress bysamio/wordpress --version 1.0.23
 
 # Upgrade
-helm upgrade my-wordpress bysamio/wordpress --version 1.0.22
+helm upgrade my-wordpress bysamio/wordpress --version 1.0.23
 ```
 
 ## Viewing on Artifact Hub
@@ -211,6 +211,20 @@ To release a new version:
 4. The workflow will automatically create a new release
 
 ## Recent Changes
+
+### WordPress Chart v1.0.23
+
+**Key Improvements:**
+- **Fixed NetworkPolicy**: Resolved empty `policyTypes` issue when using `extraIngress`/`extraEgress` rules with `allowExternal: false`
+- **Fixed PodDisruptionBudget**: Template now correctly uses only one of `minAvailable` or `maxUnavailable` (Kubernetes requirement)
+- **Fixed ServiceMonitor**: Added missing `selector` and `namespaceSelector` for proper Prometheus discovery
+- **Improved Secret Key Documentation**: Clarified that `wordpressPassword` is the key name when using `existingSecret`
+
+**Technical Details:**
+- NetworkPolicy now adds policyTypes based on presence of rules, not just the allow flags
+- PDB prioritizes `minAvailable` if both values are set
+- ServiceMonitor uses WordPress selectorLabels by default
+- Tested on Minikube with full deployment verification
 
 ### WordPress Chart v1.0.22
 

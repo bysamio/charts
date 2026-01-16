@@ -22,6 +22,7 @@ spec:
 {{- end }}
 
 {{- if and .Values.metrics.enabled .Values.metrics.serviceMonitor.enabled }}
+---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -36,7 +37,14 @@ spec:
   {{- if .Values.metrics.serviceMonitor.selector }}
   selector:
     {{- toYaml .Values.metrics.serviceMonitor.selector | nindent 4 }}
+  {{- else }}
+  selector:
+    matchLabels:
+      {{- include "wordpress.selectorLabels" . | nindent 6 }}
   {{- end }}
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
   endpoints:
     - port: metrics
       {{- if .Values.metrics.serviceMonitor.interval }}

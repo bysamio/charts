@@ -1,4 +1,14 @@
 {{- if .Values.networkPolicy.enabled }}
+{{/*
+NetworkPolicy logic:
+- allowExternal: true  = allow all ingress traffic (default)
+- allowExternal: false = use extraIngress rules only (restricted mode)
+- allowExternalEgress: true  = allow all egress traffic (default)
+- allowExternalEgress: false = use extraEgress rules only (restricted mode)
+
+When allowExternal/allowExternalEgress is false, policyTypes are still added
+if extraIngress/extraEgress rules are defined, to enforce those specific rules.
+*/}}
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
@@ -11,31 +21,39 @@ spec:
     matchLabels:
       {{- include "wordpress.selectorLabels" . | nindent 6 }}
   policyTypes:
-    {{- if .Values.networkPolicy.allowExternal }}
+    {{- if or .Values.networkPolicy.allowExternal .Values.networkPolicy.extraIngress }}
     - Ingress
     {{- end }}
-    {{- if .Values.networkPolicy.allowExternalEgress }}
+    {{- if or .Values.networkPolicy.allowExternalEgress .Values.networkPolicy.extraEgress }}
     - Egress
     {{- end }}
-  {{- if .Values.networkPolicy.allowExternal }}
+  {{- if or .Values.networkPolicy.allowExternal .Values.networkPolicy.extraIngress }}
   ingress:
+    {{- if .Values.networkPolicy.allowExternal }}
+    {{- /* Allow all ingress when allowExternal is true */}}
+    - {}
+    {{- end }}
     {{- if .Values.networkPolicy.ingressNSMatchLabels }}
     - from:
         - namespaceSelector:
             matchLabels:
               {{- toYaml .Values.networkPolicy.ingressNSMatchLabels | nindent 14 }}
         {{- if .Values.networkPolicy.ingressNSPodMatchLabels }}
-        podSelector:
-          matchLabels:
-            {{- toYaml .Values.networkPolicy.ingressNSPodMatchLabels | nindent 12 }}
+          podSelector:
+            matchLabels:
+              {{- toYaml .Values.networkPolicy.ingressNSPodMatchLabels | nindent 14 }}
         {{- end }}
     {{- end }}
     {{- with .Values.networkPolicy.extraIngress }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
   {{- end }}
-  {{- if .Values.networkPolicy.allowExternalEgress }}
+  {{- if or .Values.networkPolicy.allowExternalEgress .Values.networkPolicy.extraEgress }}
   egress:
+    {{- if .Values.networkPolicy.allowExternalEgress }}
+    {{- /* Allow all egress when allowExternalEgress is true */}}
+    - {}
+    {{- end }}
     {{- with .Values.networkPolicy.extraEgress }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
