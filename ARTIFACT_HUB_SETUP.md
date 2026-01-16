@@ -22,7 +22,7 @@ Install directly from GitHub Container Registry:
 
 ```bash
 # Install wordpress
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.21
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.22
 
 # Install mariadb
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
@@ -141,7 +141,7 @@ helm pull oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
 helm show values oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
 
 # Install
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.21
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.22
 
 # Upgrade
 helm upgrade my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
@@ -158,10 +158,10 @@ helm repo update
 helm search repo bysamio
 
 # Install
-helm install my-wordpress bysamio/wordpress --version 1.0.21
+helm install my-wordpress bysamio/wordpress --version 1.0.22
 
 # Upgrade
-helm upgrade my-wordpress bysamio/wordpress --version 1.0.21
+helm upgrade my-wordpress bysamio/wordpress --version 1.0.22
 ```
 
 ## Viewing on Artifact Hub
@@ -212,7 +212,7 @@ To release a new version:
 
 ## Recent Changes
 
-### WordPress Chart v1.0.21
+### WordPress Chart v1.0.22
 
 **Key Improvements:**
 - **Simplified Custom Entrypoint**: Replaced complex entrypoint script with a cleaner, more maintainable version

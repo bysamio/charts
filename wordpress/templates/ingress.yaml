@@ -4,9 +4,10 @@
 {{- if and .Values.ingress.className (not (hasPrefix "nginx" .Values.ingress.className)) }}
   {{- $_ := set .Values.ingress "className" (printf "nginx-%s" .Values.ingress.className) }}
 {{- end }}
-{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- $kubeVersion := include "wordpress.kubeVersion" . }}
+{{- if semverCompare ">=1.19-0" $kubeVersion -}}
 apiVersion: networking.k8s.io/v1
-{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- else if semverCompare ">=1.14-0" $kubeVersion -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
 apiVersion: extensions/v1beta1
@@ -22,7 +23,8 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  {{- $kubeVersion := include "wordpress.kubeVersion" . }}
+  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" $kubeVersion) }}
   ingressClassName: {{ .Values.ingress.className }}
   {{- end }}
   {{- if .Values.ingress.tls }}
@@ -63,13 +65,14 @@ spec:
     - host: {{ .Values.ingress.hostname | quote }}
       http:
         paths:
+          {{- $kubeVersion := include "wordpress.kubeVersion" . }}
           {{- if .Values.ingress.path }}
           - path: {{ .Values.ingress.path }}
-            {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+            {{- if semverCompare ">=1.18-0" $kubeVersion }}
             pathType: {{ .Values.ingress.pathType }}
             {{- end }}
             backend:
-              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              {{- if semverCompare ">=1.19-0" $kubeVersion }}
               service:
                 name: {{ $fullName }}
                 port:
@@ -81,11 +84,11 @@ spec:
           {{- end }}
           {{- range .Values.ingress.extraPaths }}
           - path: {{ .path }}
-            {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+            {{- if semverCompare ">=1.18-0" $kubeVersion }}
             pathType: {{ .pathType }}
             {{- end }}
             backend:
-              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              {{- if semverCompare ">=1.19-0" $kubeVersion }}
               service:
                 name: {{ $fullName }}
                 port:
@@ -96,17 +99,18 @@ spec:
               {{- end }}
           {{- end }}
     {{- end }}
+    {{- $kubeVersion := include "wordpress.kubeVersion" . }}
     {{- range .Values.ingress.extraHosts }}
     - host: {{ .host | quote }}
       http:
         paths:
           {{- if .path }}
           - path: {{ .path }}
-            {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+            {{- if semverCompare ">=1.18-0" $kubeVersion }}
             pathType: {{ .pathType }}
             {{- end }}
             backend:
-              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              {{- if semverCompare ">=1.19-0" $kubeVersion }}
               service:
                 name: {{ $fullName }}
                 port:
@@ -118,11 +122,11 @@ spec:
           {{- end }}
           {{- range .paths }}
           - path: {{ .path }}
-            {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+            {{- if semverCompare ">=1.18-0" $kubeVersion }}
             pathType: {{ .pathType }}
             {{- end }}
             backend:
-              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              {{- if semverCompare ">=1.19-0" $kubeVersion }}
               service:
                 name: {{ $fullName }}
                 port:
@@ -145,9 +149,10 @@ spec:
 {{- if and .Values.secondaryIngress.className (not (hasPrefix "nginx" .Values.secondaryIngress.className)) }}
   {{- $_ := set .Values.secondaryIngress "className" (printf "nginx-%s" .Values.secondaryIngress.className) }}
 {{- end }}
-{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- $kubeVersion := include "wordpress.kubeVersion" . }}
+{{- if semverCompare ">=1.19-0" $kubeVersion -}}
 apiVersion: networking.k8s.io/v1
-{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+{{- else if semverCompare ">=1.14-0" $kubeVersion -}}
 apiVersion: networking.k8s.io/v1beta1
 {{- else -}}
 apiVersion: extensions/v1beta1
@@ -163,7 +168,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if and .Values.secondaryIngress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  {{- if and .Values.secondaryIngress.className (semverCompare ">=1.18-0" $kubeVersion) }}
   ingressClassName: {{ .Values.secondaryIngress.className }}
   {{- end }}
   {{- if .Values.secondaryIngress.tls }}
@@ -204,13 +209,14 @@ spec:
     - host: {{ .Values.secondaryIngress.hostname | quote }}
       http:
         paths:
+          {{- $kubeVersion := include "wordpress.kubeVersion" . }}
           {{- if .Values.secondaryIngress.path }}
           - path: {{ .Values.secondaryIngress.path }}
-            {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+            {{- if semverCompare ">=1.18-0" $kubeVersion }}
             pathType: {{ .Values.secondaryIngress.pathType }}
             {{- end }}
             backend:
-              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              {{- if semverCompare ">=1.19-0" $kubeVersion }}
               service:
                 name: {{ $fullName }}
                 port:
@@ -222,11 +228,11 @@ spec:
           {{- end }}
           {{- range .Values.secondaryIngress.extraPaths }}
           - path: {{ .path }}
-            {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+            {{- if semverCompare ">=1.18-0" $kubeVersion }}
             pathType: {{ .pathType }}
             {{- end }}
             backend:
-              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              {{- if semverCompare ">=1.19-0" $kubeVersion }}
               service:
                 name: {{ $fullName }}
                 port:
@@ -237,17 +243,18 @@ spec:
               {{- end }}
           {{- end }}
     {{- end }}
+    {{- $kubeVersion := include "wordpress.kubeVersion" . }}
     {{- range .Values.secondaryIngress.extraHosts }}
     - host: {{ .host | quote }}
       http:
         paths:
           {{- if .path }}
           - path: {{ .path }}
-            {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+            {{- if semverCompare ">=1.18-0" $kubeVersion }}
             pathType: {{ .pathType }}
             {{- end }}
             backend:
-              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              {{- if semverCompare ">=1.19-0" $kubeVersion }}
               service:
                 name: {{ $fullName }}
                 port:
@@ -259,11 +266,11 @@ spec:
           {{- end }}
           {{- range .paths }}
           - path: {{ .path }}
-            {{- if semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion }}
+            {{- if semverCompare ">=1.18-0" $kubeVersion }}
             pathType: {{ .pathType }}
             {{- end }}
             backend:
-              {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion }}
+              {{- if semverCompare ">=1.19-0" $kubeVersion }}
               service:
                 name: {{ $fullName }}
                 port:

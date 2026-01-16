@@ -163,3 +163,21 @@ Memcached port
 {{- .Values.externalCache.port }}
 {{- end }}
 {{- end }}
+
+{{/*
+Safely get Kubernetes version for compatibility checks
+Handles cases where Capabilities.KubeVersion might be nil (e.g., when using --kube-version flag)
+*/}}
+{{- define "wordpress.kubeVersion" -}}
+{{- if and .Capabilities .Capabilities.KubeVersion }}
+{{- if .Capabilities.KubeVersion.GitVersion }}
+{{- .Capabilities.KubeVersion.GitVersion }}
+{{- else if .Capabilities.KubeVersion.Version }}
+{{- printf "v%s" .Capabilities.KubeVersion.Version }}
+{{- else }}
+{{- "v1.19.0" -}}
+{{- end }}
+{{- else }}
+{{- "v1.19.0" -}}
+{{- end }}
+{{- end }}
