@@ -194,9 +194,10 @@ podSecurityContext:
   fsGroup: 33 # www-data group for official WordPress
 
 ## Configure Container Security Context
-## NOTE: Official WordPress Apache image requires root to bind to port 80.
+## NOTE: Official WordPress Apache image requires root with standard capabilities.
 ## Apache starts as root, binds to port 80, then drops privileges to www-data.
-## This is standard Apache behavior and is secure.
+## This requires SETUID/SETGID capabilities for privilege dropping.
+## For maximum security with restricted capabilities, use a non-root WordPress image (e.g., Bitnami).
 containerSecurityContext:
   enabled: true
   seLinuxOptions: {}
@@ -205,10 +206,8 @@ containerSecurityContext:
   runAsNonRoot: false  # Must allow root for port 80 binding
   privileged: false
   readOnlyRootFilesystem: false # WordPress needs to write to filesystem
-  allowPrivilegeEscalation: false
-  capabilities:
-    drop: ["ALL"]
-    add: ["NET_BIND_SERVICE"]  # Required to bind to port 80
+  allowPrivilegeEscalation: true  # Required for Apache to drop privileges to www-data
+  capabilities: {}  # Use container defaults - official WordPress needs full root capabilities
   seccompProfile:
     type: "RuntimeDefault"
 

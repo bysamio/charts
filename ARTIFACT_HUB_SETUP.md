@@ -22,7 +22,7 @@ Install directly from GitHub Container Registry:
 
 ```bash
 # Install wordpress
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.26
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.27
 
 # Install mariadb
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
@@ -141,10 +141,10 @@ helm pull oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
 helm show values oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
 
 # Install
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.26
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.27
 
 # Upgrade
-helm upgrade my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.26
+helm upgrade my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.27
 ```
 
 ### Traditional Repository Method
@@ -158,10 +158,10 @@ helm repo update
 helm search repo bysamio
 
 # Install
-helm install my-wordpress bysamio/wordpress --version 1.0.26
+helm install my-wordpress bysamio/wordpress --version 1.0.27
 
 # Upgrade
-helm upgrade my-wordpress bysamio/wordpress --version 1.0.26
+helm upgrade my-wordpress bysamio/wordpress --version 1.0.27
 ```
 
 ## Viewing on Artifact Hub
@@ -211,6 +211,19 @@ To release a new version:
 4. The workflow will automatically create a new release
 
 ## Recent Changes
+
+### WordPress Chart v1.0.27
+
+**Key Improvements:**
+- **Fixed Apache privilege dropping**: Apache can now properly drop to www-data after binding to port 80
+- Removed capability restrictions - official WordPress image requires full root capabilities
+- Set `allowPrivilegeEscalation: true` to allow Apache's setuid/setgid calls
+
+**Technical Details:**
+- Changed `capabilities` to `{}` (use container defaults)
+- Changed `allowPrivilegeEscalation` to `true`
+- Official WordPress Apache image is not designed for capability-based security
+- For restricted security contexts, use a non-root image like Bitnami WordPress
 
 ### WordPress Chart v1.0.26
 
