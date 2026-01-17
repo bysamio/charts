@@ -62,6 +62,38 @@ entries:
   wordpress:
   - apiVersion: v2
     appVersion: 6.9.0
+    created: "2026-01-17T23:36:50.765659042Z"
+    dependencies:
+    - condition: mariadb.enabled
+      name: mariadb
+      repository: oci://ghcr.io/bysamio/charts
+      version: 1.0.2
+    - condition: memcached.enabled
+      name: memcached
+      repository: oci://ghcr.io/bysamio/charts
+      version: 1.0.1
+    description: A Helm chart for WordPress using BySamio non-root Docker image (runs
+      as UID 1001 on port 8080)
+    digest: 8739c22ec48987e3c50ef7e9b5600af0d4bbd4c96e6c74931eee2e958782d8b3
+    home: https://wordpress.org/
+    icon: https://s.w.org/style/images/about/WordPress-logotype-wmark.png
+    keywords:
+    - wordpress
+    - cms
+    - blog
+    maintainers:
+    - email: admin@bysam.io
+      name: BySam Charts
+    name: wordpress
+    sources:
+    - https://github.com/bysamio/charts
+    - https://github.com/WordPress/WordPress
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/wordpress-2.0.1/wordpress-2.0.1.tgz
+    version: 2.0.1
+  - apiVersion: v2
+    appVersion: 6.9.0
     created: "2026-01-17T22:33:37.544440842Z"
     dependencies:
     - condition: mariadb.enabled
@@ -881,4 +913,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2026-01-17T22:33:37.544573212Z"
+generated: "2026-01-17T23:36:50.765835591Z"
