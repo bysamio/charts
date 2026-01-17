@@ -1,7 +1,8 @@
-# Default values for WordPress using official WordPress Docker image
+# Default values for WordPress using BySamio WordPress Docker image
 # This is a YAML-formatted file.
-# Base image: docker.io/wordpress:6.9.0-apache (official WordPress image with Apache web server)
-# Compatible with Minikube and MicroK8s single-node clusters
+# Base image: ghcr.io/bysamio/wordpress (non-root WordPress image on port 8080)
+# Compatible with Kubernetes restricted Pod Security Standards
+# Compatible with Minikube, MicroK8s, and production clusters
 
 ## @section Global parameters
 global:
@@ -18,10 +19,13 @@ clusterDomain: cluster.local
 extraDeploy: []
 
 ## @section WordPress Image parameters
+## BySamio WordPress - Non-root image running on port 8080
+## For official WordPress image, set: registry: docker.io, repository: wordpress, tag: "6.9.0-apache"
+## and update containerPorts.http to 80 and security context accordingly
 image:
-  registry: docker.io
-  repository: wordpress
-  tag: "6.9.0-apache"  # Latest stable WordPress with Apache (compatible with Minikube and MicroK8s)
+  registry: ghcr.io
+  repository: bysamio/wordpress
+  tag: "6.9.0"  # BySamio non-root WordPress (runs as UID 1001 on port 8080)
   digest: ""  # Use digest for production (e.g., "sha256:...") for immutable images
   pullPolicy: IfNotPresent  # Set to "Always" for production to ensure latest security patches
   pullSecrets: []
@@ -179,35 +183,39 @@ resources:
 
 ## Container ports
 ## Official WordPress image uses port 80 for HTTP (Apache)
+## Container ports - BySamio image uses non-privileged ports
+## For official WordPress image, change to http: 80, https: 443
 containerPorts:
-  http: 80
-  https: 443
+  http: 8080
+  https: 8443
 
 extraContainerPorts: []
 
 ## Configure Pods Security Context
+## BySamio WordPress uses UID/GID 1001
+## For official WordPress image, change fsGroup to 33 (www-data)
 podSecurityContext:
   enabled: true
   fsGroupChangePolicy: Always
   sysctls: []
   supplementalGroups: []
-  fsGroup: 33 # www-data group for official WordPress
+  fsGroup: 1001 # BySamio group for non-root WordPress
 
 ## Configure Container Security Context
-## NOTE: Official WordPress Apache image requires root with standard capabilities.
-## Apache starts as root, binds to port 80, then drops privileges to www-data.
-## This requires SETUID/SETGID capabilities for privilege dropping.
-## For maximum security with restricted capabilities, use a non-root WordPress image (e.g., Bitnami).
+## BySamio WordPress runs as non-root (UID 1001) on port 8080
+## Compatible with Kubernetes restricted Pod Security Standards
+## For official WordPress image, set: runAsUser: 0, runAsNonRoot: false, allowPrivilegeEscalation: true, capabilities: {}
 containerSecurityContext:
   enabled: true
   seLinuxOptions: {}
-  runAsUser: 0     # Root required - Apache binds to port 80, then drops to www-data
-  runAsGroup: 0
-  runAsNonRoot: false  # Must allow root for port 80 binding
+  runAsUser: 1001   # BySamio user - non-root
+  runAsGroup: 1001  # BySamio group
+  runAsNonRoot: true  # Enforces non-root execution
   privileged: false
   readOnlyRootFilesystem: false # WordPress needs to write to filesystem
-  allowPrivilegeEscalation: true  # Required for Apache to drop privileges to www-data
-  capabilities: {}  # Use container defaults - official WordPress needs full root capabilities
+  allowPrivilegeEscalation: false  # Not needed for non-root image
+  capabilities:
+    drop: ["ALL"]  # Drop all capabilities - not needed for non-root
   seccompProfile:
     type: "RuntimeDefault"
 

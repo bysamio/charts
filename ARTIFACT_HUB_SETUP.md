@@ -22,7 +22,7 @@ Install directly from GitHub Container Registry:
 
 ```bash
 # Install wordpress
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.27
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 2.0.0
 
 # Install mariadb
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
@@ -141,10 +141,10 @@ helm pull oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
 helm show values oci://ghcr.io/bysamio/charts/wordpress --version 1.0.18
 
 # Install
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.27
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 2.0.0
 
 # Upgrade
-helm upgrade my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 1.0.27
+helm upgrade my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 2.0.0
 ```
 
 ### Traditional Repository Method
@@ -158,10 +158,10 @@ helm repo update
 helm search repo bysamio
 
 # Install
-helm install my-wordpress bysamio/wordpress --version 1.0.27
+helm install my-wordpress bysamio/wordpress --version 2.0.0
 
 # Upgrade
-helm upgrade my-wordpress bysamio/wordpress --version 1.0.27
+helm upgrade my-wordpress bysamio/wordpress --version 2.0.0
 ```
 
 ## Viewing on Artifact Hub
@@ -211,6 +211,38 @@ To release a new version:
 4. The workflow will automatically create a new release
 
 ## Recent Changes
+
+### WordPress Chart v2.0.0 (BREAKING CHANGE)
+
+**Major Release - Non-root by Default:**
+- **New default image**: `ghcr.io/bysamio/wordpress` - custom non-root WordPress image
+- Runs as UID 1001 (bysamio user) from startup
+- Uses port 8080 (non-privileged)
+- Compatible with Kubernetes **restricted** Pod Security Standards
+- Drops ALL capabilities by default
+
+**Breaking Changes:**
+- Default port changed from 80 to 8080
+- Default user changed from root (UID 0) to bysamio (UID 1001)
+- Existing deployments using official image need migration (see below)
+
+**Migration from v1.x:**
+```yaml
+# To continue using official WordPress image:
+image:
+  registry: docker.io
+  repository: wordpress
+  tag: "6.9.0-apache"
+containerPorts:
+  http: 80
+containerSecurityContext:
+  runAsUser: 0
+  runAsNonRoot: false
+  allowPrivilegeEscalation: true
+  capabilities: {}
+podSecurityContext:
+  fsGroup: 33
+```
 
 ### WordPress Chart v1.0.27
 
