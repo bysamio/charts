@@ -2,7 +2,7 @@ apiVersion: v2
 name: wordpress
 description: A Helm chart for WordPress using BySamio non-root Docker image (runs as UID 1001 on port 8080)
 type: application
-version: 2.0.1
+version: 2.0.2
 appVersion: "6.9.0"
 keywords:
   - wordpress

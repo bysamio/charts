@@ -59,7 +59,15 @@ wordpressConfiguration: ""
 existingWordPressConfigurationSecret: ""
 # Official WordPress image supported env vars (see https://hub.docker.com/_/wordpress)
 wordpressDebug: false  # Sets WORDPRESS_DEBUG (enables WP_DEBUG in wp-config.php)
-wordpressConfigExtra: ""  # Sets WORDPRESS_CONFIG_EXTRA (evaluated by eval() in wp-config.php)
+# SSL/HTTPS configuration for reverse proxy (ingress)
+# WordPress behind ingress receives HTTP internally but should generate HTTPS URLs.
+# This config trusts X-Forwarded-Proto header and enforces HTTPS for admin.
+# Safe to leave enabled - only activates when behind a proxy with SSL termination.
+wordpressConfigExtra: |
+  if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+    $_SERVER['HTTPS'] = 'on';
+  }
+  define('FORCE_SSL_ADMIN', true);
 # Memcached configuration for WordPress
 # Note: The official WordPress image doesn't include PHP memcached extension by default.
 # You'll need to either:
