@@ -1,5 +1,41 @@
 apiVersion: v1
 entries:
+  keycloak:
+  - apiVersion: v2
+    appVersion: 26.5.2
+    created: "2026-01-29T14:44:43.069233215Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: file://../postgresql
+      version: 1.0.0
+    description: A Helm chart for Keycloak using BySamio hardened Docker image (runs
+      as UID 1001)
+    digest: 6211673e1b776d215e3f4968f081e918f53546dcc2eb0f7663c4c17b5d3bcf58
+    home: https://www.keycloak.org/
+    icon: https://www.keycloak.org/resources/images/keycloak_icon_512px.svg
+    keywords:
+    - keycloak
+    - identity
+    - access-management
+    - sso
+    - oidc
+    - oauth2
+    - saml
+    - authentication
+    - authorization
+    maintainers:
+    - email: admin@bysam.io
+      name: BySam Charts
+    name: keycloak
+    sources:
+    - https://github.com/bysamio/charts
+    - https://github.com/bysamio/images
+    - https://github.com/keycloak/keycloak
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/keycloak-1.0.0/keycloak-1.0.0.tgz
+    version: 1.0.0
   mariadb:
   - annotations:
       category: Database
@@ -59,6 +95,34 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/memcached-1.0.1/memcached-1.0.1.tgz
     version: 1.0.1
+  postgresql:
+  - apiVersion: v2
+    appVersion: 17.7-alpine
+    created: "2026-01-29T14:44:43.389589154Z"
+    description: A Helm chart for PostgreSQL using BySamio hardened Docker image (runs
+      as UID 1001)
+    digest: 5cc33f33d3cfc21819686e873b284d75beedff16e3e38a08adb16d110b847e0f
+    home: https://www.postgresql.org/
+    icon: https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg
+    keywords:
+    - postgresql
+    - postgres
+    - database
+    - sql
+    - replication
+    - cluster
+    maintainers:
+    - email: admin@bysam.io
+      name: BySam Charts
+    name: postgresql
+    sources:
+    - https://github.com/bysamio/charts
+    - https://github.com/bysamio/images
+    - https://github.com/postgres/postgres
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/postgresql-1.0.0/postgresql-1.0.0.tgz
+    version: 1.0.0
   wordpress:
   - apiVersion: v2
     appVersion: 6.9.0
@@ -945,4 +1009,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2026-01-18T14:19:13.972715422Z"
+generated: "2026-01-29T14:44:43.389658664Z"
