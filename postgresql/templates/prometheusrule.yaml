@@ -1,0 +1,19 @@
+{{- if and .Values.metrics.enabled .Values.metrics.prometheusRule.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "postgresql.fullname" . }}
+  namespace: {{ default (include "postgresql.namespace" .) .Values.metrics.prometheusRule.namespace }}
+  labels:
+    {{- include "postgresql.labels" . | nindent 4 }}
+    {{- with .Values.metrics.prometheusRule.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  {{- with .Values.metrics.prometheusRule.rules }}
+  groups:
+    - name: {{ include "postgresql.fullname" $ }}
+      rules:
+        {{- toYaml . | nindent 8 }}
+  {{- end }}
+{{- end }}

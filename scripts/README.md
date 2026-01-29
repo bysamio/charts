@@ -7,6 +7,7 @@ These scripts are used by pre-commit hooks to validate Helm charts before commit
 - **pre-commit-helm-lint.sh**: Lints all Helm charts using `helm lint`
 - **pre-commit-helm-template.sh**: Tests template rendering for all charts with multiple Kubernetes versions
 - **pre-commit-helm-deps.sh**: Verifies chart dependencies can be resolved
+- **pre-commit-helm-test.sh**: Tests only changed charts (lint, template, dry-run install)
 
 ## Manual Usage
 
@@ -21,6 +22,9 @@ You can run these scripts manually:
 
 # Check dependencies
 ./scripts/pre-commit-helm-deps.sh
+
+# Test changed charts only
+./scripts/pre-commit-helm-test.sh
 ```
 
 ## Installation

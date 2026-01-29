@@ -1,0 +1,19 @@
+{{- if and .Values.keycloakConfigCli.enabled (not .Values.keycloakConfigCli.existingConfigmap) .Values.keycloakConfigCli.configuration }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-config-cli" (include "keycloak.fullname" .) }}
+  namespace: {{ include "keycloak.namespace" . }}
+  labels:
+    {{- include "keycloak.labels" . | nindent 4 }}
+    app.kubernetes.io/component: keycloak-config-cli
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  {{- range $key, $value := .Values.keycloakConfigCli.configuration }}
+  {{ $key }}: |
+    {{- $value | nindent 4 }}
+  {{- end }}
+{{- end }}

@@ -6,7 +6,7 @@ set -e
 
 echo "🔍 Linting Helm charts..."
 
-CHARTS=("mariadb" "memcached" "wordpress")
+CHARTS=("keycloak" "postgresql" "mariadb" "memcached" "wordpress")
 FAILED=0
 
 for chart in "${CHARTS[@]}"; do

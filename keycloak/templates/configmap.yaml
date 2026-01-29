@@ -1,0 +1,35 @@
+{{- if and (not .Values.existingConfigmap) .Values.configuration }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-configuration" (include "keycloak.fullname" .) }}
+  namespace: {{ include "keycloak.namespace" . }}
+  labels:
+    {{- include "keycloak.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  keycloak.conf: |
+    {{- .Values.configuration | nindent 4 }}
+{{- end }}
+---
+{{- if and (not .Values.initdbScriptsConfigMap) .Values.initdbScripts }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-initdb-scripts" (include "keycloak.fullname" .) }}
+  namespace: {{ include "keycloak.namespace" . }}
+  labels:
+    {{- include "keycloak.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  {{- range $key, $value := .Values.initdbScripts }}
+  {{ $key }}: |
+    {{- $value | nindent 4 }}
+  {{- end }}
+{{- end }}

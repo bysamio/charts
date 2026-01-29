@@ -1,0 +1,147 @@
+{{- if .Values.keycloakConfigCli.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ printf "%s-config-cli" (include "keycloak.fullname" .) }}
+  namespace: {{ include "keycloak.namespace" . }}
+  labels:
+    {{- include "keycloak.labels" . | nindent 4 }}
+    app.kubernetes.io/component: keycloak-config-cli
+  annotations:
+    {{- if .Values.useHelmHooks }}
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-delete-policy": hook-succeeded,before-hook-creation
+    "helm.sh/hook-weight": "5"
+    {{- end }}
+    {{- with .Values.keycloakConfigCli.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  backoffLimit: {{ .Values.keycloakConfigCli.backoffLimit }}
+  {{- if .Values.keycloakConfigCli.cleanupAfterFinished.enabled }}
+  ttlSecondsAfterFinished: {{ .Values.keycloakConfigCli.cleanupAfterFinished.seconds }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "keycloak.labels" . | nindent 8 }}
+        app.kubernetes.io/component: keycloak-config-cli
+        {{- with .Values.keycloakConfigCli.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.keycloakConfigCli.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- include "keycloak.imagePullSecrets" . | nindent 6 }}
+      serviceAccountName: {{ include "keycloak.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.keycloakConfigCli.automountServiceAccountToken }}
+      restartPolicy: Never
+      {{- if .Values.keycloakConfigCli.hostAliases }}
+      hostAliases:
+        {{- toYaml .Values.keycloakConfigCli.hostAliases | nindent 8 }}
+      {{- end }}
+      {{- $podSecurityContext := include "keycloak.keycloakConfigCli.podSecurityContext" . }}
+      {{- if $podSecurityContext }}
+      securityContext:
+        {{- $podSecurityContext | nindent 8 }}
+      {{- end }}
+      {{- with .Values.keycloakConfigCli.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.keycloakConfigCli.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.keycloakConfigCli.initContainers }}
+      initContainers:
+        {{- include "keycloak.tplvalues.render" (dict "value" .Values.keycloakConfigCli.initContainers "context" $) | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: keycloak-config-cli
+          image: {{ include "keycloak.keycloakConfigCli.image" . }}
+          imagePullPolicy: {{ .Values.keycloakConfigCli.image.pullPolicy }}
+          {{- $containerSecurityContext := include "keycloak.keycloakConfigCli.containerSecurityContext" . }}
+          {{- if $containerSecurityContext }}
+          securityContext:
+            {{- $containerSecurityContext | nindent 12 }}
+          {{- end }}
+          {{- if .Values.keycloakConfigCli.command }}
+          command:
+            {{- toYaml .Values.keycloakConfigCli.command | nindent 12 }}
+          {{- end }}
+          {{- if .Values.keycloakConfigCli.args }}
+          args:
+            {{- toYaml .Values.keycloakConfigCli.args | nindent 12 }}
+          {{- end }}
+          env:
+            - name: KEYCLOAK_URL
+              {{- if .Values.tls.enabled }}
+              value: "https://{{ include "keycloak.fullname" . }}:{{ .Values.service.ports.https }}{{ .Values.httpRelativePath }}"
+              {{- else }}
+              value: "http://{{ include "keycloak.fullname" . }}:{{ .Values.service.ports.http }}{{ .Values.httpRelativePath }}"
+              {{- end }}
+            - name: KEYCLOAK_USER
+              value: {{ .Values.auth.adminUser | quote }}
+            - name: KEYCLOAK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "keycloak.secretName" . }}
+                  key: {{ include "keycloak.secretPasswordKey" . }}
+            {{- if .Values.keycloakConfigCli.availabilityCheck.enabled }}
+            - name: KEYCLOAK_AVAILABILITYCHECK_ENABLED
+              value: "true"
+            {{- if .Values.keycloakConfigCli.availabilityCheck.timeout }}
+            - name: KEYCLOAK_AVAILABILITYCHECK_TIMEOUT
+              value: {{ .Values.keycloakConfigCli.availabilityCheck.timeout | quote }}
+            {{- end }}
+            {{- end }}
+            - name: IMPORT_FILES_LOCATIONS
+              value: "/config/*"
+            {{- if .Values.tls.enabled }}
+            - name: KEYCLOAK_SSLVERIFY
+              value: "false"
+            {{- end }}
+            {{- with .Values.keycloakConfigCli.extraEnvVars }}
+            {{- include "keycloak.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+          {{- if or .Values.keycloakConfigCli.extraEnvVarsCM .Values.keycloakConfigCli.extraEnvVarsSecret }}
+          envFrom:
+            {{- if .Values.keycloakConfigCli.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ .Values.keycloakConfigCli.extraEnvVarsCM }}
+            {{- end }}
+            {{- if .Values.keycloakConfigCli.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ .Values.keycloakConfigCli.extraEnvVarsSecret }}
+            {{- end }}
+          {{- end }}
+          {{- $resources := include "keycloak.keycloakConfigCli.resources" . }}
+          {{- if $resources }}
+          resources:
+            {{- $resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+            {{- with .Values.keycloakConfigCli.extraVolumeMounts }}
+            {{- include "keycloak.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+        {{- if .Values.keycloakConfigCli.sidecars }}
+        {{- include "keycloak.tplvalues.render" (dict "value" .Values.keycloakConfigCli.sidecars "context" $) | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ if .Values.keycloakConfigCli.existingConfigmap }}{{ .Values.keycloakConfigCli.existingConfigmap }}{{ else }}{{ printf "%s-config-cli" (include "keycloak.fullname" .) }}{{ end }}
+        - name: tmp
+          emptyDir: {}
+        {{- with .Values.keycloakConfigCli.extraVolumes }}
+        {{- include "keycloak.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+        {{- end }}
+{{- end }}

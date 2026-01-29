@@ -1,0 +1,29 @@
+{{- if .Values.metrics.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ printf "%s-metrics" (include "postgresql.fullname" .) }}
+  namespace: {{ include "postgresql.namespace" . }}
+  labels:
+    {{- include "postgresql.labels" . | nindent 4 }}
+    app.kubernetes.io/component: metrics
+  {{- if .Values.metrics.service.annotations }}
+  annotations:
+    {{- range $key, $value := .Values.metrics.service.annotations }}
+    {{ $key }}: {{ include "postgresql.tplvalues.render" (dict "value" $value "context" $) | quote }}
+    {{- end }}
+  {{- end }}
+spec:
+  type: ClusterIP
+  {{- if .Values.metrics.service.clusterIP }}
+  clusterIP: {{ .Values.metrics.service.clusterIP }}
+  {{- end }}
+  sessionAffinity: {{ .Values.metrics.service.sessionAffinity }}
+  ports:
+    - name: http-metrics
+      port: {{ .Values.metrics.service.ports.metrics }}
+      targetPort: http-metrics
+      protocol: TCP
+  selector:
+    {{- include "postgresql.primary.selectorLabels" . | nindent 4 }}
+{{- end }}

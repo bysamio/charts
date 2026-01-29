@@ -1,0 +1,22 @@
+apiVersion: v2
+name: postgresql
+description: A Helm chart for PostgreSQL using BySamio hardened Docker image (runs as UID 1001)
+type: application
+version: 1.0.0
+appVersion: "17.7-alpine"
+keywords:
+  - postgresql
+  - postgres
+  - database
+  - sql
+  - replication
+  - cluster
+home: https://www.postgresql.org/
+icon: https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg
+sources:
+- https://github.com/bysamio/charts
+- https://github.com/bysamio/images
+- https://github.com/postgres/postgres
+maintainers:
+- email: admin@bysam.io
+  name: BySam Charts

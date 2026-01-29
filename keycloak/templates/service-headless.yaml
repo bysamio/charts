@@ -1,0 +1,35 @@
+{{- if .Values.cache.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "keycloak.headlessServiceName" . }}
+  namespace: {{ include "keycloak.namespace" . }}
+  labels:
+    {{- include "keycloak.labels" . | nindent 4 }}
+  {{- with .Values.service.headless.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+    - name: http
+      port: {{ .Values.containerPorts.http }}
+      targetPort: http
+      protocol: TCP
+    - name: https
+      port: {{ .Values.containerPorts.https }}
+      targetPort: https
+      protocol: TCP
+    - name: jgroups
+      port: 7800
+      targetPort: 7800
+      protocol: TCP
+    {{- with .Values.service.headless.extraPorts }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  selector:
+    {{- include "keycloak.selectorLabels" . | nindent 4 }}
+{{- end }}

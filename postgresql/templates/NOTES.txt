@@ -1,0 +1,63 @@
+CHART NAME: {{ .Chart.Name }}
+CHART VERSION: {{ .Chart.Version }}
+APP VERSION: {{ .Chart.AppVersion }}
+
+** Please be patient while the chart is being deployed **
+
+{{- if .Values.diagnosticMode.enabled }}
+The chart has been deployed in diagnostic mode. All probes have been disabled and the command has been overridden.
+  kubectl exec -it {{ include "postgresql.primary.fullname" . }}-0 -n {{ include "postgresql.namespace" . }} -- /bin/bash
+{{- end }}
+
+PostgreSQL can be accessed via port {{ .Values.primary.service.ports.postgresql }} on the following DNS names from within your cluster:
+
+    {{ include "postgresql.primary.fullname" . }}.{{ include "postgresql.namespace" . }}.svc.{{ .Values.clusterDomain }} - Read/Write connection
+
+{{- if eq .Values.architecture "replication" }}
+    {{ include "postgresql.readReplica.fullname" . }}.{{ include "postgresql.namespace" . }}.svc.{{ .Values.clusterDomain }} - Read only connection
+{{- end }}
+
+To get the password for "{{ default "postgres" (include "postgresql.username" .) }}" run:
+
+    export POSTGRES_PASSWORD=$(kubectl get secret --namespace {{ include "postgresql.namespace" . }} {{ include "postgresql.secretName" . }} -o jsonpath="{.data.{{ include "postgresql.adminPasswordKey" . }}}" | base64 -d)
+
+To connect to your database run the following command:
+
+    kubectl run {{ include "postgresql.fullname" . }}-client --rm --tty -i --restart='Never' --namespace {{ include "postgresql.namespace" . }} --image {{ include "postgresql.image" . }} --env="PGPASSWORD=$POSTGRES_PASSWORD" \
+      --command -- psql --host {{ include "postgresql.primary.fullname" . }} -U {{ default "postgres" (include "postgresql.username" .) }} -d {{ default "postgres" (include "postgresql.database" .) }} -p {{ .Values.primary.service.ports.postgresql }}
+
+To connect to your database from outside the cluster execute the following commands:
+
+{{- if contains "NodePort" .Values.primary.service.type }}
+
+    export NODE_IP=$(kubectl get nodes --namespace {{ include "postgresql.namespace" . }} -o jsonpath="{.items[0].status.addresses[0].address}")
+    export NODE_PORT=$(kubectl get --namespace {{ include "postgresql.namespace" . }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "postgresql.primary.fullname" . }})
+    PGPASSWORD="$POSTGRES_PASSWORD" psql --host $NODE_IP --port $NODE_PORT -U {{ default "postgres" (include "postgresql.username" .) }} -d {{ default "postgres" (include "postgresql.database" .) }}
+
+{{- else if contains "LoadBalancer" .Values.primary.service.type }}
+
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+        Watch the status with: 'kubectl get svc --namespace {{ include "postgresql.namespace" . }} -w {{ include "postgresql.primary.fullname" . }}'
+
+    export SERVICE_IP=$(kubectl get svc --namespace {{ include "postgresql.namespace" . }} {{ include "postgresql.primary.fullname" . }} --template "{{ "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}" }}")
+    PGPASSWORD="$POSTGRES_PASSWORD" psql --host $SERVICE_IP --port {{ .Values.primary.service.ports.postgresql }} -U {{ default "postgres" (include "postgresql.username" .) }} -d {{ default "postgres" (include "postgresql.database" .) }}
+
+{{- else if contains "ClusterIP" .Values.primary.service.type }}
+
+    kubectl port-forward --namespace {{ include "postgresql.namespace" . }} svc/{{ include "postgresql.primary.fullname" . }} {{ .Values.primary.service.ports.postgresql }}:{{ .Values.primary.service.ports.postgresql }} &
+    PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U {{ default "postgres" (include "postgresql.username" .) }} -d {{ default "postgres" (include "postgresql.database" .) }} -p {{ .Values.primary.service.ports.postgresql }}
+
+{{- end }}
+
+{{- if .Values.metrics.enabled }}
+
+To access PostgreSQL Prometheus metrics:
+
+    kubectl port-forward --namespace {{ include "postgresql.namespace" . }} svc/{{ printf "%s-metrics" (include "postgresql.fullname" .) }} {{ .Values.metrics.service.ports.metrics }}:{{ .Values.metrics.service.ports.metrics }} &
+    curl http://127.0.0.1:{{ .Values.metrics.service.ports.metrics }}/metrics
+
+{{- end }}
+
+WARNING: The configured password will be ignored on new installation in case when previous PostgreSQL release was deleted through the helm command.
+         In that case, old PVC will have an old password, and setting it through helm won't take effect.
+         Deleting persistent volumes (PVs) will solve the issue.

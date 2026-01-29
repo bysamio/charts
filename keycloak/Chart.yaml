@@ -1,0 +1,30 @@
+apiVersion: v2
+name: keycloak
+description: A Helm chart for Keycloak using BySamio hardened Docker image (runs as UID 1001)
+type: application
+version: 1.0.0
+appVersion: "26.5.2"
+keywords:
+  - keycloak
+  - identity
+  - access-management
+  - sso
+  - oidc
+  - oauth2
+  - saml
+  - authentication
+  - authorization
+home: https://www.keycloak.org/
+icon: https://www.keycloak.org/resources/images/keycloak_icon_512px.svg
+sources:
+- https://github.com/bysamio/charts
+- https://github.com/bysamio/images
+- https://github.com/keycloak/keycloak
+maintainers:
+- email: admin@bysam.io
+  name: BySam Charts
+dependencies:
+  - name: postgresql
+    version: "1.0.0"
+    repository: "file://../postgresql"
+    condition: postgresql.enabled

@@ -1,0 +1,21 @@
+{{- if and (eq .Values.architecture "replication") .Values.readReplicas.pdb.create }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "postgresql.readReplica.fullname" . }}
+  namespace: {{ include "postgresql.namespace" . }}
+  labels:
+    {{- include "postgresql.labels" . | nindent 4 }}
+    app.kubernetes.io/component: read
+spec:
+  {{- if .Values.readReplicas.pdb.minAvailable }}
+  minAvailable: {{ .Values.readReplicas.pdb.minAvailable }}
+  {{- else if .Values.readReplicas.pdb.maxUnavailable }}
+  maxUnavailable: {{ .Values.readReplicas.pdb.maxUnavailable }}
+  {{- else }}
+  maxUnavailable: 1
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "postgresql.readReplica.selectorLabels" . | nindent 6 }}
+{{- end }}

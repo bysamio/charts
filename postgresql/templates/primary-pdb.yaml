@@ -1,0 +1,21 @@
+{{- if .Values.primary.pdb.create }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "postgresql.primary.fullname" . }}
+  namespace: {{ include "postgresql.namespace" . }}
+  labels:
+    {{- include "postgresql.labels" . | nindent 4 }}
+    app.kubernetes.io/component: primary
+spec:
+  {{- if .Values.primary.pdb.minAvailable }}
+  minAvailable: {{ .Values.primary.pdb.minAvailable }}
+  {{- else if .Values.primary.pdb.maxUnavailable }}
+  maxUnavailable: {{ .Values.primary.pdb.maxUnavailable }}
+  {{- else }}
+  maxUnavailable: 1
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "postgresql.primary.selectorLabels" . | nindent 6 }}
+{{- end }}

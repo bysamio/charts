@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "postgresql.primary.fullname" . }}
+  namespace: {{ include "postgresql.namespace" . }}
+  labels:
+    {{- include "postgresql.labels" . | nindent 4 }}
+    app.kubernetes.io/component: primary
+    {{- with .Values.primary.service.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.primary.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.primary.service.type }}
+  {{- if .Values.primary.service.clusterIP }}
+  clusterIP: {{ .Values.primary.service.clusterIP }}
+  {{- end }}
+  {{- if and (eq .Values.primary.service.type "LoadBalancer") .Values.primary.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.primary.service.loadBalancerIP }}
+  {{- end }}
+  {{- if and (eq .Values.primary.service.type "LoadBalancer") .Values.primary.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- toYaml .Values.primary.service.loadBalancerSourceRanges | nindent 4 }}
+  {{- end }}
+  {{- if and (eq .Values.primary.service.type "LoadBalancer") .Values.primary.service.loadBalancerClass }}
+  loadBalancerClass: {{ .Values.primary.service.loadBalancerClass }}
+  {{- end }}
+  {{- if or (eq .Values.primary.service.type "LoadBalancer") (eq .Values.primary.service.type "NodePort") }}
+  externalTrafficPolicy: {{ .Values.primary.service.externalTrafficPolicy }}
+  {{- end }}
+  sessionAffinity: {{ .Values.primary.service.sessionAffinity }}
+  {{- with .Values.primary.service.sessionAffinityConfig }}
+  sessionAffinityConfig:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  ports:
+    - name: tcp-postgresql
+      port: {{ .Values.primary.service.ports.postgresql }}
+      targetPort: tcp-postgresql
+      protocol: TCP
+      {{- if and (or (eq .Values.primary.service.type "NodePort") (eq .Values.primary.service.type "LoadBalancer")) .Values.primary.service.nodePorts.postgresql }}
+      nodePort: {{ .Values.primary.service.nodePorts.postgresql }}
+      {{- end }}
+    {{- with .Values.primary.service.extraPorts }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  selector:
+    {{- include "postgresql.primary.selectorLabels" . | nindent 4 }}

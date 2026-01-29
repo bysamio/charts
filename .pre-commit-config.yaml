@@ -44,3 +44,11 @@ repos:
         pass_filenames: false
         always_run: true
         stages: [pre-commit]
+
+      - id: helm-test-changed
+        name: Helm Test Changed Charts
+        entry: bash -c 'scripts/pre-commit-helm-test.sh'
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]

@@ -1,0 +1,459 @@
+{{- include "keycloak.validateValues" . }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "keycloak.fullname" . }}
+  namespace: {{ include "keycloak.namespace" . }}
+  labels:
+    {{- include "keycloak.labels" . | nindent 4 }}
+  {{- with .Values.statefulsetAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ if not .Values.autoscaling.hpa.enabled }}{{ .Values.replicaCount }}{{ end }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimitCount }}
+  podManagementPolicy: {{ .Values.podManagementPolicy }}
+  serviceName: {{ include "keycloak.headlessServiceName" . }}
+  {{- if .Values.updateStrategy }}
+  updateStrategy:
+    {{- toYaml .Values.updateStrategy | nindent 4 }}
+  {{- end }}
+  {{- if .Values.minReadySeconds }}
+  minReadySeconds: {{ .Values.minReadySeconds }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "keycloak.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "keycloak.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- include "keycloak.imagePullSecrets" . | nindent 6 }}
+      {{- if .Values.schedulerName }}
+      schedulerName: {{ .Values.schedulerName | quote }}
+      {{- end }}
+      serviceAccountName: {{ include "keycloak.serviceAccountName" . }}
+      automountServiceAccountToken: {{ .Values.automountServiceAccountToken }}
+      {{- if .Values.hostAliases }}
+      hostAliases:
+        {{- toYaml .Values.hostAliases | nindent 8 }}
+      {{- end }}
+      {{- if .Values.priorityClassName }}
+      priorityClassName: {{ .Values.priorityClassName | quote }}
+      {{- end }}
+      {{- if .Values.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      {{- end }}
+      {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+      {{- end }}
+      {{- if .Values.dnsConfig }}
+      dnsConfig:
+        {{- toYaml .Values.dnsConfig | nindent 8 }}
+      {{- end }}
+      enableServiceLinks: {{ .Values.enableServiceLinks }}
+      {{- $podSecurityContext := include "keycloak.podSecurityContext" . }}
+      {{- if $podSecurityContext }}
+      securityContext:
+        {{- $podSecurityContext | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.podAffinityPreset .Values.podAntiAffinityPreset .Values.nodeAffinityPreset.type .Values.affinity }}
+      affinity:
+        {{- include "keycloak.podAffinity" . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- if and .Values.defaultInitContainers.prepareWriteDirs.enabled (not (include "keycloak.isOptimizedImage" .)) }}
+        {{- /* Skip init container for optimized/distroless images - they don't have /bin/sh */}}
+        - name: prepare-write-dirs
+          image: {{ include "keycloak.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- $containerSecurityContext := include "keycloak.prepareWriteDirs.containerSecurityContext" . }}
+          {{- if $containerSecurityContext }}
+          securityContext:
+            {{- $containerSecurityContext | nindent 12 }}
+          {{- end }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              mkdir -p /opt/keycloak/data/tmp /tmp/keycloak
+              [ -d "/opt/keycloak/providers" ] && cp -r /opt/keycloak/providers/* /opt/keycloak/data/providers/ 2>/dev/null || true
+              echo "Directories prepared"
+          {{- $resources := include "keycloak.prepareWriteDirs.resources" . }}
+          {{- if $resources }}
+          resources:
+            {{- $resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /opt/keycloak/data
+            - name: lib
+              mountPath: /opt/keycloak/lib
+            - name: tmp
+              mountPath: /tmp
+        {{- end }}
+        {{- with .Values.initContainers }}
+        {{- include "keycloak.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: keycloak
+          image: {{ include "keycloak.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- $containerSecurityContext := include "keycloak.containerSecurityContext" . }}
+          {{- if $containerSecurityContext }}
+          securityContext:
+            {{- $containerSecurityContext | nindent 12 }}
+          {{- end }}
+          {{- if .Values.diagnosticMode.enabled }}
+          command:
+            {{- toYaml .Values.diagnosticMode.command | nindent 12 }}
+          args:
+            {{- toYaml .Values.diagnosticMode.args | nindent 12 }}
+          {{- else }}
+          {{- if .Values.command }}
+          command:
+            {{- toYaml .Values.command | nindent 12 }}
+          {{- end }}
+          {{- if .Values.args }}
+          args:
+            {{- toYaml .Values.args | nindent 12 }}
+          {{- else }}
+          args:
+            - start
+            {{- if include "keycloak.isOptimizedImage" . }}
+            {{- /* Optimized images must use --optimized to skip build checks */}}
+            - --optimized
+            {{- end }}
+            {{- if .Values.extraStartupArgs }}
+            {{- .Values.extraStartupArgs | nindent 12 }}
+            {{- end }}
+          {{- end }}
+          {{- end }}
+          env:
+            - name: KUBERNETES_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: KC_HOSTNAME_ADMIN_URL
+              value: ""
+            {{- if not (include "keycloak.isOptimizedImage" .) }}
+            {{- /* Only set build-time config for flexible images - optimized images have these baked in */}}
+            - name: KC_HTTP_RELATIVE_PATH
+              value: {{ .Values.httpRelativePath | quote }}
+            {{- end }}
+            - name: KC_LOG_LEVEL
+              value: {{ .Values.logging.level | quote }}
+            - name: KC_LOG_OUTPUT
+              value: {{ .Values.logging.output | quote }}
+            {{- if .Values.production }}
+            - name: KC_HOSTNAME_STRICT
+              value: {{ .Values.hostnameStrict | quote }}
+            {{- end }}
+            {{- if .Values.proxyHeaders }}
+            - name: KC_PROXY_HEADERS
+              value: {{ .Values.proxyHeaders | quote }}
+            {{- end }}
+            {{- if not (include "keycloak.isOptimizedImage" .) }}
+            {{- /* Cache config is a build-time setting - skip for optimized images */}}
+            {{- if .Values.cache.enabled }}
+            - name: KC_CACHE
+              value: "ispn"
+            - name: KC_CACHE_STACK
+              value: {{ .Values.cache.stack | quote }}
+            - name: KC_CACHE_CONFIG_FILE
+              value: {{ .Values.cache.configFile | quote }}
+            {{- else }}
+            - name: KC_CACHE
+              value: "local"
+            {{- end }}
+            {{- end }}
+            {{- if .Values.cache.javaOptsAppendExtra }}
+            - name: JAVA_OPTS_APPEND
+              value: {{ .Values.cache.javaOptsAppendExtra | quote }}
+            {{- end }}
+            - name: KC_HTTP_ENABLED
+              {{- if or .Values.httpEnabled (not .Values.tls.enabled) }}
+              value: "true"
+              {{- else }}
+              value: "false"
+              {{- end }}
+            - name: KC_HTTP_PORT
+              value: {{ .Values.containerPorts.http | quote }}
+            - name: KC_HTTPS_PORT
+              value: {{ .Values.containerPorts.https | quote }}
+            - name: KC_HEALTH_ENABLED
+              value: "true"
+            - name: KC_HTTP_MANAGEMENT_PORT
+              value: {{ .Values.containerPorts.management | quote }}
+            {{- if .Values.metrics.enabled }}
+            - name: KC_METRICS_ENABLED
+              value: "true"
+            {{- end }}
+            # Database configuration
+            - name: KC_DB
+              value: "postgres"
+            - name: KC_DB_URL_HOST
+              value: {{ include "keycloak.databaseHost" . | quote }}
+            - name: KC_DB_URL_PORT
+              value: {{ include "keycloak.databasePort" . | quote }}
+            - name: KC_DB_URL_DATABASE
+              value: {{ include "keycloak.databaseName" . | quote }}
+            {{- if .Values.externalDatabase.schema }}
+            - name: KC_DB_SCHEMA
+              value: {{ .Values.externalDatabase.schema | quote }}
+            {{- end }}
+            {{- if .Values.externalDatabase.extraParams }}
+            - name: KC_DB_URL_PROPERTIES
+              value: {{ .Values.externalDatabase.extraParams | quote }}
+            {{- end }}
+            {{- $dbUser := include "keycloak.databaseUser" . }}
+            {{- if $dbUser }}
+            - name: KC_DB_USERNAME
+              value: {{ $dbUser | quote }}
+            {{- else }}
+            - name: KC_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "keycloak.databaseSecretName" . }}
+                  key: {{ include "keycloak.databaseSecretUserKey" . }}
+            {{- end }}
+            {{- if .Values.usePasswordFiles }}
+            - name: KC_DB_PASSWORD_FILE
+              value: "/opt/keycloak/secrets/db-password"
+            {{- else }}
+            - name: KC_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "keycloak.databaseSecretName" . }}
+                  key: {{ include "keycloak.databaseSecretPasswordKey" . }}
+            {{- end }}
+            # Admin credentials
+            - name: KC_BOOTSTRAP_ADMIN_USERNAME
+              value: {{ .Values.auth.adminUser | quote }}
+            {{- if .Values.usePasswordFiles }}
+            - name: KC_BOOTSTRAP_ADMIN_PASSWORD_FILE
+              value: "/opt/keycloak/secrets/admin-password"
+            {{- else }}
+            - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "keycloak.secretName" . }}
+                  key: {{ include "keycloak.secretPasswordKey" . }}
+            {{- end }}
+            {{- if .Values.tls.enabled }}
+            # TLS Configuration
+            - name: KC_HTTPS_CERTIFICATE_FILE
+              value: "/opt/keycloak/certs/tls.crt"
+            - name: KC_HTTPS_CERTIFICATE_KEY_FILE
+              value: "/opt/keycloak/certs/tls.key"
+            {{- if not .Values.tls.usePemCerts }}
+            - name: KC_HTTPS_KEY_STORE_FILE
+              value: "/opt/keycloak/certs/{{ .Values.tls.keystoreFilename }}"
+            - name: KC_HTTPS_TRUST_STORE_FILE
+              value: "/opt/keycloak/certs/{{ .Values.tls.truststoreFilename }}"
+            {{- if or .Values.tls.keystorePassword .Values.tls.passwordsSecret }}
+            - name: KC_HTTPS_KEY_STORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "keycloak.tlsPasswordsSecretName" . }}
+                  key: tls-keystore-password
+            {{- end }}
+            {{- if or .Values.tls.truststorePassword .Values.tls.passwordsSecret }}
+            - name: KC_HTTPS_TRUST_STORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "keycloak.tlsPasswordsSecretName" . }}
+                  key: tls-truststore-password
+            {{- end }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.trustedCertsExistingSecret }}
+            - name: KC_TRUSTSTORE_PATHS
+              value: "/opt/keycloak/trusted-certs"
+            {{- end }}
+            {{- with .Values.extraEnvVars }}
+            {{- include "keycloak.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+          {{- if or .Values.extraEnvVarsCM .Values.extraEnvVarsSecret }}
+          envFrom:
+            {{- if .Values.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ .Values.extraEnvVarsCM }}
+            {{- end }}
+            {{- if .Values.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ .Values.extraEnvVarsSecret }}
+            {{- end }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPorts.http }}
+              protocol: TCP
+            - name: https
+              containerPort: {{ .Values.containerPorts.https }}
+              protocol: TCP
+            - name: management
+              containerPort: {{ .Values.containerPorts.management }}
+              protocol: TCP
+            {{- with .Values.extraContainerPorts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- if not .Values.diagnosticMode.enabled }}
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: management
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+            successThreshold: {{ .Values.livenessProbe.successThreshold }}
+          {{- else if .Values.customLivenessProbe }}
+          livenessProbe:
+            {{- toYaml .Values.customLivenessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: management
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+            successThreshold: {{ .Values.readinessProbe.successThreshold }}
+          {{- else if .Values.customReadinessProbe }}
+          readinessProbe:
+            {{- toYaml .Values.customReadinessProbe | nindent 12 }}
+          {{- end }}
+          {{- if .Values.startupProbe.enabled }}
+          startupProbe:
+            httpGet:
+              path: /health/started
+              port: management
+            initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.startupProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+            successThreshold: {{ .Values.startupProbe.successThreshold }}
+          {{- else if .Values.customStartupProbe }}
+          startupProbe:
+            {{- toYaml .Values.customStartupProbe | nindent 12 }}
+          {{- end }}
+          {{- end }}
+          {{- $resources := include "keycloak.resources" . }}
+          {{- if $resources }}
+          resources:
+            {{- $resources | nindent 12 }}
+          {{- end }}
+          {{- with .Values.lifecycleHooks }}
+          lifecycle:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /opt/keycloak/data
+            - name: tmp
+              mountPath: /tmp
+            {{- if .Values.usePasswordFiles }}
+            - name: keycloak-secrets
+              mountPath: /opt/keycloak/secrets
+              readOnly: true
+            {{- end }}
+            {{- if or .Values.configuration .Values.existingConfigmap }}
+            - name: keycloak-config
+              mountPath: /opt/keycloak/conf/keycloak.conf
+              subPath: keycloak.conf
+              readOnly: true
+            {{- end }}
+            {{- if or .Values.initdbScripts .Values.initdbScriptsConfigMap }}
+            - name: initdb-scripts
+              mountPath: /docker-entrypoint-initdb.d
+              readOnly: true
+            {{- end }}
+            {{- if .Values.tls.enabled }}
+            - name: tls-certs
+              mountPath: /opt/keycloak/certs
+              readOnly: true
+            {{- end }}
+            {{- if .Values.trustedCertsExistingSecret }}
+            - name: trusted-certs
+              mountPath: /opt/keycloak/trusted-certs
+              readOnly: true
+            {{- end }}
+            {{- with .Values.extraVolumeMounts }}
+            {{- include "keycloak.tplvalues.render" (dict "value" . "context" $) | nindent 12 }}
+            {{- end }}
+        {{- with .Values.sidecars }}
+        {{- include "keycloak.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: data
+          emptyDir: {}
+        - name: lib
+          emptyDir: {}
+        - name: tmp
+          emptyDir: {}
+        {{- if .Values.usePasswordFiles }}
+        - name: keycloak-secrets
+          projected:
+            sources:
+              - secret:
+                  name: {{ include "keycloak.secretName" . }}
+                  items:
+                    - key: {{ include "keycloak.secretPasswordKey" . }}
+                      path: admin-password
+              - secret:
+                  name: {{ include "keycloak.databaseSecretName" . }}
+                  items:
+                    - key: {{ include "keycloak.databaseSecretPasswordKey" . }}
+                      path: db-password
+        {{- end }}
+        {{- if or .Values.configuration .Values.existingConfigmap }}
+        - name: keycloak-config
+          configMap:
+            name: {{ include "keycloak.configmapName" . }}
+        {{- end }}
+        {{- if or .Values.initdbScripts .Values.initdbScriptsConfigMap }}
+        - name: initdb-scripts
+          configMap:
+            name: {{ include "keycloak.initdbScriptsConfigmapName" . }}
+        {{- end }}
+        {{- if .Values.tls.enabled }}
+        - name: tls-certs
+          secret:
+            secretName: {{ include "keycloak.tlsSecretName" . }}
+            defaultMode: 0400
+        {{- end }}
+        {{- if .Values.trustedCertsExistingSecret }}
+        - name: trusted-certs
+          secret:
+            secretName: {{ .Values.trustedCertsExistingSecret }}
+            defaultMode: 0400
+        {{- end }}
+        {{- with .Values.extraVolumes }}
+        {{- include "keycloak.tplvalues.render" (dict "value" . "context" $) | nindent 8 }}
+        {{- end }}

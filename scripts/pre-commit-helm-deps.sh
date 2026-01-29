@@ -6,7 +6,7 @@ set -e
 
 echo "📋 Checking Helm chart dependencies..."
 
-CHARTS=("mariadb" "memcached" "wordpress")
+CHARTS=("keycloak" "postgresql" "mariadb" "memcached" "wordpress")
 FAILED=0
 
 for chart in "${CHARTS[@]}"; do

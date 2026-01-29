@@ -2,6 +2,7 @@
 /.idea/*
 .vscode
 .DS_Store
+/.cursor/*
 temp-values.yaml
 test-values.yaml
 test-minikube-values.yaml

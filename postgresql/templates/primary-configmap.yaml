@@ -1,0 +1,61 @@
+{{- if and (not .Values.primary.existingConfigmap) (or .Values.primary.configuration .Values.primary.pgHbaConfiguration) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-configuration" (include "postgresql.primary.fullname" .) }}
+  namespace: {{ include "postgresql.namespace" . }}
+  labels:
+    {{- include "postgresql.labels" . | nindent 4 }}
+    app.kubernetes.io/component: primary
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  {{- if .Values.primary.configuration }}
+  postgresql.conf: |
+    {{- .Values.primary.configuration | nindent 4 }}
+  {{- end }}
+  {{- if .Values.primary.pgHbaConfiguration }}
+  pg_hba.conf: |
+    {{- .Values.primary.pgHbaConfiguration | nindent 4 }}
+  {{- end }}
+{{- end }}
+---
+{{- if and (not .Values.primary.existingExtendedConfigmap) .Values.primary.extendedConfiguration }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-extended-configuration" (include "postgresql.primary.fullname" .) }}
+  namespace: {{ include "postgresql.namespace" . }}
+  labels:
+    {{- include "postgresql.labels" . | nindent 4 }}
+    app.kubernetes.io/component: primary
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  override.conf: |
+    {{- .Values.primary.extendedConfiguration | nindent 4 }}
+{{- end }}
+---
+{{- if and (not .Values.primary.initdb.scriptsConfigMap) .Values.primary.initdb.scripts }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-initdb-scripts" (include "postgresql.primary.fullname" .) }}
+  namespace: {{ include "postgresql.namespace" . }}
+  labels:
+    {{- include "postgresql.labels" . | nindent 4 }}
+    app.kubernetes.io/component: primary
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  {{- range $key, $value := .Values.primary.initdb.scripts }}
+  {{ $key }}: |
+    {{- $value | nindent 4 }}
+  {{- end }}
+{{- end }}

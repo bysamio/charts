@@ -1,0 +1,74 @@
+{{- if eq .Values.architecture "replication" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "postgresql.readReplica.fullname" . }}
+  namespace: {{ include "postgresql.namespace" . }}
+  labels:
+    {{- include "postgresql.labels" . | nindent 4 }}
+    app.kubernetes.io/component: read
+    {{- with .Values.readReplicas.service.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.readReplicas.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.readReplicas.service.type }}
+  {{- if .Values.readReplicas.service.clusterIP }}
+  clusterIP: {{ .Values.readReplicas.service.clusterIP }}
+  {{- end }}
+  {{- if and (eq .Values.readReplicas.service.type "LoadBalancer") .Values.readReplicas.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.readReplicas.service.loadBalancerIP }}
+  {{- end }}
+  {{- if and (eq .Values.readReplicas.service.type "LoadBalancer") .Values.readReplicas.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- toYaml .Values.readReplicas.service.loadBalancerSourceRanges | nindent 4 }}
+  {{- end }}
+  {{- if or (eq .Values.readReplicas.service.type "LoadBalancer") (eq .Values.readReplicas.service.type "NodePort") }}
+  externalTrafficPolicy: {{ .Values.readReplicas.service.externalTrafficPolicy }}
+  {{- end }}
+  sessionAffinity: {{ .Values.readReplicas.service.sessionAffinity }}
+  {{- with .Values.readReplicas.service.sessionAffinityConfig }}
+  sessionAffinityConfig:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  ports:
+    - name: tcp-postgresql
+      port: {{ .Values.readReplicas.service.ports.postgresql }}
+      targetPort: tcp-postgresql
+      protocol: TCP
+      {{- if and (or (eq .Values.readReplicas.service.type "NodePort") (eq .Values.readReplicas.service.type "LoadBalancer")) .Values.readReplicas.service.nodePorts.postgresql }}
+      nodePort: {{ .Values.readReplicas.service.nodePorts.postgresql }}
+      {{- end }}
+    {{- with .Values.readReplicas.service.extraPorts }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  selector:
+    {{- include "postgresql.readReplica.selectorLabels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "postgresql.readReplica.fullname" . }}-headless
+  namespace: {{ include "postgresql.namespace" . }}
+  labels:
+    {{- include "postgresql.labels" . | nindent 4 }}
+    app.kubernetes.io/component: read
+  {{- with .Values.readReplicas.service.headless.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+    - name: tcp-postgresql
+      port: {{ .Values.readReplicas.service.ports.postgresql }}
+      targetPort: tcp-postgresql
+      protocol: TCP
+  selector:
+    {{- include "postgresql.readReplica.selectorLabels" . | nindent 4 }}
+{{- end }}

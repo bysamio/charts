@@ -7,7 +7,7 @@ set -e
 
 echo "🧪 Testing Helm template rendering..."
 
-CHARTS=("mariadb" "memcached" "wordpress")
+CHARTS=("keycloak" "postgresql" "mariadb" "memcached" "wordpress")
 KUBE_VERSIONS=("1.28" "1.30" "1.32")
 FAILED=0
 
