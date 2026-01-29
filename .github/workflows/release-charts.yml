@@ -8,6 +8,8 @@ on:
       - 'wordpress/**'
       - 'mariadb/**'
       - 'memcached/**'
+      - 'keycloak/**'
+      - 'postgresql/**'
       - 'artifacthub-repo.yml'
       - '.github/workflows/release-charts.yml'
   workflow_dispatch:
@@ -38,7 +40,7 @@ jobs:
       - name: Update chart dependencies
         run: |
           set -euo pipefail
-          charts=(mariadb memcached wordpress)
+          charts=(mariadb memcached wordpress keycloak postgresql)
           for chart in "${charts[@]}"; do
             if [ -f "${chart}/Chart.yaml" ]; then
               helm dependency build "${chart}"
@@ -48,7 +50,7 @@ jobs:
       - name: Lint Helm charts
         run: |
           set -euo pipefail
-          for chart in mariadb memcached wordpress; do
+          for chart in mariadb memcached wordpress keycloak postgresql; do
             helm lint "$chart"
           done
 
@@ -93,7 +95,7 @@ jobs:
             done
           else
             echo "No packaged charts found. Packaging now..."
-            for chart in mariadb memcached wordpress; do
+            for chart in mariadb memcached wordpress keycloak postgresql; do
               package=$(helm package "$chart" | grep -oP '(?<=to: ).*')
               echo "Pushing $package to OCI registry..."
               helm push "$package" oci://ghcr.io/${{ github.repository_owner }}/charts
