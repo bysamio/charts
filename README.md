@@ -14,6 +14,7 @@ Install charts directly from GitHub Container Registry:
 helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 2.0.0
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
 helm install my-memcached oci://ghcr.io/bysamio/charts/memcached --version 1.0.1
+helm install my-keycloak oci://ghcr.io/bysamio/charts/keycloak --version 1.0.1
 ```
 
 ### Traditional Helm Repository
@@ -31,11 +32,13 @@ helm install my-wordpress bysamio/wordpress
 | [wordpress](./wordpress/) | WordPress CMS with auto-installation (non-root) | 2.0.0 | 6.9.0 |
 | [mariadb](./mariadb/) | MariaDB database | 1.0.2 | 12.0.2 |
 | [memcached](./memcached/) | Memcached caching system | 1.0.1 | 1.6.24 |
+| [keycloak](./keycloak/) | Identity and Access Management (IAM) solution | 1.0.1 | 26.5.2 |
 
 ## 📖 Documentation
 
 - [Setup Guide](./ARTIFACT_HUB_SETUP.md) - Complete setup and configuration guide
 - [WordPress Chart](./wordpress/README.md) - WordPress chart documentation
+- [Keycloak Chart](./keycloak/README.md) - Keycloak chart documentation
 
 ## 🔗 Links
 
@@ -62,11 +65,12 @@ A collection of production-ready Helm charts for deploying WordPress with MariaD
 
 ## Overview
 
-The BySam chart collection provides a complete WordPress stack with the following components:
+The BySam chart collection provides a complete WordPress stack and identity management solution with the following components:
 
 - **WordPress**: Official WordPress 6.9.0 with Apache
 - **MariaDB**: Official MariaDB 12.0.2 database
 - **Memcached**: Official Memcached 1.6.24 for caching
+- **Keycloak**: BySamio hardened Keycloak 26.5.2 for Identity and Access Management
 
 ## Key Features
 
@@ -107,6 +111,14 @@ The BySam chart collection provides a complete WordPress stack with the followin
 - **Features**: High-performance distributed memory caching
 - **Security Context**: Uses standard `memcache` user (UID 11211)
 - **Configuration**: Standard Memcached command-line options
+
+### Keycloak (`bysam/keycloak`)
+
+- **Base Image**: `ghcr.io/bysamio/keycloak:26.5.2`
+- **Features**: Open-source Identity and Access Management (IAM) with SSO, OIDC, OAuth2, SAML support
+- **Security Context**: Hardened non-root container (UID 1001)
+- **Configuration**: Includes PostgreSQL subchart, metrics, high availability support
+- **Use Cases**: Single Sign-On (SSO), user federation, multi-factor authentication, API security
 
 ## Usage
 
@@ -204,7 +216,15 @@ If you're migrating from Bitnami charts, the main differences are:
 │   ├── Chart.yaml
 │   ├── values.yaml
 │   └── templates/
-└── memcached/
+├── memcached/
+│   ├── Chart.yaml
+│   ├── values.yaml
+│   └── templates/
+├── keycloak/
+│   ├── Chart.yaml
+│   ├── values.yaml
+│   └── templates/
+└── postgresql/
     ├── Chart.yaml
     ├── values.yaml
     └── templates/
