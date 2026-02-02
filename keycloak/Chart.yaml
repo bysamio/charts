@@ -2,7 +2,7 @@ apiVersion: v2
 name: keycloak
 description: A Helm chart for Keycloak using BySamio hardened Docker image (runs as UID 1001)
 type: application
-version: 1.0.0
+version: 1.0.1
 appVersion: "26.5.2"
 keywords:
   - keycloak
