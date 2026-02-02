@@ -110,6 +110,34 @@ entries:
       licenses: BSD-3-Clause
     apiVersion: v2
     appVersion: 1.6.24
+    created: "2026-02-02T11:47:45.063280668Z"
+    description: Memcached caching system deployment using official Docker images
+    digest: 1b995c43b04a08c00007daa727fdd0212058828aff1ec11edf831dd00a6712b1
+    home: https://memcached.org/
+    icon: https://www.memcached.org/logo.png
+    keywords:
+    - memcached
+    - cache
+    - in-memory
+    maintainers:
+    - email: admin@bysam.io
+      name: BySam Charts
+    name: memcached
+    sources:
+    - https://github.com/bysamio/charts
+    - https://github.com/memcached/memcached
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/memcached-1.0.2/memcached-1.0.2.tgz
+    version: 1.0.2
+  - annotations:
+      category: Database
+      images: |
+        - name: memcached
+          image: docker.io/memcached:1.6.24-alpine
+      licenses: BSD-3-Clause
+    apiVersion: v2
+    appVersion: 1.6.24
     created: "2025-10-31T22:13:04.964448938Z"
     description: Memcached caching system deployment using official Docker images
     digest: 92b6463b664bd96fc618827ca909175495ebd3c32bf2eccde57e53d249464c05
@@ -1071,4 +1099,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2026-02-02T11:32:32.010363046Z"
+generated: "2026-02-02T11:47:45.063349576Z"
