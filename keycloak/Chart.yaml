@@ -25,6 +25,6 @@ maintainers:
   name: BySam Charts
 dependencies:
   - name: postgresql
-    version: "1.0.0"
+    version: "1.0.1"
     repository: "oci://ghcr.io/bysamio/charts"
     condition: postgresql.enabled

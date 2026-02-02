@@ -2,10 +2,10 @@ apiVersion: v2
 name: memcached
 description: Memcached caching system deployment using official Docker images
 type: application
-version: 1.0.1
+version: 1.0.2
 appVersion: "1.6.24"
 home: https://memcached.org/
-icon: https://github.com/docker-library/docs/raw/master/memcached/logo.png
+icon: https://www.memcached.org/logo.png
 sources:
   - https://github.com/bysamio/charts
   - https://github.com/memcached/memcached
