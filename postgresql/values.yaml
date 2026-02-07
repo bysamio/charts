@@ -178,8 +178,14 @@ auth:
     userPasswordKey: password
     replicationPasswordKey: replication-password
   ## @param auth.usePasswordFiles Mount credentials as a files instead of using an environment variable
+  ## TODO: Set to true after updating the container image entrypoint to read password files from:
+  ##   - /var/lib/postgresql/secrets/postgres-password
+  ##   - /var/lib/postgresql/secrets/password
+  ##   - /var/lib/postgresql/secrets/replication-password
+  ## The current bysamio/postgresql image uses environment variables (POSTGRES_PASSWORD, etc.)
+  ## instead of password files, so this must remain false until the entrypoint is updated.
   ##
-  usePasswordFiles: true
+  usePasswordFiles: false
 ## @param architecture PostgreSQL architecture (`standalone` or `replication`)
 ##
 architecture: standalone
@@ -260,7 +266,7 @@ ldap:
   uri: ""
 ## @param postgresqlDataDir PostgreSQL data dir folder
 ##
-postgresqlDataDir: /bitnami/postgresql/data
+postgresqlDataDir: /var/lib/postgresql/data
 ## @param postgresqlSharedPreloadLibraries Shared preload libraries (comma-separated list)
 ##
 postgresqlSharedPreloadLibraries: "pgaudit"
@@ -796,7 +802,7 @@ primary:
     ## @param primary.persistence.mountPath The path the volume will be mounted at
     ## Note: useful when using custom PostgreSQL images
     ##
-    mountPath: /bitnami/postgresql
+    mountPath: /var/lib/postgresql
     ## @param primary.persistence.subPath The subdirectory of the volume to mount to
     ## Useful in dev environments and one PV for multiple services
     ##
@@ -1250,7 +1256,7 @@ readReplicas:
     ## @param readReplicas.persistence.mountPath The path the volume will be mounted at
     ## Note: useful when using custom PostgreSQL images
     ##
-    mountPath: /bitnami/postgresql
+    mountPath: /var/lib/postgresql
     ## @param readReplicas.persistence.subPath The subdirectory of the volume to mount to
     ## Useful in dev environments and one PV for multiple services
     ##

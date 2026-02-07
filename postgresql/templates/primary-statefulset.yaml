@@ -202,7 +202,7 @@ spec:
             {{- if .Values.auth.enablePostgresUser }}
             {{- if include "postgresql.usePasswordFile" . }}
             - name: POSTGRES_PASSWORD_FILE
-              value: "/opt/bitnami/postgresql/secrets/postgres-password"
+              value: "/var/lib/postgresql/secrets/postgres-password"
             {{- else }}
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -217,7 +217,7 @@ spec:
               value: {{ $username | quote }}
             {{- if include "postgresql.usePasswordFile" . }}
             - name: POSTGRES_PASSWORD_FILE
-              value: "/opt/bitnami/postgresql/secrets/password"
+              value: "/var/lib/postgresql/secrets/password"
             {{- else }}
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -238,7 +238,7 @@ spec:
               value: {{ .Values.auth.replicationUsername | quote }}
             {{- if include "postgresql.usePasswordFile" . }}
             - name: POSTGRES_REPLICATION_PASSWORD_FILE
-              value: "/opt/bitnami/postgresql/secrets/replication-password"
+              value: "/var/lib/postgresql/secrets/replication-password"
             {{- else }}
             - name: POSTGRES_REPLICATION_PASSWORD
               valueFrom:
@@ -351,7 +351,7 @@ spec:
                 - |
                   exec pg_isready -U {{ default "postgres" $username | quote }} -h 127.0.0.1 -p {{ .Values.containerPorts.postgresql }}
                   {{- if $database }}
-                  [ -f /opt/bitnami/postgresql/tmp/.initialized ] || [ -f {{ .Values.postgresqlDataDir }}/PG_VERSION ]
+                  [ -f /var/lib/postgresql/tmp/.initialized ] || [ -f {{ .Values.postgresqlDataDir }}/PG_VERSION ]
                   {{- end }}
             initialDelaySeconds: {{ .Values.primary.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.primary.readinessProbe.periodSeconds }}
@@ -402,16 +402,16 @@ spec:
               mountPath: /var/run/postgresql
             {{- if include "postgresql.usePasswordFile" . }}
             - name: postgresql-password
-              mountPath: /opt/bitnami/postgresql/secrets
+              mountPath: /var/lib/postgresql/secrets
               readOnly: true
             {{- end }}
             {{- if or .Values.primary.configuration .Values.primary.pgHbaConfiguration .Values.primary.existingConfigmap }}
             - name: postgresql-config
-              mountPath: /bitnami/postgresql/conf
+              mountPath: /var/lib/postgresql/conf
             {{- end }}
             {{- if or .Values.primary.extendedConfiguration .Values.primary.existingExtendedConfigmap }}
             - name: postgresql-extended-config
-              mountPath: /bitnami/postgresql/conf/conf.d
+              mountPath: /var/lib/postgresql/conf/conf.d
             {{- end }}
             {{- if or .Values.primary.initdb.scripts .Values.primary.initdb.scriptsConfigMap }}
             - name: custom-init-scripts
@@ -419,7 +419,7 @@ spec:
             {{- end }}
             {{- if .Values.tls.enabled }}
             - name: tls
-              mountPath: /opt/bitnami/postgresql/certs
+              mountPath: /var/lib/postgresql/certs
               readOnly: true
             {{- end }}
             {{- with .Values.primary.extraVolumeMounts }}
@@ -492,7 +492,7 @@ spec:
           volumeMounts:
             {{- if .Values.tls.enabled }}
             - name: tls
-              mountPath: /opt/bitnami/postgresql/certs
+              mountPath: /var/lib/postgresql/certs
               readOnly: true
             {{- end }}
         {{- end }}

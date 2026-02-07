@@ -156,9 +156,9 @@ spec:
               value: {{ .Values.primary.service.ports.postgresql | quote }}
             {{- if include "postgresql.usePasswordFile" . }}
             - name: POSTGRES_PASSWORD_FILE
-              value: "/opt/bitnami/postgresql/secrets/postgres-password"
+              value: "/var/lib/postgresql/secrets/postgres-password"
             - name: POSTGRES_REPLICATION_PASSWORD_FILE
-              value: "/opt/bitnami/postgresql/secrets/replication-password"
+              value: "/var/lib/postgresql/secrets/replication-password"
             {{- else }}
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -243,7 +243,7 @@ spec:
               mountPath: /var/run/postgresql
             {{- if include "postgresql.usePasswordFile" . }}
             - name: postgresql-password
-              mountPath: /opt/bitnami/postgresql/secrets
+              mountPath: /var/lib/postgresql/secrets
               readOnly: true
             {{- end }}
             {{- with .Values.readReplicas.extraVolumeMounts }}

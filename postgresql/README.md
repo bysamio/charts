@@ -134,7 +134,7 @@ The following tables document all available configuration options in `values.yam
 | `replication.numSynchronousReplicas` | number | `0` | Number of replicas with synchronous replication |
 | `replication.applicationName` | string | `"my_application"` | Cluster application name |
 | `containerPorts.postgresql` | number | `5432` | PostgreSQL container port |
-| `postgresqlDataDir` | string | `"/bitnami/postgresql/data"` | PostgreSQL data directory |
+| `postgresqlDataDir` | string | `"/var/lib/postgresql/data"` | PostgreSQL data directory |
 | `postgresqlSharedPreloadLibraries` | string | `"pgaudit"` | Shared preload libraries |
 
 ---
@@ -388,7 +388,7 @@ The following tables document all available configuration options in `values.yam
 | `primary.persistence.enabled` | boolean | `true` | Enable PostgreSQL data persistence using PVC |
 | `primary.persistence.volumeName` | string | `"data"` | Name to assign the volume |
 | `primary.persistence.existingClaim` | string | `""` | Name of existing PVC to use |
-| `primary.persistence.mountPath` | string | `"/bitnami/postgresql"` | Path to mount the volume |
+| `primary.persistence.mountPath` | string | `"/var/lib/postgresql"` | Path to mount the volume |
 | `primary.persistence.subPath` | string | `""` | Subdirectory of volume to mount |
 | `primary.persistence.storageClass` | string | `""` | PVC Storage Class |
 | `primary.persistence.accessModes` | array | `["ReadWriteOnce"]` | PVC Access Mode |
