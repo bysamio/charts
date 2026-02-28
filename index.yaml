@@ -228,6 +228,29 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/memcached-1.0.1/memcached-1.0.1.tgz
     version: 1.0.1
+  minio:
+  - apiVersion: v2
+    appVersion: 2025.9.7
+    created: "2026-02-28T20:28:10.238603349Z"
+    description: A Helm chart for deploying MinIO object storage using hardened container
+      images
+    digest: c4cd25e721c06e61f2fb2b12e8e1fb70571b00427ef12b91da37121f76d51b0d
+    home: https://github.com/bysamio/charts
+    keywords:
+    - minio
+    - s3
+    - object-storage
+    - storage
+    maintainers:
+    - name: BySamio
+      url: https://github.com/bysamio
+    name: minio
+    sources:
+    - https://github.com/bysamio/charts
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/minio-1.0.0/minio-1.0.0.tgz
+    version: 1.0.0
   postgresql:
   - apiVersion: v2
     appVersion: 17.7-alpine
@@ -1250,4 +1273,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2026-02-28T17:27:22.259370724Z"
+generated: "2026-02-28T20:28:10.238692547Z"
