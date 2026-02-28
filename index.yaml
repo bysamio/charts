@@ -161,6 +161,33 @@ entries:
   postgresql:
   - apiVersion: v2
     appVersion: 17.7-alpine
+    created: "2026-02-28T08:31:52.891388916Z"
+    description: A Helm chart for PostgreSQL using BySamio hardened Docker image (runs
+      as UID 1001)
+    digest: 741ac461b122c87156ced665829c60c1baf35cf57dc9f0e5f24cb0debc6963c7
+    home: https://www.postgresql.org/
+    icon: https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg
+    keywords:
+    - postgresql
+    - postgres
+    - database
+    - sql
+    - replication
+    - cluster
+    maintainers:
+    - email: admin@bysam.io
+      name: BySam Charts
+    name: postgresql
+    sources:
+    - https://github.com/bysamio/charts
+    - https://github.com/bysamio/images
+    - https://github.com/postgres/postgres
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/postgresql-2.0.1/postgresql-2.0.1.tgz
+    version: 2.0.1
+  - apiVersion: v2
+    appVersion: 17.7-alpine
     created: "2026-02-28T01:35:08.509719167Z"
     description: A Helm chart for PostgreSQL using BySamio hardened Docker image (runs
       as UID 1001)
@@ -1153,4 +1180,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2026-02-28T01:35:08.509789108Z"
+generated: "2026-02-28T08:31:52.891476529Z"
