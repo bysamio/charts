@@ -1,0 +1,33 @@
+{{- $username := include "postgresql.username" . }}
+{{- if $username }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ printf "%s-create-user" (include "postgresql.primary.fullname" .) }}
+  namespace: {{ include "postgresql.namespace" . }}
+  labels:
+    {{- include "postgresql.labels" . | nindent 4 }}
+    app.kubernetes.io/component: primary
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  00-create-additional-user.sh: |
+    #!/bin/bash
+    set -e
+
+    echo "Creating additional PostgreSQL user: ${POSTGRESQL_ADDITIONAL_USER}"
+    psql -v ON_ERROR_STOP=1 --username postgres --dbname postgres <<-EOSQL
+        CREATE USER "${POSTGRESQL_ADDITIONAL_USER}" WITH PASSWORD '${POSTGRESQL_ADDITIONAL_PASSWORD}';
+    EOSQL
+
+    if [ -n "${POSTGRES_DB}" ] && [ "${POSTGRES_DB}" != "postgres" ]; then
+        echo "Granting privileges on database '${POSTGRES_DB}' to '${POSTGRESQL_ADDITIONAL_USER}'"
+        psql -v ON_ERROR_STOP=1 --username postgres --dbname "${POSTGRES_DB}" <<-EOSQL
+            GRANT ALL PRIVILEGES ON DATABASE "${POSTGRES_DB}" TO "${POSTGRESQL_ADDITIONAL_USER}";
+            ALTER DATABASE "${POSTGRES_DB}" OWNER TO "${POSTGRESQL_ADDITIONAL_USER}";
+            GRANT ALL ON SCHEMA public TO "${POSTGRESQL_ADDITIONAL_USER}";
+        EOSQL
+    fi
+{{- end }}

@@ -213,13 +213,13 @@ spec:
             {{- end }}
             {{- $username := include "postgresql.username" . }}
             {{- if $username }}
-            - name: POSTGRES_USER
+            - name: POSTGRESQL_ADDITIONAL_USER
               value: {{ $username | quote }}
             {{- if include "postgresql.usePasswordFile" . }}
-            - name: POSTGRES_PASSWORD_FILE
+            - name: POSTGRESQL_ADDITIONAL_PASSWORD_FILE
               value: "/var/lib/postgresql/secrets/password"
             {{- else }}
-            - name: POSTGRES_PASSWORD
+            - name: POSTGRESQL_ADDITIONAL_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "postgresql.secretName" . }}
@@ -413,7 +413,7 @@ spec:
             - name: postgresql-extended-config
               mountPath: /var/lib/postgresql/conf/conf.d
             {{- end }}
-            {{- if or .Values.primary.initdb.scripts .Values.primary.initdb.scriptsConfigMap }}
+            {{- if or (include "postgresql.username" .) .Values.primary.initdb.scripts .Values.primary.initdb.scriptsConfigMap }}
             - name: custom-init-scripts
               mountPath: /docker-entrypoint-initdb.d
             {{- end }}
@@ -525,10 +525,18 @@ spec:
           configMap:
             name: {{ include "postgresql.primary.extendedConfigmapName" . }}
         {{- end }}
-        {{- if or .Values.primary.initdb.scripts .Values.primary.initdb.scriptsConfigMap }}
+        {{- if or (include "postgresql.username" .) .Values.primary.initdb.scripts .Values.primary.initdb.scriptsConfigMap }}
         - name: custom-init-scripts
-          configMap:
-            name: {{ default (printf "%s-initdb-scripts" (include "postgresql.primary.fullname" .)) .Values.primary.initdb.scriptsConfigMap }}
+          projected:
+            sources:
+            {{- if (include "postgresql.username" .) }}
+            - configMap:
+                name: {{ printf "%s-create-user" (include "postgresql.primary.fullname" .) }}
+            {{- end }}
+            {{- if or .Values.primary.initdb.scripts .Values.primary.initdb.scriptsConfigMap }}
+            - configMap:
+                name: {{ default (printf "%s-initdb-scripts" (include "postgresql.primary.fullname" .)) .Values.primary.initdb.scriptsConfigMap }}
+            {{- end }}
         {{- end }}
         {{- if .Values.tls.enabled }}
         - name: tls

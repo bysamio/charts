@@ -112,9 +112,9 @@ The following tables document all available configuration options in `values.yam
 |-----------|------|---------|-------------|
 | `auth.enablePostgresUser` | boolean | `true` | Assign password to "postgres" admin user |
 | `auth.postgresPassword` | string | `""` | Password for postgres admin user (auto-generated if empty) |
-| `auth.username` | string | `""` | Name for custom user to create |
-| `auth.password` | string | `""` | Password for custom user (auto-generated if empty) |
-| `auth.database` | string | `""` | Name for custom database to create |
+| `auth.username` | string | `""` | Name for an additional user to create (does **not** replace the "postgres" superuser) |
+| `auth.password` | string | `""` | Password for the additional user (auto-generated if empty) |
+| `auth.database` | string | `""` | Name for a custom database to create (owned by the additional user if `auth.username` is set) |
 | `auth.replicationUsername` | string | `"repl_user"` | Name of the replication user |
 | `auth.replicationPassword` | string | `""` | Password for replication user |
 | `auth.existingSecret` | string | `""` | Existing secret for PostgreSQL credentials |
@@ -719,6 +719,21 @@ backup:
 - PodDisruptionBudget ensures availability during updates
 
 ## Upgrading
+
+### To 2.0.0
+
+**Breaking change**: `auth.username` no longer overrides the PostgreSQL superuser.
+
+In previous versions, setting `auth.username` would replace the default `postgres` superuser with the specified username via the `POSTGRES_USER` environment variable. This meant the `postgres` superuser was renamed, and `auth.password` became the superuser password.
+
+Starting with 2.0.0, `auth.username` creates an **additional** regular user alongside the `postgres` superuser. The `postgres` superuser is always preserved and its password is controlled by `auth.postgresPassword`.
+
+**If you were relying on the old behavior** (using `auth.username` to rename the superuser), you have two options:
+
+1. **Recommended**: Remove `auth.username` and use `auth.postgresPassword` directly to set the superuser password. Create additional users via `primary.initdb.scripts`.
+2. If you need the custom-named superuser, create it manually via `primary.initdb.scripts` with `SUPERUSER` privileges.
+
+**No action needed** if you were not setting `auth.username`, or if you were already using it with the intention of creating a separate application user.
 
 ### To 1.0.0
 

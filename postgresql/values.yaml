@@ -151,13 +151,13 @@ auth:
   ## @param auth.postgresPassword Password for the "postgres" admin user. Ignored if `auth.existingSecret` is provided
   ##
   postgresPassword: ""
-  ## @param auth.username Name for a custom user to create
+  ## @param auth.username Name for a custom user to create (in addition to the "postgres" superuser)
   ##
   username: ""
   ## @param auth.password Password for the custom user to create. Ignored if `auth.existingSecret` is provided
   ##
   password: ""
-  ## @param auth.database Name for a custom database to create
+  ## @param auth.database Name for a custom database to create (owned by the custom user if `auth.username` is set)
   ##
   database: ""
   ## @param auth.replicationUsername Name of the replication user
