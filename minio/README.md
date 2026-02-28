@@ -48,7 +48,7 @@ helm install minio oci://ghcr.io/bysamio/charts/minio \
 |-----------|------|---------|-------------|
 | `image.registry` | string | `quay.io` | Image registry |
 | `image.repository` | string | `minio/minio` | Image repository |
-| `image.tag` | string | `RELEASE.2025-02-18T16-25-55Z` | Image tag |
+| `image.tag` | string | `RELEASE.2025-09-07T16-13-09Z` | Image tag |
 | `image.pullPolicy` | string | `IfNotPresent` | Pull policy |
 
 ### Authentication

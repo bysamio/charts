@@ -34,7 +34,7 @@ helm install my-wordpress bysamio/wordpress
 | [memcached](./memcached/) | Memcached caching system | 1.0.1 | 1.6.24 |
 | [keycloak](./keycloak/) | Identity and Access Management (IAM) solution | 1.0.1 | 26.5.2 |
 | [postgresql](./postgresql/) | PostgreSQL database | 2.0.1 | 17.5 |
-| [minio](./minio/) | High-performance S3-compatible object storage | 1.0.0 | 2025.2.18 |
+| [minio](./minio/) | High-performance S3-compatible object storage | 1.0.0 | 2025.9.7 |
 
 ## 📖 Documentation
 
