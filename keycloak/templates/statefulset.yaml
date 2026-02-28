@@ -99,6 +99,8 @@ spec:
             - |
               mkdir -p /opt/keycloak/data/tmp /tmp/keycloak
               [ -d "/opt/keycloak/providers" ] && cp -r /opt/keycloak/providers/* /opt/keycloak/data/providers/ 2>/dev/null || true
+              echo "Copying lib directory for writable overlay..."
+              cp -a /opt/keycloak/lib/. /mnt/lib/
               echo "Directories prepared"
           {{- $resources := include "keycloak.prepareWriteDirs.resources" . }}
           {{- if $resources }}
@@ -109,7 +111,7 @@ spec:
             - name: data
               mountPath: /opt/keycloak/data
             - name: lib
-              mountPath: /opt/keycloak/lib
+              mountPath: /mnt/lib
             - name: tmp
               mountPath: /tmp
         {{- end }}
@@ -239,29 +241,19 @@ spec:
                   name: {{ include "keycloak.databaseSecretName" . }}
                   key: {{ include "keycloak.databaseSecretUserKey" . }}
             {{- end }}
-            {{- if .Values.usePasswordFiles }}
-            - name: KC_DB_PASSWORD_FILE
-              value: "/opt/keycloak/secrets/db-password"
-            {{- else }}
             - name: KC_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "keycloak.databaseSecretName" . }}
                   key: {{ include "keycloak.databaseSecretPasswordKey" . }}
-            {{- end }}
             # Admin credentials
             - name: KC_BOOTSTRAP_ADMIN_USERNAME
               value: {{ .Values.auth.adminUser | quote }}
-            {{- if .Values.usePasswordFiles }}
-            - name: KC_BOOTSTRAP_ADMIN_PASSWORD_FILE
-              value: "/opt/keycloak/secrets/admin-password"
-            {{- else }}
             - name: KC_BOOTSTRAP_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "keycloak.secretName" . }}
                   key: {{ include "keycloak.secretPasswordKey" . }}
-            {{- end }}
             {{- if .Values.tls.enabled }}
             # TLS Configuration
             - name: KC_HTTPS_CERTIFICATE_FILE
@@ -376,6 +368,10 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /opt/keycloak/data
+            {{- if not (include "keycloak.isOptimizedImage" .) }}
+            - name: lib
+              mountPath: /opt/keycloak/lib
+            {{- end }}
             - name: tmp
               mountPath: /tmp
             {{- if .Values.usePasswordFiles }}

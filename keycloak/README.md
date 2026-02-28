@@ -80,7 +80,7 @@ The following tables document all available configuration options in `values.yam
 | `diagnosticMode.command` | array | `["sleep"]` | Command to override all containers in diagnostic mode |
 | `diagnosticMode.args` | array | `["infinity"]` | Args to override all containers in diagnostic mode |
 | `useHelmHooks` | boolean | `true` | Enable use of Helm hooks if needed (e.g., on post-install jobs) |
-| `usePasswordFiles` | boolean | `true` | Mount credentials as files instead of environment variables |
+| `usePasswordFiles` | boolean | `false` | Mount credentials as files in addition to env vars (for init scripts/sidecars) |
 
 ---
 
@@ -215,7 +215,7 @@ The chart automatically detects optimized images by the `-optimized` suffix.
 | `containerSecurityContext.runAsGroup` | number | `1001` | Containers' Security Context runAsGroup |
 | `containerSecurityContext.runAsNonRoot` | boolean | `true` | Run containers as non-root |
 | `containerSecurityContext.privileged` | boolean | `false` | Set container privileged |
-| `containerSecurityContext.readOnlyRootFilesystem` | boolean | `true` | Set read-only root filesystem (auto-set for optimized images) |
+| `containerSecurityContext.readOnlyRootFilesystem` | boolean | `true` | Read-only root filesystem. Automatically overridden to `false` for flexible images |
 | `containerSecurityContext.allowPrivilegeEscalation` | boolean | `false` | Allow privilege escalation |
 | `containerSecurityContext.capabilities.drop` | array | `["ALL"]` | List of capabilities to drop |
 | `containerSecurityContext.seccompProfile.type` | string | `"RuntimeDefault"` | Set seccomp profile type |
@@ -440,9 +440,9 @@ The chart automatically detects optimized images by the `-optimized` suffix.
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `keycloakConfigCli.enabled` | boolean | `false` | Enable keycloak-config-cli job |
-| `keycloakConfigCli.image.registry` | string | `"docker.io"` | Config CLI image registry |
-| `keycloakConfigCli.image.repository` | string | `"bitnami/keycloak-config-cli"` | Config CLI image repository |
-| `keycloakConfigCli.image.tag` | string | `"6.4.0-debian-12-r11"` | Config CLI image tag |
+| `keycloakConfigCli.image.registry` | string | `"quay.io"` | Config CLI image registry |
+| `keycloakConfigCli.image.repository` | string | `"adorsys/keycloak-config-cli"` | Config CLI image repository |
+| `keycloakConfigCli.image.tag` | string | `"6.4.1-26"` | Config CLI image tag |
 | `keycloakConfigCli.image.digest` | string | `""` | Config CLI image digest |
 | `keycloakConfigCli.image.pullPolicy` | string | `"IfNotPresent"` | Config CLI image pull policy |
 | `keycloakConfigCli.image.pullSecrets` | array | `[]` | Config CLI image pull secrets |
@@ -582,11 +582,17 @@ resources:
 ## Security Considerations
 
 - The chart runs as non-root user (UID 1001) by default
-- `readOnlyRootFilesystem` is enabled for optimized images
+- `readOnlyRootFilesystem` is automatically enabled for optimized images and disabled for flexible images (which need writable filesystem for auto-build)
 - Network policies restrict traffic by default
-- Secrets are mounted as files instead of environment variables
+- Passwords are passed via `secretKeyRef` environment variables (Keycloak does not support `_FILE` suffix env vars natively)
 
 ## Upgrading
+
+### To 1.1.0
+
+- **Fix**: `usePasswordFiles` no longer sets `KC_BOOTSTRAP_ADMIN_PASSWORD_FILE` and `KC_DB_PASSWORD_FILE` env vars, which are not supported by vanilla/hardened Keycloak images (that convention is Bitnami-specific). Passwords are now always passed via `secretKeyRef`. The default for `usePasswordFiles` changed from `true` to `false`.
+- **Fix**: `readOnlyRootFilesystem` is now automatically set to `false` for flexible images (auto-build at startup requires writable filesystem). Optimized images retain the configured value (default `true`). The `lib` emptyDir is mounted at `/opt/keycloak/lib` for flexible images, with the init container copying original contents before the main container starts.
+- **Change**: `keycloakConfigCli` image switched from `bitnami/keycloak-config-cli` to `adorsys/keycloak-config-cli` (the upstream project).
 
 ### To 1.0.0
 

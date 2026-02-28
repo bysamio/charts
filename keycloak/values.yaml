@@ -75,9 +75,12 @@ diagnosticMode:
 ## @param useHelmHooks Enable use of Helm hooks if needed, e.g. on post-install jobs
 ##
 useHelmHooks: true
-## @param usePasswordFiles Mount credentials as files instead of using environment variables
+## @param usePasswordFiles Mount credentials as files in addition to using environment variables
+## NOTE: Keycloak does not natively support _FILE suffix env vars (that is a Bitnami-specific convention).
+## When enabled, secrets are still mounted as files at /opt/keycloak/secrets/ for use by init scripts
+## or sidecars, but passwords are always passed to Keycloak via secretKeyRef env vars.
 ##
-usePasswordFiles: true
+usePasswordFiles: false
 
 ## @section Keycloak parameters
 
@@ -323,8 +326,8 @@ containerSecurityContext:
   runAsNonRoot: true
   privileged: false
   ## @param containerSecurityContext.readOnlyRootFilesystem Set container's Security Context readOnlyRootFilesystem
-  ## NOTE: This is automatically set to true for optimized images (tag contains '-optimized')
-  ## For flexible/auto-build images, set this to false manually
+  ## NOTE: Automatically overridden to false for flexible images (auto-build at startup requires writes).
+  ## For optimized images (tag contains '-optimized'), the configured value is used as-is.
   readOnlyRootFilesystem: true
   allowPrivilegeEscalation: false
   capabilities:
@@ -997,8 +1000,8 @@ keycloakConfigCli:
   ## @param keycloakConfigCli.enabled Whether to enable keycloak-config-cli job
   ##
   enabled: false
-  ## Bitnami keycloak-config-cli image
-  ## ref: https://hub.docker.com/r/bitnami/keycloak-config-cli/tags/
+  ## Adorsys keycloak-config-cli image
+  ## ref: https://hub.docker.com/r/adorsys/keycloak-config-cli/tags/
   ## @param keycloakConfigCli.image.registry [default: REGISTRY_NAME] keycloak-config-cli container image registry
   ## @param keycloakConfigCli.image.repository [default: REPOSITORY_NAME/keycloak-config-cli] keycloak-config-cli container image repository
   ## @skip keycloakConfigCli.image.tag keycloak-config-cli container image tag
@@ -1007,9 +1010,9 @@ keycloakConfigCli:
   ## @param keycloakConfigCli.image.pullSecrets keycloak-config-cli container image pull secrets
   ##
   image:
-    registry: docker.io
-    repository: bitnami/keycloak-config-cli
-    tag: 6.4.0-debian-12-r11
+    registry: quay.io
+    repository: adorsys/keycloak-config-cli
+    tag: "6.4.1-26"
     digest: ""
     ## Specify a imagePullPolicy
     ## ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images

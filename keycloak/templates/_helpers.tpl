@@ -521,8 +521,8 @@ Checks if the image tag contains '-optimized'
 {{/*
 Return container security context
 Automatically adjusts readOnlyRootFilesystem based on image type:
-- Optimized images (distroless): readOnlyRootFilesystem=true
-- Flexible images (auto-build): readOnlyRootFilesystem=false (user must set manually)
+- Optimized images (tag contains '-optimized'): uses the configured value (default true)
+- Flexible images (auto-build at startup): forced to false (Quarkus build needs writable filesystem)
 */}}
 {{- define "keycloak.containerSecurityContext" -}}
 {{- if .Values.containerSecurityContext.enabled }}
@@ -531,6 +531,12 @@ Automatically adjusts readOnlyRootFilesystem based on image type:
   {{- if eq (toString .Values.global.compatibility.openshift.adaptSecurityContext) "force" }}
     {{- $context = omit $context "runAsUser" "runAsGroup" }}
   {{- end }}
+{{- end }}
+{{- /* Auto-adjust readOnlyRootFilesystem based on image variant:
+     - Flexible images need filesystem writes during auto-build at startup
+     - Optimized images are pre-built and can run read-only */ -}}
+{{- if not (include "keycloak.isOptimizedImage" .) }}
+{{- $context = set $context "readOnlyRootFilesystem" false }}
 {{- end }}
 {{- toYaml $context }}
 {{- end }}
