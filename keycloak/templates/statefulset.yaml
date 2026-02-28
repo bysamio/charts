@@ -169,10 +169,8 @@ spec:
               value: {{ .Values.logging.level | quote }}
             - name: KC_LOG_OUTPUT
               value: {{ .Values.logging.output | quote }}
-            {{- if .Values.production }}
             - name: KC_HOSTNAME_STRICT
               value: {{ .Values.hostnameStrict | quote }}
-            {{- end }}
             {{- if .Values.proxyHeaders }}
             - name: KC_PROXY_HEADERS
               value: {{ .Values.proxyHeaders | quote }}
