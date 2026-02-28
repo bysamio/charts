@@ -18,16 +18,14 @@ data:
     set -e
 
     echo "Creating additional PostgreSQL user: ${POSTGRESQL_ADDITIONAL_USER}"
-    psql -v ON_ERROR_STOP=1 --username postgres --dbname postgres <<-EOSQL
-        CREATE USER "${POSTGRESQL_ADDITIONAL_USER}" WITH PASSWORD '${POSTGRESQL_ADDITIONAL_PASSWORD}';
-    EOSQL
+    psql -v ON_ERROR_STOP=1 --username postgres --dbname postgres \
+      -c "CREATE USER \"${POSTGRESQL_ADDITIONAL_USER}\" WITH PASSWORD '${POSTGRESQL_ADDITIONAL_PASSWORD}';"
 
     if [ -n "${POSTGRES_DB}" ] && [ "${POSTGRES_DB}" != "postgres" ]; then
         echo "Granting privileges on database '${POSTGRES_DB}' to '${POSTGRESQL_ADDITIONAL_USER}'"
-        psql -v ON_ERROR_STOP=1 --username postgres --dbname "${POSTGRES_DB}" <<-EOSQL
-            GRANT ALL PRIVILEGES ON DATABASE "${POSTGRES_DB}" TO "${POSTGRESQL_ADDITIONAL_USER}";
-            ALTER DATABASE "${POSTGRES_DB}" OWNER TO "${POSTGRESQL_ADDITIONAL_USER}";
-            GRANT ALL ON SCHEMA public TO "${POSTGRESQL_ADDITIONAL_USER}";
-        EOSQL
+        psql -v ON_ERROR_STOP=1 --username postgres --dbname "${POSTGRES_DB}" \
+          -c "GRANT ALL PRIVILEGES ON DATABASE \"${POSTGRES_DB}\" TO \"${POSTGRESQL_ADDITIONAL_USER}\";" \
+          -c "ALTER DATABASE \"${POSTGRES_DB}\" OWNER TO \"${POSTGRESQL_ADDITIONAL_USER}\";" \
+          -c "GRANT ALL ON SCHEMA public TO \"${POSTGRESQL_ADDITIONAL_USER}\";"
     fi
 {{- end }}
