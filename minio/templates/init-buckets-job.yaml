@@ -1,0 +1,89 @@
+{{- if .Values.initBuckets.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "minio.fullname" . }}-init-buckets
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "minio.labels" . | nindent 4 }}
+    app.kubernetes.io/component: init-buckets
+  annotations:
+    {{- if .Values.initBuckets.useHelmHooks }}
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- end }}
+    {{- with .Values.initBuckets.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  backoffLimit: 5
+  {{- if .Values.initBuckets.cleanupAfterFinished.enabled }}
+  ttlSecondsAfterFinished: {{ .Values.initBuckets.cleanupAfterFinished.seconds }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "minio.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: init-buckets
+    spec:
+      restartPolicy: OnFailure
+      serviceAccountName: {{ include "minio.serviceAccountName" . }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      volumes:
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 16Mi
+      containers:
+        - name: mc
+          image: {{ include "minio.mcImage" . }}
+          imagePullPolicy: {{ .Values.initBuckets.image.pullPolicy }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "minio.secretName" . }}
+                  key: root-user
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "minio.secretName" . }}
+                  key: root-password
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+          command:
+            - /bin/sh
+            - -ec
+            - |
+              echo "==> Waiting for MinIO..."
+              until mc alias set myminio http://{{ include "minio.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.ports.api }} "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" --api S3v4 2>/dev/null; do
+                echo "    MinIO not ready, retrying in 3s..."
+                sleep 3
+              done
+              echo "==> MinIO is ready."
+
+              {{- range .Values.initBuckets.buckets }}
+              echo "==> Ensuring bucket '{{ . }}' exists..."
+              mc mb --ignore-existing myminio/{{ . }}
+              {{- end }}
+
+              echo "==> Bucket initialization complete."
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+{{- end }}

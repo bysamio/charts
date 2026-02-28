@@ -1,0 +1,47 @@
+{{- if .Values.networkPolicy.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "minio.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "minio.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "minio.selectorLabels" . | nindent 6 }}
+  policyTypes:
+    - Ingress
+    - Egress
+  egress:
+    - {}
+  {{- if .Values.networkPolicy.allowExternal }}
+  ingress:
+    - ports:
+        - port: 9000
+          protocol: TCP
+        {{- if .Values.console.enabled }}
+        - port: 9001
+          protocol: TCP
+        {{- end }}
+  {{- else }}
+  ingress:
+    - ports:
+        - port: 9000
+          protocol: TCP
+        {{- if .Values.console.enabled }}
+        - port: 9001
+          protocol: TCP
+        {{- end }}
+      from:
+        - podSelector:
+            matchLabels:
+              {{ include "minio.fullname" . }}-client: "true"
+        {{- /* Allow inter-node traffic in distributed mode */ -}}
+        {{- if eq .Values.mode "distributed" }}
+        - podSelector:
+            matchLabels:
+              {{- include "minio.selectorLabels" . | nindent 14 }}
+        {{- end }}
+  {{- end }}
+{{- end }}

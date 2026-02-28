@@ -4,7 +4,7 @@
 
 BySamio Helm charts for Kubernetes. Ships hardened, non-root container images via `ghcr.io/bysamio/`.
 
-**Charts:** `wordpress/`, `keycloak/`, `postgresql/`, `mariadb/`, `memcached/`
+**Charts:** `wordpress/`, `keycloak/`, `postgresql/`, `mariadb/`, `memcached/`, `minio/`
 **Registry:** `oci://ghcr.io/bysamio/charts`
 **CI:** `.github/workflows/release-charts.yml` — packages and pushes charts on merge to `main`
 
@@ -69,6 +69,13 @@ Commit types: `fix`, `feat`, `docs`, `refactor`, `chore`
 - `auth.username`/`auth.password` create an **additional** user, not a replacement for the `postgres` superuser
 - Init script in `create-user-configmap.yaml` runs `CREATE USER` + `GRANT` via psql
 - Subchart dependency for Keycloak is pinned in `keycloak/Chart.yaml`
+
+### MinIO
+- Supports `mode: standalone` (1 replica, 1 PVC) and `mode: distributed` (4+ replicas, erasure coding)
+- `minio.distributedArgs` helper builds the erasure-coding URL pattern `http://<name>-{0...N-1}.<headless>/data{0...D-1}`
+- Headless service (`<name>-headless`) provides stable DNS for StatefulSet pods
+- `initBuckets` Job creates buckets via `mc`; set `useHelmHooks: false` + custom `annotations` for ArgoCD compatibility
+- Image is upstream `quay.io/minio/minio` — will be replaced with `ghcr.io/bysamio/minio` once the hardened image is built
 
 ### WordPress
 - Depends on `mariadb` and `memcached` subcharts

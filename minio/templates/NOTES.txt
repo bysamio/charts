@@ -1,0 +1,37 @@
+CHART NAME: {{ .Chart.Name }}
+CHART VERSION: {{ .Chart.Version }}
+APP VERSION: {{ .Chart.AppVersion }}
+
+** Please be patient while the chart is being deployed **
+
+MinIO can be accessed via port {{ .Values.service.ports.api }} on the following DNS name from within your cluster:
+
+  {{ include "minio.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+
+{{- if eq .Values.mode "distributed" }}
+Mode:     Distributed ({{ .Values.replicaCount }} replicas, {{ .Values.drivesPerNode }} drive(s) per node)
+{{- else }}
+Mode:     Standalone
+{{- end }}
+API:      http://{{ include "minio.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.ports.api }}
+{{- if .Values.console.enabled }}
+Console:  http://{{ include "minio.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.ports.console }}
+{{- end }}
+
+To access MinIO from outside the cluster:
+
+{{- if .Values.ingress.enabled }}
+  API:     {{ range .Values.ingress.hosts }}http://{{ .host }}{{ end }}
+{{- else }}
+  kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "minio.fullname" . }} 9000:{{ .Values.service.ports.api }}
+{{- end }}
+{{- if and .Values.console.enabled .Values.consoleIngress.enabled }}
+  Console: {{ range .Values.consoleIngress.hosts }}http://{{ .host }}{{ end }}
+{{- else if .Values.console.enabled }}
+  kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "minio.fullname" . }} 9001:{{ .Values.service.ports.console }}
+{{- end }}
+
+To get your credentials:
+
+  export MINIO_ROOT_USER=$(kubectl get secret {{ include "minio.secretName" . }} -n {{ .Release.Namespace }} -o jsonpath='{.data.root-user}' | base64 -d)
+  export MINIO_ROOT_PASSWORD=$(kubectl get secret {{ include "minio.secretName" . }} -n {{ .Release.Namespace }} -o jsonpath='{.data.root-password}' | base64 -d)

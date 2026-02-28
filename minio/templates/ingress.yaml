@@ -1,0 +1,73 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "minio.fullname" . }}-api
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "minio.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className | quote }}
+  {{- end }}
+  {{- if .Values.ingress.tls }}
+  tls:
+    {{- toYaml .Values.ingress.tls | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "minio.fullname" $ }}
+                port:
+                  name: api
+          {{- end }}
+    {{- end }}
+{{- end }}
+---
+{{- if .Values.consoleIngress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "minio.fullname" . }}-console
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "minio.labels" . | nindent 4 }}
+  {{- with .Values.consoleIngress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.consoleIngress.className }}
+  ingressClassName: {{ .Values.consoleIngress.className | quote }}
+  {{- end }}
+  {{- if .Values.consoleIngress.tls }}
+  tls:
+    {{- toYaml .Values.consoleIngress.tls | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- range .Values.consoleIngress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "minio.fullname" $ }}
+                port:
+                  name: console
+          {{- end }}
+    {{- end }}
+{{- end }}
