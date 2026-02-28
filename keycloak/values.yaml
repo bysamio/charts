@@ -190,14 +190,19 @@ trustedCertsExistingSecret: ""
 ## @param adminRealm Name of the admin realm
 ##
 adminRealm: "master"
+## @param hostname Keycloak server hostname (e.g. keycloak.example.com). If empty, falls back to ingress.hostname.
+## Required when hostnameStrict is true. If neither hostname nor ingress.hostname is set,
+## Keycloak will fail to start in production mode (this is Keycloak's default behaviour).
+##
+hostname: ""
 ## @param proxyHeaders Set Keycloak proxy headers
 ##
 proxyHeaders: ""
-## @param hostnameStrict Disables dynamically resolving the hostname from request headers (ignored if ingress.enabled is false).
-## Should always be set to true in production, unless your reverse proxy overwrites the Host header.
-## If enabled, the ingress.hostname option needs to be specified.
+## @param hostnameStrict Reject dynamically resolved hostnames from request headers.
+## Keycloak default is true. Should stay true in production to prevent host-header injection.
+## Set to false only for development/testing without a configured hostname.
 ##
-hostnameStrict: false
+hostnameStrict: true
 ## @param httpEnabled Force enabling HTTP endpoint (by default is only enabled if TLS is disabled)
 ##
 httpEnabled: false

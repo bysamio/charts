@@ -158,8 +158,13 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.namespace
-            - name: KC_HOSTNAME_ADMIN_URL
-              value: ""
+            {{- $kcHostname := include "keycloak.hostname" . }}
+            {{- if $kcHostname }}
+            - name: KC_HOSTNAME
+              value: {{ $kcHostname | quote }}
+            {{- end }}
+            - name: KC_HOSTNAME_STRICT
+              value: {{ .Values.hostnameStrict | quote }}
             {{- if not (include "keycloak.isOptimizedImage" .) }}
             {{- /* Only set build-time config for flexible images - optimized images have these baked in */}}
             - name: KC_HTTP_RELATIVE_PATH
@@ -169,8 +174,6 @@ spec:
               value: {{ .Values.logging.level | quote }}
             - name: KC_LOG_OUTPUT
               value: {{ .Values.logging.output | quote }}
-            - name: KC_HOSTNAME_STRICT
-              value: {{ .Values.hostnameStrict | quote }}
             {{- if .Values.proxyHeaders }}
             - name: KC_PROXY_HEADERS
               value: {{ .Values.proxyHeaders | quote }}

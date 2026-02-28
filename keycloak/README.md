@@ -127,7 +127,8 @@ The chart automatically detects optimized images by the `-optimized` suffix.
 | `existingConfigmap` | string | `""` | Name of existing ConfigMap with Keycloak configuration |
 | `trustedCertsExistingSecret` | string | `""` | Name of existing Secret with trusted certificates |
 | `adminRealm` | string | `"master"` | Name of the admin realm |
-| `hostnameStrict` | boolean | `false` | Disables dynamically resolving hostname from request headers |
+| `hostname` | string | `""` | Keycloak server hostname. Falls back to `ingress.hostname` if empty |
+| `hostnameStrict` | boolean | `true` | Reject dynamically resolved hostnames (Keycloak default) |
 | `httpEnabled` | boolean | `false` | Force enabling HTTP endpoint |
 | `extraStartupArgs` | string | `""` | Extra default startup args |
 | `initdbScripts` | object | `{}` | Dictionary of initdb scripts to run at first boot |
@@ -587,6 +588,11 @@ resources:
 - Passwords are passed via `secretKeyRef` environment variables (Keycloak does not support `_FILE` suffix env vars natively)
 
 ## Upgrading
+
+### To 1.2.0
+
+- **Breaking**: `hostnameStrict` default restored to `true` (Keycloak's own default). If you relied on `hostnameStrict: false` from 1.1.0, set it explicitly.
+- **New**: `hostname` value added. `KC_HOSTNAME` is resolved automatically: `hostname` > `ingress.hostname` > empty. Without a hostname and `hostnameStrict: true`, Keycloak refuses to start — this is intentional.
 
 ### To 1.1.0
 

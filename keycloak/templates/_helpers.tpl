@@ -519,6 +519,18 @@ Checks if the image tag contains '-optimized'
 {{- end -}}
 
 {{/*
+Return the Keycloak hostname
+Resolution order: hostname (explicit) > ingress.hostname (if ingress enabled) > empty (Keycloak will fail if hostname-strict=true)
+*/}}
+{{- define "keycloak.hostname" -}}
+{{- if .Values.hostname -}}
+  {{- .Values.hostname -}}
+{{- else if and .Values.ingress.enabled .Values.ingress.hostname -}}
+  {{- .Values.ingress.hostname -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Return container security context
 Automatically adjusts readOnlyRootFilesystem based on image type:
 - Optimized images (tag contains '-optimized'): uses the configured value (default true)
