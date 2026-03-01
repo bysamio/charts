@@ -166,7 +166,9 @@ spec:
     {{- if eq .Values.mode "distributed" }}
     {{- $drives := int .Values.drivesPerNode }}
     {{- range $i := until $drives }}
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: data{{ if gt $drives 1 }}{{ $i }}{{ end }}
         {{- with $.Values.persistence.annotations }}
         annotations:
@@ -183,7 +185,9 @@ spec:
             storage: {{ $.Values.persistence.size }}
     {{- end }}
     {{- else }}
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: data
         {{- with .Values.persistence.annotations }}
         annotations:

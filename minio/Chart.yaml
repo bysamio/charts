@@ -2,7 +2,7 @@ apiVersion: v2
 name: minio
 description: A Helm chart for deploying MinIO object storage using hardened container images
 type: application
-version: 1.0.1
+version: 1.0.3
 appVersion: "2025.9.7"
 keywords:
   - minio
