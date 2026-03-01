@@ -231,6 +231,28 @@ entries:
   minio:
   - apiVersion: v2
     appVersion: 2025.9.7
+    created: "2026-03-01T00:32:57.69144089Z"
+    description: A Helm chart for deploying MinIO object storage using hardened container
+      images
+    digest: 36829e06da6aedff610efc6e2244c3d664de06ede9527dcab21c73143db0eb99
+    home: https://github.com/bysamio/charts
+    keywords:
+    - minio
+    - s3
+    - object-storage
+    - storage
+    maintainers:
+    - name: BySamio
+      url: https://github.com/bysamio
+    name: minio
+    sources:
+    - https://github.com/bysamio/charts
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/minio-1.0.3/minio-1.0.3.tgz
+    version: 1.0.3
+  - apiVersion: v2
+    appVersion: 2025.9.7
     created: "2026-03-01T00:05:46.218170262Z"
     description: A Helm chart for deploying MinIO object storage using hardened container
       images
@@ -1295,4 +1317,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2026-03-01T00:05:46.218253278Z"
+generated: "2026-03-01T00:32:57.691533533Z"
