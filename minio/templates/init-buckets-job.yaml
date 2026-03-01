@@ -59,6 +59,8 @@ spec:
                 secretKeyRef:
                   name: {{ include "minio.secretName" . }}
                   key: root-password
+            - name: HOME
+              value: /tmp
           volumeMounts:
             - name: tmp
               mountPath: /tmp
