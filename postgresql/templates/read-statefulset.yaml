@@ -241,6 +241,8 @@ spec:
             {{- end }}
             - name: run-postgresql
               mountPath: /var/run/postgresql
+            - name: tmp
+              mountPath: /tmp
             {{- if include "postgresql.usePasswordFile" . }}
             - name: postgresql-password
               mountPath: /var/lib/postgresql/secrets
@@ -254,6 +256,8 @@ spec:
         {{- end }}
       volumes:
         - name: run-postgresql
+          emptyDir: {}
+        - name: tmp
           emptyDir: {}
         {{- if .Values.shmVolume.enabled }}
         - name: dshm
