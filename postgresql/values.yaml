@@ -265,8 +265,12 @@ ldap:
   ##
   uri: ""
 ## @param postgresqlDataDir PostgreSQL data dir folder
+## IMPORTANT: Must NOT be /var/lib/postgresql/data because the upstream
+## postgres Docker image declares VOLUME /var/lib/postgresql/data, which
+## causes containerd to create an anonymous overlay that hides the PVC mount.
+## Using /var/lib/postgresql/pgdata avoids this and writes directly to the PVC.
 ##
-postgresqlDataDir: /var/lib/postgresql/data
+postgresqlDataDir: /var/lib/postgresql/pgdata
 ## @param postgresqlSharedPreloadLibraries Shared preload libraries (comma-separated list)
 ##
 postgresqlSharedPreloadLibraries: "pgaudit"
