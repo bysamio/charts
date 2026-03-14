@@ -1449,6 +1449,42 @@ backup:
         ## See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#labelselector-v1-meta for more details
         ##
         selector: {}
+      ## @param backup.cronjob.storage.hostPath Host filesystem path for backups (used when storage.enabled=false)
+      ## Recommended: set to a path outside OpenEBS/PV directories so backups
+      ## survive PVC lifecycle events. Only used when storage.enabled is false.
+      ##
+      hostPath: ""
+      ## S3 off-node backup storage
+      ## When s3.enabled is true, the backup is piped through gzip and uploaded
+      ## to an S3-compatible bucket using the AWS CLI. This takes priority over
+      ## PVC and hostPath storage options.
+      ##
+      s3:
+        ## @param backup.cronjob.storage.s3.enabled Enable S3 upload of backups
+        ##
+        enabled: false
+        ## @param backup.cronjob.storage.s3.bucket S3 bucket name for storing backups
+        ##
+        bucket: ""
+        ## @param backup.cronjob.storage.s3.prefix Key prefix (folder path) inside the bucket for backup files
+        ##
+        prefix: "pg-backups"
+        ## @param backup.cronjob.storage.s3.region AWS region of the S3 bucket
+        ##
+        region: "eu-central-1"
+        ## @param backup.cronjob.storage.s3.endpoint S3 endpoint URL (leave empty for default AWS endpoint)
+        ##
+        endpoint: ""
+        ## @param backup.cronjob.storage.s3.existingSecret Name of existing Secret containing S3 credentials
+        ## The secret must contain keys defined by accessKeyField and secretKeyField
+        ##
+        existingSecret: ""
+        ## @param backup.cronjob.storage.s3.accessKeyField Key in the Secret that holds the AWS access key ID
+        ##
+        accessKeyField: "access-key"
+        ## @param backup.cronjob.storage.s3.secretKeyField Key in the Secret that holds the AWS secret access key
+        ##
+        secretKeyField: "secret-key"
     ## @param backup.cronjob.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the backup container
     ##
     extraVolumeMounts: []

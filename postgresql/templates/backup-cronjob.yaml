@@ -1,0 +1,266 @@
+{{- if .Values.backup.enabled }}
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "postgresql.fullname" . }}-backup
+  namespace: {{ include "postgresql.namespace" . }}
+  labels:
+    {{- include "postgresql.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backup
+    {{- with .Values.backup.cronjob.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.backup.cronjob.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  schedule: {{ .Values.backup.cronjob.schedule | quote }}
+  {{- if .Values.backup.cronjob.timeZone }}
+  timeZone: {{ .Values.backup.cronjob.timeZone | quote }}
+  {{- end }}
+  concurrencyPolicy: {{ .Values.backup.cronjob.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ .Values.backup.cronjob.successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ .Values.backup.cronjob.failedJobsHistoryLimit }}
+  {{- if .Values.backup.cronjob.startingDeadlineSeconds }}
+  startingDeadlineSeconds: {{ .Values.backup.cronjob.startingDeadlineSeconds }}
+  {{- end }}
+  jobTemplate:
+    spec:
+      {{- if .Values.backup.cronjob.ttlSecondsAfterFinished }}
+      ttlSecondsAfterFinished: {{ .Values.backup.cronjob.ttlSecondsAfterFinished }}
+      {{- end }}
+      template:
+        metadata:
+          labels:
+            {{- include "postgresql.labels" . | nindent 12 }}
+            app.kubernetes.io/component: backup
+        spec:
+          {{- include "postgresql.imagePullSecrets" . | nindent 10 }}
+          {{- if .Values.backup.cronjob.podSecurityContext.enabled }}
+          securityContext:
+            fsGroup: {{ .Values.backup.cronjob.podSecurityContext.fsGroup }}
+            {{- if .Values.backup.cronjob.podSecurityContext.fsGroupChangePolicy }}
+            fsGroupChangePolicy: {{ .Values.backup.cronjob.podSecurityContext.fsGroupChangePolicy }}
+            {{- end }}
+          {{- end }}
+          {{- with .Values.backup.cronjob.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.backup.cronjob.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- if .Values.backup.cronjob.storage.s3.enabled }}
+          initContainers:
+            - name: pg-dump
+              image: {{ include "postgresql.image" . }}
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              {{- if .Values.backup.cronjob.containerSecurityContext.enabled }}
+              securityContext:
+                runAsUser: {{ .Values.backup.cronjob.containerSecurityContext.runAsUser }}
+                runAsGroup: {{ .Values.backup.cronjob.containerSecurityContext.runAsGroup }}
+                runAsNonRoot: {{ .Values.backup.cronjob.containerSecurityContext.runAsNonRoot }}
+                allowPrivilegeEscalation: {{ .Values.backup.cronjob.containerSecurityContext.allowPrivilegeEscalation }}
+                readOnlyRootFilesystem: false
+                {{- if .Values.backup.cronjob.containerSecurityContext.seccompProfile }}
+                seccompProfile:
+                  {{- toYaml .Values.backup.cronjob.containerSecurityContext.seccompProfile | nindent 18 }}
+                {{- end }}
+                capabilities:
+                  drop:
+                    {{- toYaml .Values.backup.cronjob.containerSecurityContext.capabilities.drop | nindent 20 }}
+              {{- end }}
+              env:
+                - name: PGHOST
+                  value: {{ printf "%s.%s.svc.cluster.local" (include "postgresql.primary.fullname" .) (include "postgresql.namespace" .) }}
+                - name: PGPORT
+                  value: {{ .Values.containerPorts.postgresql | quote }}
+                - name: PGUSER
+                  value: "postgres"
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "postgresql.secretName" . }}
+                      key: {{ include "postgresql.adminPasswordKey" . }}
+                - name: PGDUMP_DIR
+                  value: {{ .Values.backup.cronjob.storage.mountPath | quote }}
+              command:
+                {{- toYaml .Values.backup.cronjob.command | nindent 16 }}
+              {{- if .Values.backup.cronjob.resources }}
+              resources:
+                {{- toYaml .Values.backup.cronjob.resources | nindent 16 }}
+              {{- end }}
+              volumeMounts:
+                - name: backups
+                  mountPath: {{ .Values.backup.cronjob.storage.mountPath }}
+                - name: tmp
+                  mountPath: /tmp
+          containers:
+            - name: s3-upload
+              image: amazon/aws-cli:2.27.31
+              imagePullPolicy: IfNotPresent
+              {{- if .Values.backup.cronjob.containerSecurityContext.enabled }}
+              securityContext:
+                runAsUser: {{ .Values.backup.cronjob.containerSecurityContext.runAsUser }}
+                runAsGroup: {{ .Values.backup.cronjob.containerSecurityContext.runAsGroup }}
+                runAsNonRoot: {{ .Values.backup.cronjob.containerSecurityContext.runAsNonRoot }}
+                allowPrivilegeEscalation: {{ .Values.backup.cronjob.containerSecurityContext.allowPrivilegeEscalation }}
+                readOnlyRootFilesystem: false
+                {{- if .Values.backup.cronjob.containerSecurityContext.seccompProfile }}
+                seccompProfile:
+                  {{- toYaml .Values.backup.cronjob.containerSecurityContext.seccompProfile | nindent 18 }}
+                {{- end }}
+                capabilities:
+                  drop:
+                    {{- toYaml .Values.backup.cronjob.containerSecurityContext.capabilities.drop | nindent 20 }}
+              {{- end }}
+              env:
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.backup.cronjob.storage.s3.existingSecret }}
+                      key: {{ .Values.backup.cronjob.storage.s3.accessKeyField }}
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.backup.cronjob.storage.s3.existingSecret }}
+                      key: {{ .Values.backup.cronjob.storage.s3.secretKeyField }}
+                - name: AWS_DEFAULT_REGION
+                  value: {{ .Values.backup.cronjob.storage.s3.region | quote }}
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  DUMP_DIR="{{ .Values.backup.cronjob.storage.mountPath }}"
+                  BUCKET="{{ .Values.backup.cronjob.storage.s3.bucket }}"
+                  PREFIX="{{ .Values.backup.cronjob.storage.s3.prefix }}"
+                  {{- if .Values.backup.cronjob.storage.s3.endpoint }}
+                  ENDPOINT="--endpoint-url {{ .Values.backup.cronjob.storage.s3.endpoint }}"
+                  {{- else }}
+                  ENDPOINT=""
+                  {{- end }}
+
+                  echo "Compressing and uploading backups to s3://${BUCKET}/${PREFIX}/"
+                  UPLOADED=0
+                  for f in "${DUMP_DIR}"/*.pgdump; do
+                    [ -f "$f" ] || continue
+                    BASENAME=$(basename "$f")
+                    gzip -c "$f" | aws s3 cp ${ENDPOINT} - "s3://${BUCKET}/${PREFIX}/${BASENAME}.gz"
+                    echo "Uploaded ${BASENAME}.gz"
+                    UPLOADED=$((UPLOADED + 1))
+                  done
+                  if [ "$UPLOADED" -eq 0 ]; then
+                    echo "ERROR: No dump files found in ${DUMP_DIR}"
+                    exit 1
+                  fi
+                  echo "S3 upload complete: ${UPLOADED} file(s)"
+              volumeMounts:
+                - name: backups
+                  mountPath: {{ .Values.backup.cronjob.storage.mountPath }}
+                  readOnly: true
+                - name: tmp
+                  mountPath: /tmp
+          {{- else }}
+          containers:
+            - name: backup
+              image: {{ include "postgresql.image" . }}
+              imagePullPolicy: {{ .Values.image.pullPolicy }}
+              {{- if .Values.backup.cronjob.containerSecurityContext.enabled }}
+              securityContext:
+                runAsUser: {{ .Values.backup.cronjob.containerSecurityContext.runAsUser }}
+                runAsGroup: {{ .Values.backup.cronjob.containerSecurityContext.runAsGroup }}
+                runAsNonRoot: {{ .Values.backup.cronjob.containerSecurityContext.runAsNonRoot }}
+                allowPrivilegeEscalation: {{ .Values.backup.cronjob.containerSecurityContext.allowPrivilegeEscalation }}
+                readOnlyRootFilesystem: false
+                {{- if .Values.backup.cronjob.containerSecurityContext.seccompProfile }}
+                seccompProfile:
+                  {{- toYaml .Values.backup.cronjob.containerSecurityContext.seccompProfile | nindent 18 }}
+                {{- end }}
+                capabilities:
+                  drop:
+                    {{- toYaml .Values.backup.cronjob.containerSecurityContext.capabilities.drop | nindent 20 }}
+              {{- end }}
+              env:
+                - name: PGHOST
+                  value: {{ printf "%s.%s.svc.cluster.local" (include "postgresql.primary.fullname" .) (include "postgresql.namespace" .) }}
+                - name: PGPORT
+                  value: {{ .Values.containerPorts.postgresql | quote }}
+                - name: PGUSER
+                  value: "postgres"
+                - name: PGPASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "postgresql.secretName" . }}
+                      key: {{ include "postgresql.adminPasswordKey" . }}
+                - name: PGDUMP_DIR
+                  value: {{ .Values.backup.cronjob.storage.mountPath | quote }}
+              command:
+                {{- toYaml .Values.backup.cronjob.command | nindent 16 }}
+              {{- if .Values.backup.cronjob.resources }}
+              resources:
+                {{- toYaml .Values.backup.cronjob.resources | nindent 16 }}
+              {{- end }}
+              volumeMounts:
+                - name: backups
+                  mountPath: {{ .Values.backup.cronjob.storage.mountPath }}
+                  {{- if .Values.backup.cronjob.storage.subPath }}
+                  subPath: {{ .Values.backup.cronjob.storage.subPath }}
+                  {{- end }}
+                - name: tmp
+                  mountPath: /tmp
+                {{- with .Values.backup.cronjob.extraVolumeMounts }}
+                {{- toYaml . | nindent 16 }}
+                {{- end }}
+          {{- end }}
+          restartPolicy: {{ .Values.backup.cronjob.restartPolicy }}
+          volumes:
+            - name: tmp
+              emptyDir: {}
+            {{- if .Values.backup.cronjob.storage.s3.enabled }}
+            - name: backups
+              emptyDir:
+                sizeLimit: {{ .Values.backup.cronjob.storage.size }}
+            {{- else if .Values.backup.cronjob.storage.enabled }}
+            - name: backups
+              persistentVolumeClaim:
+                claimName: {{ if .Values.backup.cronjob.storage.existingClaim }}{{ .Values.backup.cronjob.storage.existingClaim }}{{ else }}{{ include "postgresql.fullname" . }}-backup{{ end }}
+            {{- else if .Values.backup.cronjob.storage.hostPath }}
+            - name: backups
+              hostPath:
+                path: {{ .Values.backup.cronjob.storage.hostPath }}
+                type: DirectoryOrCreate
+            {{- end }}
+            {{- with .Values.backup.cronjob.extraVolumes }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+---
+{{- if and .Values.backup.cronjob.storage.enabled (not .Values.backup.cronjob.storage.existingClaim) (not .Values.backup.cronjob.storage.s3.enabled) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "postgresql.fullname" . }}-backup
+  namespace: {{ include "postgresql.namespace" . }}
+  labels:
+    {{- include "postgresql.labels" . | nindent 4 }}
+    app.kubernetes.io/component: backup
+  {{- with .Values.backup.cronjob.storage.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    {{- toYaml .Values.backup.cronjob.storage.accessModes | nindent 4 }}
+  {{- if .Values.backup.cronjob.storage.storageClass }}
+  storageClassName: {{ .Values.backup.cronjob.storage.storageClass }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.backup.cronjob.storage.size }}
+  {{- with .Values.backup.cronjob.storage.volumeClaimTemplates.selector }}
+  selector:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}
