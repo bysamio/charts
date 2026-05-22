@@ -26,5 +26,5 @@ maintainers:
 dependencies:
   - name: postgresql
     version: "2.3.1"
-    repository: "file://../postgresql"
+    repository: oci://ghcr.io/bysamio/charts
     condition: postgresql.enabled
