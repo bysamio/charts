@@ -98,7 +98,7 @@ The following tables document all available configuration options in `values.yam
 |-----------|------|---------|-------------|
 | `image.registry` | string | `"ghcr.io"` | PostgreSQL image registry |
 | `image.repository` | string | `"bysamio/postgresql"` | PostgreSQL image repository |
-| `image.tag` | string | `"17.7-alpine"` | PostgreSQL image tag (immutable tags recommended) |
+| `image.tag` | string | `"17.10-alpine"` | PostgreSQL image tag (immutable tags recommended) |
 | `image.digest` | string | `""` | PostgreSQL image digest (overrides tag if set) |
 | `image.pullPolicy` | string | `"IfNotPresent"` | PostgreSQL image pull policy |
 | `image.pullSecrets` | array | `[]` | PostgreSQL image pull secrets |
@@ -134,7 +134,7 @@ The following tables document all available configuration options in `values.yam
 | `replication.numSynchronousReplicas` | number | `0` | Number of replicas with synchronous replication |
 | `replication.applicationName` | string | `"my_application"` | Cluster application name |
 | `containerPorts.postgresql` | number | `5432` | PostgreSQL container port |
-| `postgresqlDataDir` | string | `"/var/lib/postgresql/data"` | PostgreSQL data directory |
+| `postgresqlDataDir` | string | `"/var/lib/postgresql/pgdata"` | PostgreSQL data directory |
 | `postgresqlSharedPreloadLibraries` | string | `"pgaudit"` | Shared preload libraries |
 
 ---
@@ -713,12 +713,18 @@ backup:
 ## Security Considerations
 
 - Runs as non-root user (UID 1001) by default
+- Root startup is intentionally unsupported by the BySamio image; use `volumePermissions.enabled` when PVC ownership needs repair
 - `readOnlyRootFilesystem` is enabled
 - Network policies restrict traffic by default
 - Passwords mounted as files (not environment variables) when `auth.usePasswordFiles: true`
 - PodDisruptionBudget ensures availability during updates
 
 ## Upgrading
+
+### To 2.3.1
+
+- **Security**: Default PostgreSQL image updated to `17.10-alpine`.
+- **Security**: The BySamio PostgreSQL image removes inherited `gosu` and rejects root startup. Existing chart defaults already run as UID 1001; enable `volumePermissions.enabled` if a PVC needs ownership repair.
 
 ### To 2.0.0
 

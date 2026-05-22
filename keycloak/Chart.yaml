@@ -2,8 +2,8 @@ apiVersion: v2
 name: keycloak
 description: A Helm chart for Keycloak using BySamio hardened Docker image (runs as UID 1001)
 type: application
-version: 1.2.0
-appVersion: "26.5.2"
+version: 1.2.1
+appVersion: "26.6.2"
 keywords:
   - keycloak
   - identity
@@ -25,6 +25,6 @@ maintainers:
   name: BySam Charts
 dependencies:
   - name: postgresql
-    version: "1.0.1"
-    repository: "oci://ghcr.io/bysamio/charts"
+    version: "2.3.1"
+    repository: "file://../postgresql"
     condition: postgresql.enabled

@@ -2,8 +2,8 @@ apiVersion: v2
 name: postgresql
 description: A Helm chart for PostgreSQL using BySamio hardened Docker image (runs as UID 1001)
 type: application
-version: 2.3.0
-appVersion: "17.7-alpine"
+version: 2.3.1
+appVersion: "17.10-alpine"
 keywords:
   - postgresql
   - postgres

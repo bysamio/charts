@@ -122,7 +122,7 @@ diagnosticMode:
 image:
   registry: ghcr.io
   repository: bysamio/postgresql
-  tag: "17.7-alpine"
+  tag: "17.10-alpine"
   digest: ""
   ## Specify a imagePullPolicy
   ## ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images

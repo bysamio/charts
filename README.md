@@ -14,7 +14,7 @@ Install charts directly from GitHub Container Registry:
 helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 2.0.0
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
 helm install my-memcached oci://ghcr.io/bysamio/charts/memcached --version 1.0.1
-helm install my-keycloak oci://ghcr.io/bysamio/charts/keycloak --version 1.0.1
+helm install my-keycloak oci://ghcr.io/bysamio/charts/keycloak --version 1.2.1
 ```
 
 ### Traditional Helm Repository
@@ -32,8 +32,8 @@ helm install my-wordpress bysamio/wordpress
 | [wordpress](./wordpress/) | WordPress CMS with auto-installation (non-root) | 2.0.0 | 6.9.0 |
 | [mariadb](./mariadb/) | MariaDB database | 1.0.2 | 12.0.2 |
 | [memcached](./memcached/) | Memcached caching system | 1.0.1 | 1.6.24 |
-| [keycloak](./keycloak/) | Identity and Access Management (IAM) solution | 1.0.1 | 26.5.2 |
-| [postgresql](./postgresql/) | PostgreSQL database | 2.0.1 | 17.5 |
+| [keycloak](./keycloak/) | Identity and Access Management (IAM) solution | 1.2.1 | 26.6.2 |
+| [postgresql](./postgresql/) | PostgreSQL database | 2.3.1 | 17.10 |
 | [minio](./minio/) | High-performance S3-compatible object storage | 1.0.0 | 2025.9.7 |
 
 ## 📖 Documentation
@@ -73,7 +73,7 @@ The BySam chart collection provides a complete WordPress stack and identity mana
 - **WordPress**: Official WordPress 6.9.0 with Apache
 - **MariaDB**: Official MariaDB 12.0.2 database
 - **Memcached**: Official Memcached 1.6.24 for caching
-- **Keycloak**: BySamio hardened Keycloak 26.5.2 for Identity and Access Management
+- **Keycloak**: BySamio hardened Keycloak 26.6.2 for Identity and Access Management
 
 ## Key Features
 
@@ -117,7 +117,7 @@ The BySam chart collection provides a complete WordPress stack and identity mana
 
 ### Keycloak (`bysam/keycloak`)
 
-- **Base Image**: `ghcr.io/bysamio/keycloak:26.5.2`
+- **Base Image**: `ghcr.io/bysamio/keycloak:26.6.2`
 - **Features**: Open-source Identity and Access Management (IAM) with SSO, OIDC, OAuth2, SAML support
 - **Security Context**: Hardened non-root container (UID 1001)
 - **Configuration**: Includes PostgreSQL subchart, metrics, high availability support

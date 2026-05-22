@@ -90,15 +90,15 @@ The following tables document all available configuration options in `values.yam
 |-----------|------|---------|-------------|
 | `image.registry` | string | `"ghcr.io"` | Keycloak image registry |
 | `image.repository` | string | `"bysamio/keycloak"` | Keycloak image repository |
-| `image.tag` | string | `"26.5.2"` | Keycloak image tag (immutable tags are recommended) |
+| `image.tag` | string | `"26.6.2"` | Keycloak image tag (immutable tags are recommended) |
 | `image.digest` | string | `""` | Keycloak image digest (sha256:...). Overrides tag if set |
 | `image.pullPolicy` | string | `"IfNotPresent"` | Keycloak image pull policy |
 | `image.pullSecrets` | array | `[]` | Keycloak image pull secrets |
 | `image.debug` | boolean | `false` | Enable Keycloak image debug mode |
 
 **Image Types**: This chart supports two BySamio Keycloak images:
-- **Flexible** (`26.5.2`): Alpine-based, can auto-build on startup
-- **Optimized** (`26.5.2-optimized`): Distroless, pre-built, faster startup
+- **Flexible** (`26.6.2`): Alpine-based, can auto-build on startup
+- **Optimized** (`26.6.2-optimized`): Distroless, pre-built, faster startup
 
 The chart automatically detects optimized images by the `-optimized` suffix.
 
@@ -588,6 +588,11 @@ resources:
 - Passwords are passed via `secretKeyRef` environment variables (Keycloak does not support `_FILE` suffix env vars natively)
 
 ## Upgrading
+
+### To 1.2.1
+
+- **Security**: Default Keycloak image updated to `26.6.2`.
+- **Security**: PostgreSQL dependency updated to `2.3.1`, which defaults to `17.10-alpine`.
 
 ### To 1.2.0
 

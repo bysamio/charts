@@ -1,6 +1,6 @@
 dependencies:
 - name: postgresql
-  repository: oci://ghcr.io/bysamio/charts
-  version: 1.0.1
-digest: sha256:8ebf8a1e478d9f894afd570f97386c86efddd2ef5720f391f385bc85d5b7b203
-generated: "2026-02-02T12:40:12.44836+01:00"
+  repository: file://../postgresql
+  version: 2.3.1
+digest: sha256:d4d7af95caf716ce8abda3740d4a674167c1bd44649a00fa2ecc03b1f2074e89
+generated: "2026-05-22T11:57:20.283662+02:00"
