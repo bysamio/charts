@@ -589,7 +589,7 @@ resources:
 
 ## Upgrading
 
-### To 1.2.1
+### To 1.2.2
 
 - **Security**: Default Keycloak image updated to `26.6.2`.
 - **Security**: PostgreSQL dependency updated to `2.3.1`, which defaults to `17.10-alpine`.

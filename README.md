@@ -14,7 +14,7 @@ Install charts directly from GitHub Container Registry:
 helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 2.0.0
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
 helm install my-memcached oci://ghcr.io/bysamio/charts/memcached --version 1.0.1
-helm install my-keycloak oci://ghcr.io/bysamio/charts/keycloak --version 1.2.1
+helm install my-keycloak oci://ghcr.io/bysamio/charts/keycloak --version 1.2.2
 ```
 
 ### Traditional Helm Repository
@@ -32,7 +32,7 @@ helm install my-wordpress bysamio/wordpress
 | [wordpress](./wordpress/) | WordPress CMS with auto-installation (non-root) | 2.0.0 | 6.9.0 |
 | [mariadb](./mariadb/) | MariaDB database | 1.0.2 | 12.0.2 |
 | [memcached](./memcached/) | Memcached caching system | 1.0.1 | 1.6.24 |
-| [keycloak](./keycloak/) | Identity and Access Management (IAM) solution | 1.2.1 | 26.6.2 |
+| [keycloak](./keycloak/) | Identity and Access Management (IAM) solution | 1.2.2 | 26.6.2 |
 | [postgresql](./postgresql/) | PostgreSQL database | 2.3.1 | 17.10 |
 | [minio](./minio/) | High-performance S3-compatible object storage | 1.0.0 | 2025.9.7 |
 
