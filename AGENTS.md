@@ -80,3 +80,19 @@ Commit types: `fix`, `feat`, `docs`, `refactor`, `chore`
 ### WordPress
 - Depends on `mariadb` and `memcached` subcharts
 - PHP config via `php-configmap.yaml`
+
+## Skills
+
+This repo ships agent skills in [`.agents/skills/`](.agents/skills/). Always invoke the relevant skill before and during matching work. Each skill carries the project's standards for its domain.
+
+| Skill | Use it whenever you are... |
+|---|---|
+| [`incremental-implementation`](.agents/skills/incremental-implementation/SKILL.md) | Implementing any change that touches more than one file, or any feature large enough to feel like "a lot of code at once." Build in thin, verifiable slices. |
+| [`frontend-ui-engineering`](.agents/skills/frontend-ui-engineering/SKILL.md) | Building or modifying any user-facing UI in the SPA repo. |
+| [`security-and-hardening`](.agents/skills/security-and-hardening/SKILL.md) | Touching user input, authentication/authorization, secrets, licensing, file uploads, storage, webhooks, or external integrations. |
+| [`code-review-and-quality`](.agents/skills/code-review-and-quality/SKILL.md) | Reviewing any change before it merges, including your own changes. |
+
+Rules:
+- Default to using a skill when a task plausibly matches its trigger.
+- More than one skill can apply to a task.
+- Where a skill is silent, follow this file and the local repo patterns.
