@@ -443,7 +443,7 @@ The chart automatically detects optimized images by the `-optimized` suffix.
 | `keycloakConfigCli.enabled` | boolean | `false` | Enable keycloak-config-cli job |
 | `keycloakConfigCli.image.registry` | string | `"quay.io"` | Config CLI image registry |
 | `keycloakConfigCli.image.repository` | string | `"adorsys/keycloak-config-cli"` | Config CLI image repository |
-| `keycloakConfigCli.image.tag` | string | `"6.4.1-26"` | Config CLI image tag |
+| `keycloakConfigCli.image.tag` | string | `"6.5.1-26.5.5"` | Config CLI image tag |
 | `keycloakConfigCli.image.digest` | string | `""` | Config CLI image digest |
 | `keycloakConfigCli.image.pullPolicy` | string | `"IfNotPresent"` | Config CLI image pull policy |
 | `keycloakConfigCli.image.pullSecrets` | array | `[]` | Config CLI image pull secrets |
@@ -588,6 +588,11 @@ resources:
 - Passwords are passed via `secretKeyRef` environment variables (Keycloak does not support `_FILE` suffix env vars natively)
 
 ## Upgrading
+
+### To 1.2.4
+
+- **Security**: `keycloakConfigCli` image updated to `6.5.1-26.5.5`, pinning to the Keycloak 26.5.5 baseline (matches this chart's Keycloak 26.x line). Notable upstream fixes: CVE-2026-24400, GHSA-72hv-8253-57qq, CVE-2025-11226, CVE-2026-1225, CVE-2025-48924, CVE-2025-53864, CVE-2025-66453, plus a fix for LDAP default-mapper deletion and FGAP authorization resource handling.
+- **New**: keycloak-config-cli now supports x509 client certificate authentication (mTLS) via `keycloak.tls.*` properties.
 
 ### To 1.2.3
 
