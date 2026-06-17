@@ -62,7 +62,11 @@ jobs:
           charts=(mariadb memcached wordpress keycloak postgresql minio casepack-api casepack-spa casepack-docs casepack)
           for chart in "${charts[@]}"; do
             if [ -f "${chart}/Chart.yaml" ]; then
-              helm dependency build "${chart}"
+              # `dependency update` resolves from Chart.yaml and regenerates
+              # Chart.lock, so a lock left stale by a dependency bump (e.g.
+              # Renovate) is refreshed instead of failing the job, which
+              # `dependency build` would do on an out-of-sync lock.
+              helm dependency update "${chart}"
             fi
           done
 
