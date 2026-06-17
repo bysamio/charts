@@ -42,7 +42,11 @@ jobs:
           version: v3.19.0
 
       - name: Login to GHCR (OCI)
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+        # GHCR_PAT is a classic PAT (write:packages, read:packages) owned by the
+        # repo owner. Required to create *new* packages under a user namespace,
+        # which the default GITHUB_TOKEN cannot do. Falls back to GITHUB_TOKEN
+        # for pushing new versions of already-linked packages.
+        run: echo "${{ secrets.GHCR_PAT || secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u ${{ github.repository_owner }} --password-stdin
 
       - name: Add Helm repositories
         run: |
