@@ -1,0 +1,84 @@
+# Default values for casepack-spa
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/bysamio/casepack-spa
+  pullPolicy: IfNotPresent
+  tag: ""  # Defaults to Chart appVersion
+
+imagePullSecrets:
+  - name: ghcr-secret
+
+nameOverride: ""
+fullnameOverride: ""
+
+# Runtime configuration injected as environment variables
+# These are written to /usr/share/nginx/html/config.js at container startup
+config:
+  apiBaseUrl: "/api"
+  oidcAuthority: ""
+  oidcClientId: "casepack-spa"
+  licensingPortalUrl: "https://staging.licensing.bysam.io/portal"
+  deploymentMode: "SAAS"
+  appVersion: ""
+  docsBaseUrl: "https://docs.casepack.app"
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 101    # nginx user
+  runAsGroup: 101
+  fsGroup: 101
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  className: "nginx"
+  annotations: {}
+  hosts:
+    - host: casepack.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 32Mi
+  limits:
+    cpu: 200m
+    memory: 64Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# Nginx configuration override
+# If empty, the default SPA-friendly config is used
+nginxConfig: ""

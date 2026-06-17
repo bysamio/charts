@@ -11,6 +11,9 @@ on:
       - 'keycloak/**'
       - 'postgresql/**'
       - 'minio/**'
+      - 'casepack-api/**'
+      - 'casepack-spa/**'
+      - 'casepack/**'
       - 'artifacthub-repo.yml'
       - '.github/workflows/release-charts.yml'
   workflow_dispatch:
@@ -38,10 +41,13 @@ jobs:
         with:
           version: v3.14.4
 
+      - name: Login to GHCR (OCI)
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ghcr.io -u ${{ github.actor }} --password-stdin
+
       - name: Update chart dependencies
         run: |
           set -euo pipefail
-          charts=(mariadb memcached wordpress keycloak postgresql minio)
+          charts=(mariadb memcached wordpress keycloak postgresql minio casepack-api casepack-spa casepack)
           for chart in "${charts[@]}"; do
             if [ -f "${chart}/Chart.yaml" ]; then
               helm dependency build "${chart}"
@@ -51,7 +57,7 @@ jobs:
       - name: Lint Helm charts
         run: |
           set -euo pipefail
-          for chart in mariadb memcached wordpress keycloak postgresql minio; do
+          for chart in mariadb memcached wordpress keycloak postgresql minio casepack-api casepack-spa casepack; do
             helm lint "$chart"
           done
 
@@ -76,13 +82,6 @@ jobs:
         env:
           CR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Push charts to OCI registry
         run: |
           set -euo pipefail
@@ -96,7 +95,7 @@ jobs:
             done
           else
             echo "No packaged charts found. Packaging now..."
-            for chart in mariadb memcached wordpress keycloak postgresql minio; do
+            for chart in mariadb memcached wordpress keycloak postgresql minio casepack-api casepack-spa casepack; do
               package=$(helm package "$chart" | grep -oP '(?<=to: ).*')
               echo "Pushing $package to OCI registry..."
               helm push "$package" oci://ghcr.io/${{ github.repository_owner }}/charts

@@ -1,0 +1,18 @@
+dependencies:
+- name: casepack-api
+  repository: oci://ghcr.io/bysamio/charts
+  version: 0.19.0
+- name: casepack-spa
+  repository: oci://ghcr.io/bysamio/charts
+  version: 0.18.0
+- name: postgresql
+  repository: oci://ghcr.io/bysamio/charts
+  version: 2.3.1
+- name: keycloak
+  repository: oci://ghcr.io/bysamio/charts
+  version: 1.2.4
+- name: seaweedfs
+  repository: https://seaweedfs.github.io/seaweedfs/helm
+  version: 4.34.0
+digest: sha256:f0cfae6d7c1823468f4cb1c008677ed5b7d44dc0c4662f25ec92244f471bf5fb
+generated: "2026-06-15T23:19:33.981141+02:00"

@@ -1,0 +1,172 @@
+# Default values for casepack-api
+# Meant to be overridden by the parent casepack Helm chart or per-environment values
+
+replicaCount: 1
+
+image:
+  repository: ghcr.io/bysamio/casepack-api
+  tag: ""           # Defaults to Chart.appVersion
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# ─── Application Configuration ───────────────────────────────────
+config:
+  serverPort: "8080"
+  forwardHeadersStrategy: "NATIVE"
+  oidcIssuerUri: "http://keycloak:8082/realms/casepack"
+  oidcJwkSetUri: ""   # defaults to {oidcIssuerUri}/protocol/openid-connect/certs
+  s3Endpoint: "http://seaweedfs-s3:8333"
+  s3PublicEndpoint: "" # optional browser-facing presign endpoint; falls back to s3Endpoint
+  s3Region: "us-east-1"
+  s3Bucket: "casepack"
+  s3PathStyle: "true"
+  s3PresignExpiry: "900"
+  s3AutoCreateBucket: "true"
+  s3BucketPerTenant: "false"
+  evidenceMaxBytes: "104857600"
+  evidenceAllowedTypes: ""
+  rateLimitEnabled: "true"
+  rateLimitInit: "30"
+  rateLimitFinalize: "30"
+  rateLimitGlobal: "300"
+  rateLimitWebhookIntake: "60"
+  exportMaxItems: "100"
+  exportMaxBytes: "536870912"
+  exportPoolSize: "2"
+  webhookEnabled: "true"
+  webhookMaxPayload: "1048576"
+  timelineEnabled: "true"
+  corsOrigins: "http://localhost:5173"
+  swaggerPublic: "false"
+  javaOpts: "-Xms256m -Xmx512m"
+  # License key resolution: "bundled" (default) or "jwks" (remote JWKS endpoint)
+  licenseKeySource: "bundled"
+  # JWKS URL — only used when licenseKeySource=jwks
+  licenseJwksUrl: ""
+  # Licensing service base URL — used by checkout session proxy
+  licensingBaseUrl: ""
+  # Keycloak Admin API — used by KeycloakAdminService for user provisioning
+  keycloakBaseUrl: ""
+  keycloakRealm: "casepack"
+  keycloakSpaClientId: "casepack-spa"
+  keycloakSpaRedirectUri: ""
+  keycloakActionTokenLifespan: "259200"   # 72 hours in seconds
+
+# ─── Secrets (SealedSecret references) ───────────────────────────
+# Set existingSecret to the name of a SealedSecret/Secret containing:
+#   DB_URL, DB_USER, DB_PASS, S3_ACCESS_KEY, S3_SECRET_KEY,
+#   CASEPACK_LICENSE_TOKEN, optionally CASEPACK_LICENSE_PUBLIC_KEY for non-JWKS fallback,
+#   CASEPACK_PROVISIONING_SECRET,
+#   CASEPACK_KEYCLOAK_SA_CLIENT_ID, CASEPACK_KEYCLOAK_SA_CLIENT_SECRET
+secrets:
+  existingSecret: ""
+  # Only used if existingSecret is empty (for dev/test):
+  dbUrl: "jdbc:postgresql://postgres:5432/casepack"
+  dbUser: "casepack"
+  dbPass: "casepack"
+  s3AccessKey: "admin"
+  s3SecretKey: "admin123456"
+  licenseToken: ""
+  licensePublicKey: ""
+  # HMAC-SHA256 shared secret for provisioning webhook verification (64-char hex string)
+  provisioningSecret: ""
+  # Keycloak service account credentials for Admin API (user provisioning)
+  keycloakSaClientId: ""
+  keycloakSaClientSecret: ""
+
+# ─── Service ─────────────────────────────────────────────────────
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+# ─── Ingress ─────────────────────────────────────────────────────
+ingress:
+  enabled: false
+  className: nginx
+  annotations: {}
+    # cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: api.casepack.example.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: casepack-api-tls
+  #    hosts:
+  #      - api.casepack.example.com
+
+# ─── Resources ───────────────────────────────────────────────────
+resources:
+  requests:
+    cpu: 250m
+    memory: 384Mi
+  limits:
+    cpu: "1"
+    memory: 768Mi
+
+# ─── Probes ──────────────────────────────────────────────────────
+livenessProbe:
+  httpGet:
+    path: /actuator/health
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 15
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /actuator/health
+    port: http
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 3
+
+startupProbe:
+  httpGet:
+    path: /actuator/health
+    port: http
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  failureThreshold: 30
+
+# ─── Pod Disruption Budget ───────────────────────────────────────
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+  # maxUnavailable: 1   # alternative to minAvailable
+
+# ─── Autoscaling ─────────────────────────────────────────────────
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 75
+
+# ─── Pod Configuration ───────────────────────────────────────────
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  fsGroup: 1000
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL

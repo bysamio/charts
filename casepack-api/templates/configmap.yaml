@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "casepack-api.fullname" . }}
+  labels:
+    {{- include "casepack-api.labels" . | nindent 4 }}
+data:
+  {{- if .Values.config.springProfilesActive }}
+  SPRING_PROFILES_ACTIVE: {{ .Values.config.springProfilesActive | quote }}
+  {{- end }}
+  SERVER_PORT: {{ .Values.config.serverPort | quote }}
+  FORWARD_HEADERS_STRATEGY: {{ .Values.config.forwardHeadersStrategy | quote }}
+  OIDC_ISSUER_URI: {{ .Values.config.oidcIssuerUri | quote }}
+  {{- if .Values.config.oidcJwkSetUri }}
+  OIDC_JWK_SET_URI: {{ .Values.config.oidcJwkSetUri | quote }}
+  {{- end }}
+  S3_ENDPOINT: {{ .Values.config.s3Endpoint | quote }}
+  {{- if .Values.config.s3PublicEndpoint }}
+  S3_PUBLIC_ENDPOINT: {{ .Values.config.s3PublicEndpoint | quote }}
+  {{- end }}
+  S3_REGION: {{ .Values.config.s3Region | quote }}
+  S3_BUCKET: {{ .Values.config.s3Bucket | quote }}
+  S3_PATH_STYLE: {{ .Values.config.s3PathStyle | quote }}
+  S3_PRESIGN_EXPIRY_SECONDS: {{ .Values.config.s3PresignExpiry | quote }}
+  S3_AUTO_CREATE_BUCKET: {{ .Values.config.s3AutoCreateBucket | quote }}
+  S3_BUCKET_PER_TENANT: {{ .Values.config.s3BucketPerTenant | quote }}
+  EVIDENCE_MAX_BYTES: {{ .Values.config.evidenceMaxBytes | quote }}
+  EVIDENCE_ALLOWED_TYPES: {{ .Values.config.evidenceAllowedTypes | quote }}
+  CASEPACK_RATE_LIMIT_ENABLED: {{ .Values.config.rateLimitEnabled | quote }}
+  CASEPACK_RATE_LIMIT_INIT: {{ .Values.config.rateLimitInit | quote }}
+  CASEPACK_RATE_LIMIT_FINALIZE: {{ .Values.config.rateLimitFinalize | quote }}
+  CASEPACK_RATE_LIMIT_GLOBAL: {{ .Values.config.rateLimitGlobal | quote }}
+  CASEPACK_RATE_LIMIT_WEBHOOK_INTAKE: {{ .Values.config.rateLimitWebhookIntake | quote }}
+  CASEPACK_EXPORT_MAX_ITEMS: {{ .Values.config.exportMaxItems | quote }}
+  CASEPACK_EXPORT_MAX_BYTES: {{ .Values.config.exportMaxBytes | quote }}
+  CASEPACK_EXPORT_POOL_SIZE: {{ .Values.config.exportPoolSize | quote }}
+  CASEPACK_WEBHOOK_ENABLED: {{ .Values.config.webhookEnabled | quote }}
+  CASEPACK_WEBHOOK_MAX_PAYLOAD: {{ .Values.config.webhookMaxPayload | quote }}
+  CASEPACK_TIMELINE_ENABLED: {{ .Values.config.timelineEnabled | quote }}
+  CASEPACK_CORS_ORIGINS: {{ .Values.config.corsOrigins | quote }}
+  CASEPACK_SWAGGER_PUBLIC: {{ .Values.config.swaggerPublic | quote }}
+  CASEPACK_LICENSE_KEY_SOURCE: {{ .Values.config.licenseKeySource | quote }}
+  {{- if .Values.config.licenseJwksUrl }}
+  CASEPACK_LICENSE_JWKS_URL: {{ .Values.config.licenseJwksUrl | quote }}
+  {{- end }}
+  {{- if .Values.config.licensingBaseUrl }}
+  CASEPACK_LICENSING_BASE_URL: {{ .Values.config.licensingBaseUrl | quote }}
+  {{- end }}
+  {{- if .Values.config.keycloakBaseUrl }}
+  CASEPACK_KEYCLOAK_BASE_URL: {{ .Values.config.keycloakBaseUrl | quote }}
+  {{- end }}
+  CASEPACK_KEYCLOAK_REALM: {{ .Values.config.keycloakRealm | quote }}
+  CASEPACK_KEYCLOAK_SPA_CLIENT_ID: {{ .Values.config.keycloakSpaClientId | quote }}
+  {{- if .Values.config.keycloakSpaRedirectUri }}
+  CASEPACK_KEYCLOAK_SPA_REDIRECT_URI: {{ .Values.config.keycloakSpaRedirectUri | quote }}
+  {{- end }}
+  CASEPACK_KEYCLOAK_ACTION_TOKEN_LIFESPAN: {{ .Values.config.keycloakActionTokenLifespan | quote }}

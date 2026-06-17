@@ -1,0 +1,27 @@
+apiVersion: v2
+name: casepack-api
+description: CasePack API — multi-tenant incident evidence management for MSPs
+type: application
+version: 0.20.0-SNAPSHOT
+appVersion: "0.20.0-SNAPSHOT"
+home: https://github.com/bysamio/casepack-api
+icon: https://raw.githubusercontent.com/bysamio/charts/main/icons/casepack-api.png
+sources:
+  - https://github.com/bysamio/casepack-api
+keywords:
+  - casepack
+  - incident-management
+  - evidence
+  - nis2
+  - msp
+  - compliance
+  - multi-tenant
+  - keycloak
+  - s3
+maintainers:
+  - name: bysamio
+    url: https://github.com/bysamio
+annotations:
+  artifacthub.io/license: Proprietary
+  artifacthub.io/signKey: ""
+  artifacthub.io/category: security

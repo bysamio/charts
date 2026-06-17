@@ -1,0 +1,64 @@
+╔══════════════════════════════════════════════════════════════╗
+║                     CasePack Deployed!                      ║
+╚══════════════════════════════════════════════════════════════╝
+
+Namespace: {{ .Release.Namespace }}
+Release:   {{ .Release.Name }}
+
+── Deployed Components ────────────────────────────────────────
+
+  ✓ CasePack API
+  ✓ CasePack SPA
+{{- if .Values.postgresql.enabled }}
+  ✓ PostgreSQL (bundled)
+{{- else }}
+  ○ PostgreSQL (external)
+{{- end }}
+{{- if .Values.keycloak.enabled }}
+  ✓ Keycloak (bundled)
+{{- else }}
+  ○ Keycloak (external)
+{{- end }}
+{{- if .Values.seaweedfs.enabled }}
+  ✓ SeaweedFS (bundled)
+{{- else }}
+  ○ SeaweedFS (external)
+{{- end }}
+
+── Access the Services ────────────────────────────────────────
+
+  CasePack API:
+    kubectl port-forward svc/{{ .Release.Name }}-casepack-api 8080:80 -n {{ .Release.Namespace }}
+    → http://localhost:8080
+
+  CasePack SPA:
+    kubectl port-forward svc/{{ .Release.Name }}-casepack-spa 3000:80 -n {{ .Release.Namespace }}
+    → http://localhost:3000
+{{- if .Values.keycloak.enabled }}
+
+  Keycloak Admin Console:
+    kubectl port-forward svc/{{ .Release.Name }}-keycloak 8081:80 -n {{ .Release.Namespace }}
+    → http://localhost:8081
+{{- end }}
+{{- if .Values.seaweedfs.enabled }}
+
+  SeaweedFS S3 Gateway:
+    kubectl port-forward svc/{{ .Release.Name }}-seaweedfs-s3 8333:8333 -n {{ .Release.Namespace }}
+    → http://localhost:8333
+{{- end }}
+
+── Documentation ──────────────────────────────────────────────
+
+  Deployment guide:  https://github.com/bysamio/casepack
+  Chart source:      https://github.com/bysamio/casepack/tree/main/charts/casepack
+
+── License Renewal ────────────────────────────────────────────
+
+  Refresh locally:
+    ./renew-license.sh --no-restart
+
+  Then update the Kubernetes Secret referenced by casepack-api.secrets.existingSecret
+  so CASEPACK_LICENSE_TOKEN contains the renewed license JWT.
+
+  Finally restart the API:
+    kubectl rollout restart deployment/{{ .Release.Name }}-casepack-api -n {{ .Release.Namespace }}

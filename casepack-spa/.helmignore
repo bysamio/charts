@@ -1,0 +1,16 @@
+.DS_Store
+.git
+.gitignore
+.idea
+*.swp
+*.bak
+*.tmp
+*.orig
+*~
+node_modules/
+dist/
+src/
+docs/
+.env*
+docker-compose*.yml
+README.md

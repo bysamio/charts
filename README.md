@@ -1,6 +1,6 @@
 # BySam Helm Charts
 
-Official Helm charts repository for WordPress, MariaDB, and Memcached deployments.
+Official Helm charts repository for CasePack and BySam infrastructure charts.
 
 [![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/bysamio-charts)](https://artifacthub.io/packages/search?repo=bysamio)
 
@@ -11,10 +11,13 @@ Official Helm charts repository for WordPress, MariaDB, and Memcached deployment
 Install charts directly from GitHub Container Registry:
 
 ```bash
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 2.0.0
+helm install casepack oci://ghcr.io/bysamio/charts/casepack --version 0.1.0
+helm install casepack-api oci://ghcr.io/bysamio/charts/casepack-api --version 0.20.0-SNAPSHOT
+helm install casepack-spa oci://ghcr.io/bysamio/charts/casepack-spa --version 0.19.0-dev
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 2.0.2
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
-helm install my-memcached oci://ghcr.io/bysamio/charts/memcached --version 1.0.1
-helm install my-keycloak oci://ghcr.io/bysamio/charts/keycloak --version 1.2.2
+helm install my-memcached oci://ghcr.io/bysamio/charts/memcached --version 1.0.2
+helm install my-keycloak oci://ghcr.io/bysamio/charts/keycloak --version 1.2.4
 ```
 
 ### Traditional Helm Repository
@@ -29,16 +32,22 @@ helm install my-wordpress bysamio/wordpress
 
 | Chart | Description | Version | App Version |
 |-------|-------------|---------|-------------|
-| [wordpress](./wordpress/) | WordPress CMS with auto-installation (non-root) | 2.0.0 | 6.9.0 |
+| [casepack](./casepack/) | Full CasePack self-host stack | 0.1.0 | 0.3.1 |
+| [casepack-api](./casepack-api/) | CasePack Spring Boot API | 0.20.0-SNAPSHOT | 0.20.0-SNAPSHOT |
+| [casepack-spa](./casepack-spa/) | CasePack React SPA | 0.19.0-dev | 0.19.0-dev |
+| [wordpress](./wordpress/) | WordPress CMS with auto-installation (non-root) | 2.0.2 | 6.9.0 |
 | [mariadb](./mariadb/) | MariaDB database | 1.0.2 | 12.0.2 |
-| [memcached](./memcached/) | Memcached caching system | 1.0.1 | 1.6.24 |
-| [keycloak](./keycloak/) | Identity and Access Management (IAM) solution | 1.2.2 | 26.6.2 |
-| [postgresql](./postgresql/) | PostgreSQL database | 2.3.1 | 17.10 |
-| [minio](./minio/) | High-performance S3-compatible object storage | 1.0.0 | 2025.9.7 |
+| [memcached](./memcached/) | Memcached caching system | 1.0.2 | 1.6.24 |
+| [keycloak](./keycloak/) | Identity and Access Management (IAM) solution | 1.2.4 | 26.6.3 |
+| [postgresql](./postgresql/) | PostgreSQL database | 2.3.1 | 17.10-alpine |
+| [minio](./minio/) | High-performance S3-compatible object storage | 1.0.3 | 2025.9.7 |
 
 ## 📖 Documentation
 
 - [Setup Guide](./ARTIFACT_HUB_SETUP.md) - Complete setup and configuration guide
+- [CasePack Chart](./casepack/README.md) - Full stack chart documentation
+- [CasePack API Chart](./casepack-api/README.md) - API chart documentation
+- [CasePack SPA Chart](./casepack-spa/README.md) - SPA chart documentation
 - [WordPress Chart](./wordpress/README.md) - WordPress chart documentation
 - [Keycloak Chart](./keycloak/README.md) - Keycloak chart documentation
 - [MinIO Chart](./minio/README.md) - MinIO chart documentation
