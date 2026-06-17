@@ -6,6 +6,10 @@ set -e
 
 echo "📋 Checking Helm chart dependencies..."
 
+# Add external Helm repos required by chart dependencies
+helm repo add seaweedfs https://seaweedfs.github.io/seaweedfs/helm > /dev/null 2>&1 || true
+helm repo update > /dev/null 2>&1
+
 CHARTS=("keycloak" "postgresql" "mariadb" "memcached" "wordpress" "minio" "casepack-api" "casepack-spa" "casepack")
 FAILED=0
 
