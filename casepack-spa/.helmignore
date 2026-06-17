@@ -13,4 +13,3 @@ src/
 docs/
 .env*
 docker-compose*.yml
-README.md

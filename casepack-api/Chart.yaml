@@ -1,6 +1,6 @@
 apiVersion: v2
 name: casepack-api
-description: CasePack API — multi-tenant incident evidence management for MSPs
+description: CasePack API — Java backend for incident reporting and evidence management for MSPs
 type: application
 version: 0.20.0-SNAPSHOT
 appVersion: "0.20.0-SNAPSHOT"
@@ -23,5 +23,4 @@ maintainers:
     url: https://github.com/bysamio
 annotations:
   artifacthub.io/license: Proprietary
-  artifacthub.io/signKey: ""
   artifacthub.io/category: security
