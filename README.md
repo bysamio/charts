@@ -46,6 +46,7 @@ Application release workflows in `casepack-api` and `casepack-spa` open immediat
 |-------|-------|-------------------|
 | `casepack-api` | `ghcr.io/bysamio/casepack-api` | Sync chart `version` and `appVersion` to stable app image tags |
 | `casepack-spa` | `ghcr.io/bysamio/casepack-spa` | Sync chart `version` and `appVersion` to stable app image tags |
+| `casepack-docs` | `ghcr.io/bysamio/casepack-docs` | Sync chart `version` and `appVersion` to stable docs image tags |
 | `keycloak` | `ghcr.io/bysamio/keycloak` | Update image tag, sync `appVersion`, bump chart major/minor/patch to match image update type |
 | `wordpress` | `ghcr.io/bysamio/wordpress` | Update image tag, sync `appVersion`, bump chart major/minor/patch to match image update type |
 | `postgresql` | `ghcr.io/bysamio/postgresql` | Update image tag, sync `appVersion`, bump chart major/minor/patch to match image update type |

@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "casepack-docs.fullname" . }}-nginx
+  labels:
+    {{- include "casepack-docs.labels" . | nindent 4 }}
+data:
+  default.conf: |
+    server {
+      listen 8080;
+      server_name _;
+
+      root /usr/share/nginx/html;
+      index index.html;
+
+      # Security headers
+      add_header X-Frame-Options "SAMEORIGIN" always;
+      add_header X-Content-Type-Options "nosniff" always;
+      add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+      # Astro generates static pages — serve them directly
+      location / {
+        try_files $uri $uri/ $uri/index.html =404;
+      }
+
+      # Custom 404 page
+      error_page 404 /404.html;
+
+      # Cache static assets aggressively (Astro hashed filenames)
+      location ~* \.(?:css|js|map|png|jpg|jpeg|gif|svg|ico|woff2?)$ {
+        expires 1y;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+        try_files $uri =404;
+      }
+
+      # Health check endpoint
+      location = /healthz {
+        access_log off;
+        return 200 "ok";
+        add_header Content-Type text/plain;
+      }
+    }

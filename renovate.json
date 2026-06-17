@@ -42,6 +42,20 @@
     },
     {
       "customType": "regex",
+      "description": "Update the CasePack Docs chart appVersion from GHCR image tags",
+      "managerFilePatterns": [
+        "/^casepack-docs\\/Chart\\.yaml$/"
+      ],
+      "matchStrings": [
+        "appVersion:\\s*\\\"?(?<currentValue>[^\\\"\\n]+)\\\"?"
+      ],
+      "depNameTemplate": "ghcr.io/bysamio/casepack-docs",
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "semver",
+      "autoReplaceStringTemplate": "appVersion: \"{{{newValue}}}\""
+    },
+    {
+      "customType": "regex",
       "description": "Update the Keycloak chart image tag from GHCR image tags",
       "managerFilePatterns": [
         "/^keycloak\\/values\\.yaml$/"
@@ -91,7 +105,8 @@
       ],
       "matchPackageNames": [
         "ghcr.io/bysamio/casepack-api",
-        "ghcr.io/bysamio/casepack-spa"
+        "ghcr.io/bysamio/casepack-spa",
+        "ghcr.io/bysamio/casepack-docs"
       ],
       "allowedVersions": "/^\\d+\\.\\d+\\.\\d+$/",
       "semanticCommitType": "chore",
@@ -212,6 +227,18 @@
         "dependencies",
         "helm",
         "casepack-spa"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "ghcr.io/bysamio/casepack-docs"
+      ],
+      "semanticCommitScope": "casepack-docs",
+      "additionalBranchPrefix": "casepack-docs-",
+      "labels": [
+        "dependencies",
+        "helm",
+        "casepack-docs"
       ]
     },
     {
