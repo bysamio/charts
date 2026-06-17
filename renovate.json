@@ -1,0 +1,87 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended"
+  ],
+  "timezone": "Europe/Berlin",
+  "dependencyDashboard": true,
+  "labels": [
+    "dependencies"
+  ],
+  "enabledManagers": [
+    "custom.regex"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update the CasePack API chart from GHCR image tags",
+      "managerFilePatterns": [
+        "/^casepack-api\\/Chart\\.yaml$/"
+      ],
+      "matchStrings": [
+        "version:\\s*(?<currentValue>[^\\s]+)\\s*\\r?\\nappVersion:\\s*\\\"?[^\\\"\\n]+\\\"?"
+      ],
+      "depNameTemplate": "ghcr.io/bysamio/casepack-api",
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "semver",
+      "autoReplaceStringTemplate": "version: {{{newValue}}}\nappVersion: \"{{{newValue}}}\""
+    },
+    {
+      "customType": "regex",
+      "description": "Update the CasePack SPA chart from GHCR image tags",
+      "managerFilePatterns": [
+        "/^casepack-spa\\/Chart\\.yaml$/"
+      ],
+      "matchStrings": [
+        "version:\\s*(?<currentValue>[^\\s]+)\\s*\\r?\\nappVersion:\\s*\\\"?[^\\\"\\n]+\\\"?"
+      ],
+      "depNameTemplate": "ghcr.io/bysamio/casepack-spa",
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "semver",
+      "autoReplaceStringTemplate": "version: {{{newValue}}}\nappVersion: \"{{{newValue}}}\""
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Only promote stable CasePack image tags into published charts",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "ghcr.io/bysamio/casepack-api",
+        "ghcr.io/bysamio/casepack-spa"
+      ],
+      "allowedVersions": "/^\\d+\\.\\d+\\.\\d+$/",
+      "semanticCommitType": "chore",
+      "labels": [
+        "dependencies",
+        "helm",
+        "casepack"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "ghcr.io/bysamio/casepack-api"
+      ],
+      "semanticCommitScope": "casepack-api",
+      "additionalBranchPrefix": "casepack-api-",
+      "labels": [
+        "dependencies",
+        "helm",
+        "casepack-api"
+      ]
+    },
+    {
+      "matchPackageNames": [
+        "ghcr.io/bysamio/casepack-spa"
+      ],
+      "semanticCommitScope": "casepack-spa",
+      "additionalBranchPrefix": "casepack-spa-",
+      "labels": [
+        "dependencies",
+        "helm",
+        "casepack-spa"
+      ]
+    }
+  ]
+}

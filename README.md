@@ -37,6 +37,18 @@ The full, always-current list of charts and their latest versions is published a
 
 > This list is generated from the published `index.yaml`, so it is intentionally not duplicated here to avoid drift.
 
+
+## Automation
+
+Renovate watches the CasePack application image tags in GHCR and opens pull requests in this repository to update the corresponding chart `version` and `appVersion` fields:
+
+| Chart | Image | Updated file |
+|-------|-------|--------------|
+| `casepack-api` | `ghcr.io/bysamio/casepack-api` | `casepack-api/Chart.yaml` |
+| `casepack-spa` | `ghcr.io/bysamio/casepack-spa` | `casepack-spa/Chart.yaml` |
+
+Only stable `MAJOR.MINOR.PATCH` image tags are promoted into chart PRs. Snapshot, SHA, and `latest` tags are ignored.
+
 ## 📖 Documentation
 
 - [Setup Guide](./ARTIFACT_HUB_SETUP.md) - Complete setup and configuration guide
