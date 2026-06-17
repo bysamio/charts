@@ -57,6 +57,37 @@ entries:
       artifacthub.io/category: security
       artifacthub.io/license: Proprietary
     apiVersion: v2
+    appVersion: 0.21.0
+    created: "2026-06-17T22:54:40.798803847Z"
+    description: CasePack API — Java backend for incident reporting and evidence management
+      for MSPs
+    digest: 648324e447eb2d6d18a7d0310f5a32b5792bf03a09ec35cc0d782bdd3b768299
+    home: https://github.com/bysamio/casepack-api
+    icon: https://casepack.app/apple-touch-icon.png
+    keywords:
+    - casepack
+    - incident-management
+    - evidence
+    - nis2
+    - msp
+    - compliance
+    - multi-tenant
+    - keycloak
+    - s3
+    maintainers:
+    - name: bysamio
+      url: https://github.com/bysamio
+    name: casepack-api
+    sources:
+    - https://github.com/bysamio/casepack-api
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/casepack-api-0.21.0/casepack-api-0.21.0.tgz
+    version: 0.21.0
+  - annotations:
+      artifacthub.io/category: security
+      artifacthub.io/license: Proprietary
+    apiVersion: v2
     appVersion: 0.20.0
     created: "2026-06-17T20:42:43.731732313Z"
     description: CasePack API — Java backend for incident reporting and evidence management
@@ -1930,4 +1961,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2026-06-17T22:54:03.893124767Z"
+generated: "2026-06-17T22:54:40.798890807Z"
