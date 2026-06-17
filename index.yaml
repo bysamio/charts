@@ -5,6 +5,58 @@ entries:
       artifacthub.io/category: security
       artifacthub.io/license: Proprietary
     apiVersion: v2
+    appVersion: 0.4.0
+    created: "2026-06-17T23:31:55.377686891Z"
+    dependencies:
+    - name: casepack-api
+      repository: oci://ghcr.io/bysamio/charts
+      version: 0.21.0
+    - condition: casepack-spa.enabled
+      name: casepack-spa
+      repository: oci://ghcr.io/bysamio/charts
+      version: 0.20.0
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: oci://ghcr.io/bysamio/charts
+      version: 2.3.1
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: oci://ghcr.io/bysamio/charts
+      version: 1.2.4
+    - condition: seaweedfs.enabled
+      name: seaweedfs
+      repository: https://seaweedfs.github.io/seaweedfs/helm
+      version: 4.34.0
+    description: CasePack — multi-tenant incident evidence management platform for
+      MSPs. Deploys the full stack in one command.
+    digest: d958ad46a863606b8ed20e306d884e71a3b2e3c1b856194d90f172aba4569433
+    home: https://casepack.app
+    icon: https://casepack.app/apple-touch-icon.png
+    keywords:
+    - casepack
+    - incident-reporting
+    - incident-management
+    - evidence
+    - nis2
+    - msp
+    - multi-tenant
+    - keycloak
+    - seaweedfs
+    - self-host
+    maintainers:
+    - name: bysamio
+      url: https://github.com/bysamio
+    name: casepack
+    sources:
+    - https://github.com/bysamio/casepack
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/casepack-0.4.0/casepack-0.4.0.tgz
+    version: 0.4.0
+  - annotations:
+      artifacthub.io/category: security
+      artifacthub.io/license: Proprietary
+    apiVersion: v2
     appVersion: 0.3.1
     created: "2026-06-17T12:27:39.040797026Z"
     dependencies:
@@ -270,6 +322,30 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/casepack-api-0.20.0-SNAPSHOT/casepack-api-0.20.0-SNAPSHOT.tgz
     version: 0.20.0-SNAPSHOT
+  casepack-docs:
+  - annotations:
+      artifacthub.io/category: security
+      artifacthub.io/license: Proprietary
+    apiVersion: v2
+    appVersion: 0.3.0
+    created: "2026-06-17T23:31:55.504994211Z"
+    description: CasePack Docs — Astro Starlight documentation site
+    digest: 4c469f1c4b4dde9df0a2081916ccdadd90921edb8eb98615c3a93e55d3d8562f
+    home: https://docs.casepack.app
+    icon: https://docs.casepack.app/apple-touch-icon.png
+    keywords:
+    - casepack
+    - documentation
+    maintainers:
+    - email: admin@bysam.io
+      name: bysamio
+    name: casepack-docs
+    sources:
+    - https://github.com/bysamio/casepack-docs
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/casepack-docs-0.3.0/casepack-docs-0.3.0.tgz
+    version: 0.3.0
   casepack-spa:
   - annotations:
       artifacthub.io/category: security
@@ -1961,4 +2037,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2026-06-17T22:54:40.798890807Z"
+generated: "2026-06-17T23:31:55.50512959Z"
