@@ -40,14 +40,17 @@ The full, always-current list of charts and their latest versions is published a
 
 ## Automation
 
-Renovate watches the CasePack application image tags in GHCR and opens pull requests in this repository to update the corresponding chart `version` and `appVersion` fields:
+Application release workflows in `casepack-api` and `casepack-spa` open immediate chart update PRs in this repository after stable image releases. Renovate remains enabled here as a chart-owned safety net and for infrastructure image updates.
 
-| Chart | Image | Updated file |
-|-------|-------|--------------|
-| `casepack-api` | `ghcr.io/bysamio/casepack-api` | `casepack-api/Chart.yaml` |
-| `casepack-spa` | `ghcr.io/bysamio/casepack-spa` | `casepack-spa/Chart.yaml` |
+| Chart | Image | Renovate behavior |
+|-------|-------|-------------------|
+| `casepack-api` | `ghcr.io/bysamio/casepack-api` | Sync chart `version` and `appVersion` to stable app image tags |
+| `casepack-spa` | `ghcr.io/bysamio/casepack-spa` | Sync chart `version` and `appVersion` to stable app image tags |
+| `keycloak` | `ghcr.io/bysamio/keycloak` | Update image tag, sync `appVersion`, bump chart major/minor/patch to match image update type |
+| `wordpress` | `ghcr.io/bysamio/wordpress` | Update image tag, sync `appVersion`, bump chart major/minor/patch to match image update type |
+| `postgresql` | `ghcr.io/bysamio/postgresql` | Update image tag, sync `appVersion`, bump chart major/minor/patch to match image update type |
 
-Only stable `MAJOR.MINOR.PATCH` image tags are promoted into chart PRs. Snapshot, SHA, and `latest` tags are ignored.
+Snapshot, SHA, and `latest` tags are ignored. PostgreSQL tracking is limited to `*-alpine` image tags.
 
 ## 📖 Documentation
 
