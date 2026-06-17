@@ -1,4 +1,4 @@
-# BySam Helm Charts
+# BySamIO Helm Charts
 
 Official Helm charts repository for CasePack and BySam infrastructure charts.
 

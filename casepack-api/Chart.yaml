@@ -5,7 +5,7 @@ type: application
 version: 0.20.0-SNAPSHOT
 appVersion: "0.20.0-SNAPSHOT"
 home: https://github.com/bysamio/casepack-api
-icon: https://raw.githubusercontent.com/bysamio/charts/main/icons/casepack-api.png
+icon: https://casepack.app/apple-touch-icon.png
 sources:
   - https://github.com/bysamio/casepack-api
 keywords:
