@@ -30,17 +30,12 @@ helm install my-wordpress bysamio/wordpress
 
 ## 📦 Available Charts
 
-| Chart | Description | Version | App Version |
-|-------|-------------|---------|-------------|
-| [casepack](./casepack/) | Full CasePack self-host stack | 0.1.0 | 0.3.1 |
-| [casepack-api](./casepack-api/) | CasePack Spring Boot API | 0.20.0-SNAPSHOT | 0.20.0-SNAPSHOT |
-| [casepack-spa](./casepack-spa/) | CasePack React SPA | 0.19.0-dev | 0.19.0-dev |
-| [wordpress](./wordpress/) | WordPress CMS with auto-installation (non-root) | 2.0.2 | 6.9.0 |
-| [mariadb](./mariadb/) | MariaDB database | 1.0.2 | 12.0.2 |
-| [memcached](./memcached/) | Memcached caching system | 1.0.2 | 1.6.24 |
-| [keycloak](./keycloak/) | Identity and Access Management (IAM) solution | 1.2.4 | 26.6.3 |
-| [postgresql](./postgresql/) | PostgreSQL database | 2.3.1 | 17.10-alpine |
-| [minio](./minio/) | High-performance S3-compatible object storage | 1.0.3 | 2025.9.7 |
+The full, always-current list of charts and their latest versions is published at:
+
+- **Landing page:** <https://bysamio.github.io/charts/>
+- **Artifact Hub:** <https://artifacthub.io/packages/search?repo=bysamio>
+
+> This list is generated from the published `index.yaml`, so it is intentionally not duplicated here to avoid drift.
 
 ## 📖 Documentation
 
