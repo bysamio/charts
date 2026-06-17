@@ -115,6 +115,37 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/casepack-api-0.20.0-SNAPSHOT/casepack-api-0.20.0-SNAPSHOT.tgz
     version: 0.20.0-SNAPSHOT
+  - annotations:
+      artifacthub.io/category: security
+      artifacthub.io/license: Proprietary
+    apiVersion: v2
+    appVersion: 0.20.0-SNAPSHOT
+    created: "2026-06-17T16:20:13.344524273Z"
+    description: CasePack API — Java backend for incident reporting and evidence management
+      for MSPs
+    digest: 48145b01bcc9e032147c8629a7593c0e61d65edfecd8a4ef70ff0816c17989ca
+    home: https://github.com/bysamio/casepack-api
+    icon: https://casepack.app/apple-touch-icon.png
+    keywords:
+    - casepack
+    - incident-management
+    - evidence
+    - nis2
+    - msp
+    - compliance
+    - multi-tenant
+    - keycloak
+    - s3
+    maintainers:
+    - name: bysamio
+      url: https://github.com/bysamio
+    name: casepack-api
+    sources:
+    - https://github.com/bysamio/casepack-api
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/casepack-api-0.20.0-SNAPSHOT/casepack-api-0.20.0-SNAPSHOT.tgz
+    version: 0.20.0-SNAPSHOT
   casepack-spa:
   - annotations:
       artifacthub.io/category: security
@@ -145,6 +176,27 @@ entries:
     description: CasePack SPA — React frontend for incident reporting and evidence
       management for MSPs.
     digest: cad131f27c2ee79ebc654d01bb45d03ef494b5b4916a14498fe39c635c59b7b1
+    home: https://casepack.app
+    icon: https://casepack.app/apple-touch-icon.png
+    maintainers:
+    - email: admin@bysam.io
+      name: bysamio
+    name: casepack-spa
+    sources:
+    - https://github.com/bysamio/casepack-spa
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/casepack-spa-0.19.0-dev/casepack-spa-0.19.0-dev.tgz
+    version: 0.19.0-dev
+  - annotations:
+      artifacthub.io/category: security
+      artifacthub.io/license: Proprietary
+    apiVersion: v2
+    appVersion: 0.19.0-dev
+    created: "2026-06-17T16:20:13.545081068Z"
+    description: CasePack SPA — React frontend for incident reporting and evidence
+      management for MSPs.
+    digest: c871631566f35cf245eca5da94848ee56b7c9310fc51b80a890e2fe930745b5f
     home: https://casepack.app
     icon: https://casepack.app/apple-touch-icon.png
     maintainers:
@@ -1722,4 +1774,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2026-06-17T15:38:38.645088925Z"
+generated: "2026-06-17T16:20:13.545197122Z"
