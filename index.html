@@ -1,178 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BySam Helm Charts</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .container {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 800px;
-            width: 100%;
-            padding: 40px;
-        }
-        h1 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 2.5em;
-        }
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 1.1em;
-        }
-        .section {
-            margin: 30px 0;
-        }
-        .section h2 {
-            color: #333;
-            margin-bottom: 15px;
-            font-size: 1.5em;
-            border-bottom: 2px solid #667eea;
-            padding-bottom: 10px;
-        }
-        .code-block {
-            background: #f5f5f5;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            margin: 15px 0;
-            border-radius: 4px;
-            font-family: 'Courier New', monospace;
-            overflow-x: auto;
-        }
-        .charts-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        .chart-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            border: 2px solid #e0e0e0;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-        .chart-card:hover {
-            transform: translateY(-5px);
-            border-color: #667eea;
-        }
-        .chart-name {
-            font-weight: bold;
-            color: #667eea;
-            font-size: 1.2em;
-            margin-bottom: 5px;
-        }
-        .chart-version {
-            color: #666;
-            font-size: 0.9em;
-        }
-        .links {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin: 20px 0;
-        }
-        .link-button {
-            display: inline-block;
-            padding: 10px 20px;
-            background: #667eea;
-            color: white;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: background 0.2s;
-        }
-        .link-button:hover {
-            background: #764ba2;
-        }
-        .link-button.secondary {
-            background: #6c757d;
-        }
-        .link-button.secondary:hover {
-            background: #5a6268;
-        }
-        code {
-            color: #667eea;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Official Helm charts repository for bysamio.">
+  <title>BySam Helm Charts</title>
+  <style>
+    :root {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --muted: #8b949e; --accent: #58a6ff; --accent-soft: #1f6feb33;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px 64px; }
+    header.hero {
+      background: radial-gradient(1200px 400px at 50% -120px, var(--accent-soft), transparent),
+                  var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 56px 20px 40px; text-align: center;
+    }
+    header.hero h1 { margin: 0 0 8px; font-size: 2.4rem; }
+    header.hero p { margin: 0; color: var(--muted); font-size: 1.1rem; }
+    .quickstart {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px; margin: 32px 0;
+    }
+    .quickstart h2 { margin-top: 0; }
+    pre {
+      background: #0b0f14; border: 1px solid var(--border); border-radius: 8px;
+      padding: 14px 16px; overflow-x: auto; margin: 10px 0;
+    }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.9rem; }
+    h2.section { margin: 40px 0 8px; }
+    .count { color: var(--muted); font-weight: normal; font-size: 1rem; }
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px;
+    }
+    .card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 18px; display: flex; flex-direction: column;
+    }
+    .card-head { display: flex; gap: 14px; align-items: center; }
+    .chart-icon { width: 44px; height: 44px; border-radius: 8px; object-fit: contain; background: #fff1; flex-shrink: 0; }
+    .chart-icon--placeholder { display: grid; place-items: center; font-size: 22px; }
+    .card-title h3 { margin: 0; font-size: 1.15rem; }
+    .badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .badge {
+      font-size: 0.72rem; padding: 2px 8px; border-radius: 999px;
+      background: var(--accent-soft); color: var(--accent); border: 1px solid #1f6feb55;
+    }
+    .badge--app { background: #23863633; color: #3fb950; border-color: #2386364d; }
+    .card-desc { color: var(--muted); flex: 1; }
+    pre.install { margin-bottom: 0; }
+    .links { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 32px; }
+    .links a {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 10px 16px;
+    }
+    footer { margin-top: 48px; text-align: center; color: var(--muted); font-size: 0.85rem; }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🚀 BySam Helm Charts</h1>
-        <p class="subtitle">Official Helm Charts Repository</p>
+  <header class="hero">
+    <h1>🚀 BySamIO Helm Charts</h1>
+    <p>Official Helm charts repository for CasePack and BySamIO infrastructure</p>
+  </header>
 
-        <div class="section">
-            <h2>📦 Available Charts</h2>
-            <div class="charts-list">
-                <div class="chart-card">
-                    <div class="chart-name">WordPress</div>
-                    <div class="chart-version">v1.0.4 • App v6.8.2</div>
-                    <p style="margin-top: 10px; font-size: 0.9em;">WordPress CMS with auto-installation</p>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-name">MariaDB</div>
-                    <div class="chart-version">v1.0.2 • App v12.0.2</div>
-                    <p style="margin-top: 10px; font-size: 0.9em;">MariaDB database deployment</p>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-name">Memcached</div>
-                    <div class="chart-version">v1.0.1 • App v1.6.24</div>
-                    <p style="margin-top: 10px; font-size: 0.9em;">Memcached caching system</p>
-                </div>
+  <div class="wrap">
+    <section class="quickstart">
+      <h2>⚡ Quick Start</h2>
+      <p><strong>Traditional Helm repository:</strong></p>
+      <pre><code>helm repo add bysamio https://bysamio.github.io/charts/
+helm repo update
+helm search repo bysamio</code></pre>
+      <p><strong>OCI registry (Helm 3.8+):</strong></p>
+      <pre><code>helm install my-release oci://ghcr.io/bysamio/charts/&lt;chart&gt; --version &lt;version&gt;</code></pre>
+    </section>
+
+    <h2 class="section">📦 Available Charts <span class="count">(9)</span></h2>
+    <div class="grid">
+        <article class="card">
+          <div class="card-head">
+            <img class="chart-icon" src="https://casepack.app/apple-touch-icon.png" alt="" loading="lazy" onerror="this.style.display='none'">
+            <div class="card-title">
+              <h3><a href="https://casepack.app" target="_blank" rel="noopener">casepack</a></h3>
+              <div class="badges">
+                <span class="badge">v0.1.0</span>
+                <span class="badge badge--app">app 0.3.1</span>
+              </div>
             </div>
-        </div>
-
-        <div class="section">
-            <h2>🚀 Quick Start - OCI Registry (Recommended)</h2>
-            <div class="code-block">
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress<br>
-helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb<br>
-helm install my-memcached oci://ghcr.io/bysamio/charts/memcached
+          </div>
+          <p class="card-desc">CasePack — multi-tenant incident evidence management platform for MSPs. Deploys the full stack in one command.</p>
+          <pre class="install"><code>helm install casepack oci://ghcr.io/bysamio/charts/casepack --version 0.1.0</code></pre>
+        </article>
+        <article class="card">
+          <div class="card-head">
+            <img class="chart-icon" src="https://casepack.app/apple-touch-icon.png" alt="" loading="lazy" onerror="this.style.display='none'">
+            <div class="card-title">
+              <h3><a href="https://github.com/bysamio/casepack-api" target="_blank" rel="noopener">casepack-api</a></h3>
+              <div class="badges">
+                <span class="badge">v0.20.0-SNAPSHOT</span>
+                <span class="badge badge--app">app 0.20.0-SNAPSHOT</span>
+              </div>
             </div>
-        </div>
-
-        <div class="section">
-            <h2>📚 Traditional Helm Repository</h2>
-            <div class="code-block">
-helm repo add bysamio https://bysamio.github.io/charts/<br>
-helm repo update<br>
-helm install my-wordpress bysamio/wordpress
+          </div>
+          <p class="card-desc">CasePack API — Java backend for incident reporting and evidence management for MSPs</p>
+          <pre class="install"><code>helm install casepack-api oci://ghcr.io/bysamio/charts/casepack-api --version 0.20.0-SNAPSHOT</code></pre>
+        </article>
+        <article class="card">
+          <div class="card-head">
+            <img class="chart-icon" src="https://casepack.app/apple-touch-icon.png" alt="" loading="lazy" onerror="this.style.display='none'">
+            <div class="card-title">
+              <h3><a href="https://casepack.app" target="_blank" rel="noopener">casepack-spa</a></h3>
+              <div class="badges">
+                <span class="badge">v0.19.0-dev</span>
+                <span class="badge badge--app">app 0.19.0-dev</span>
+              </div>
             </div>
-        </div>
-
-        <div class="section">
-            <h2>🔗 Links</h2>
-            <div class="links">
-                <a href="https://artifacthub.io/packages/search?repo=bysamio-charts" class="link-button">Artifact Hub</a>
-                <a href="https://github.com/bysamio/charts" class="link-button">GitHub Repository</a>
-                <a href="index.yaml" class="link-button secondary">index.yaml</a>
-                <a href="artifacthub-repo.yml" class="link-button secondary">artifacthub-repo.yml</a>
+          </div>
+          <p class="card-desc">CasePack SPA — React frontend for incident reporting and evidence management for MSPs.</p>
+          <pre class="install"><code>helm install casepack-spa oci://ghcr.io/bysamio/charts/casepack-spa --version 0.19.0-dev</code></pre>
+        </article>
+        <article class="card">
+          <div class="card-head">
+            <img class="chart-icon" src="https://avatars.githubusercontent.com/u/4921466?s=200&amp;v=4" alt="" loading="lazy" onerror="this.style.display='none'">
+            <div class="card-title">
+              <h3><a href="https://www.keycloak.org/" target="_blank" rel="noopener">keycloak</a></h3>
+              <div class="badges">
+                <span class="badge">v1.2.4</span>
+                <span class="badge badge--app">app 26.6.3</span>
+              </div>
             </div>
-        </div>
-
-        <div class="section">
-            <h2>📖 Documentation</h2>
-            <p>For detailed documentation, visit the <a href="https://github.com/bysamio/charts" style="color: #667eea;">GitHub repository</a>.</p>
-        </div>
+          </div>
+          <p class="card-desc">A Helm chart for Keycloak using BySamio hardened Docker image (runs as UID 1001)</p>
+          <pre class="install"><code>helm install keycloak oci://ghcr.io/bysamio/charts/keycloak --version 1.2.4</code></pre>
+        </article>
+        <article class="card">
+          <div class="card-head">
+            <img class="chart-icon" src="https://mariadb.org/wp-content/uploads/2019/11/mariadb-logo-vert_blue-transparent.png" alt="" loading="lazy" onerror="this.style.display='none'">
+            <div class="card-title">
+              <h3><a href="https://mariadb.org/" target="_blank" rel="noopener">mariadb</a></h3>
+              <div class="badges">
+                <span class="badge">v1.0.2</span>
+                <span class="badge badge--app">app 12.0.2</span>
+              </div>
+            </div>
+          </div>
+          <p class="card-desc">MariaDB database deployment using official Docker images</p>
+          <pre class="install"><code>helm install mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2</code></pre>
+        </article>
+        <article class="card">
+          <div class="card-head">
+            <img class="chart-icon" src="https://www.memcached.org/logo.png" alt="" loading="lazy" onerror="this.style.display='none'">
+            <div class="card-title">
+              <h3><a href="https://memcached.org/" target="_blank" rel="noopener">memcached</a></h3>
+              <div class="badges">
+                <span class="badge">v1.0.2</span>
+                <span class="badge badge--app">app 1.6.24</span>
+              </div>
+            </div>
+          </div>
+          <p class="card-desc">Memcached caching system deployment using official Docker images</p>
+          <pre class="install"><code>helm install memcached oci://ghcr.io/bysamio/charts/memcached --version 1.0.2</code></pre>
+        </article>
+        <article class="card">
+          <div class="card-head">
+            <div class="chart-icon chart-icon--placeholder">📦</div>
+            <div class="card-title">
+              <h3><a href="https://github.com/bysamio/charts" target="_blank" rel="noopener">minio</a></h3>
+              <div class="badges">
+                <span class="badge">v1.0.3</span>
+                <span class="badge badge--app">app 2025.9.7</span>
+              </div>
+            </div>
+          </div>
+          <p class="card-desc">A Helm chart for deploying MinIO object storage using hardened container images</p>
+          <pre class="install"><code>helm install minio oci://ghcr.io/bysamio/charts/minio --version 1.0.3</code></pre>
+        </article>
+        <article class="card">
+          <div class="card-head">
+            <img class="chart-icon" src="https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg" alt="" loading="lazy" onerror="this.style.display='none'">
+            <div class="card-title">
+              <h3><a href="https://www.postgresql.org/" target="_blank" rel="noopener">postgresql</a></h3>
+              <div class="badges">
+                <span class="badge">v2.3.1</span>
+                <span class="badge badge--app">app 17.10-alpine</span>
+              </div>
+            </div>
+          </div>
+          <p class="card-desc">A Helm chart for PostgreSQL using BySamio hardened Docker image (runs as UID 1001)</p>
+          <pre class="install"><code>helm install postgresql oci://ghcr.io/bysamio/charts/postgresql --version 2.3.1</code></pre>
+        </article>
+        <article class="card">
+          <div class="card-head">
+            <img class="chart-icon" src="https://s.w.org/style/images/about/WordPress-logotype-wmark.png" alt="" loading="lazy" onerror="this.style.display='none'">
+            <div class="card-title">
+              <h3><a href="https://wordpress.org/" target="_blank" rel="noopener">wordpress</a></h3>
+              <div class="badges">
+                <span class="badge">v2.0.2</span>
+                <span class="badge badge--app">app 6.9.0</span>
+              </div>
+            </div>
+          </div>
+          <p class="card-desc">A Helm chart for WordPress using BySamio non-root Docker image (runs as UID 1001 on port 8080)</p>
+          <pre class="install"><code>helm install wordpress oci://ghcr.io/bysamio/charts/wordpress --version 2.0.2</code></pre>
+        </article>
     </div>
+
+    <div class="links">
+      <a href="https://artifacthub.io/packages/search?repo=bysamio" target="_blank" rel="noopener">🔎 Artifact Hub</a>
+      <a href="https://github.com/bysamio/charts" target="_blank" rel="noopener">🐙 GitHub</a>
+      <a href="./index.yaml">📄 index.yaml</a>
+      <a href="./artifacthub-repo.yml">⚙️ artifacthub-repo.yml</a>
+    </div>
+
+    <footer>
+      Generated from <code>index.yaml</code> on 2026-06-17 15:38 UTC ·
+      <a href="https://github.com/bysamio/charts">bysamio/charts</a>
+    </footer>
+  </div>
 </body>
 </html>
