@@ -23,6 +23,10 @@ config:
   deploymentMode: "SAAS"
   appVersion: ""
   docsBaseUrl: "https://docs.casepack.app"
+  # Umami analytics. Leave both empty to disable (default — keeps self-host
+  # deployments from phoning home). Set both on the SAAS deployment to enable.
+  umamiScriptUrl: ""
+  umamiWebsiteId: ""
 
 serviceAccount:
   create: true
