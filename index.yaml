@@ -406,6 +406,27 @@ entries:
       artifacthub.io/category: security
       artifacthub.io/license: Proprietary
     apiVersion: v2
+    appVersion: 0.22.0
+    created: "2026-06-21T21:18:55.752358671Z"
+    description: CasePack SPA — React frontend for incident reporting and evidence
+      management for MSPs.
+    digest: 99b5805f609470fed6c9dfc57237c9a5113c844587c3e76450696d1e170e6bbf
+    home: https://casepack.app
+    icon: https://casepack.app/apple-touch-icon.png
+    maintainers:
+    - email: admin@bysam.io
+      name: bysamio
+    name: casepack-spa
+    sources:
+    - https://github.com/bysamio/casepack-spa
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/casepack-spa-0.22.0/casepack-spa-0.22.0.tgz
+    version: 0.22.0
+  - annotations:
+      artifacthub.io/category: security
+      artifacthub.io/license: Proprietary
+    apiVersion: v2
     appVersion: 0.21.1
     created: "2026-06-19T21:51:59.522957523Z"
     description: CasePack SPA — React frontend for incident reporting and evidence
@@ -2134,4 +2155,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2026-06-21T21:15:47.308820117Z"
+generated: "2026-06-21T21:18:55.752528728Z"
