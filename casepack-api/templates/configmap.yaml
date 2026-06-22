@@ -55,3 +55,4 @@ data:
   CASEPACK_KEYCLOAK_SPA_REDIRECT_URI: {{ .Values.config.keycloakSpaRedirectUri | quote }}
   {{- end }}
   CASEPACK_KEYCLOAK_ACTION_TOKEN_LIFESPAN: {{ .Values.config.keycloakActionTokenLifespan | quote }}
+  CASEPACK_PROVISIONING_INBOX_ENABLED: {{ .Values.config.provisioningInboxEnabled | quote }}

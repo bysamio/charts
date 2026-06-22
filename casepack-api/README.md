@@ -88,6 +88,7 @@ The chart expects a Kubernetes Secret with the following keys:
 | `CASEPACK_KEYCLOAK_SPA_CLIENT_ID` | OIDC client ID for action-email redirect (default: `casepack-spa`) |
 | `CASEPACK_KEYCLOAK_SPA_REDIRECT_URI` | *(optional)* Redirect URI after Keycloak action completion |
 | `CASEPACK_KEYCLOAK_ACTION_TOKEN_LIFESPAN` | Action-link validity in seconds (default: `259200` / 72 hours) |
+| `CASEPACK_PROVISIONING_INBOX_ENABLED` | `false` | Persist valid provisioning events and process them asynchronously with deduplication/retry |
 
 Create the secret:
 
@@ -142,6 +143,7 @@ secrets:
 | `config.corsOrigins` | Comma-separated allowed CORS origins | `http://localhost:5173` |
 | `config.swaggerPublic` | Allow unauthenticated Swagger UI access | `false` |
 | `config.javaOpts` | JVM options | `-Xms256m -Xmx512m` |
+| `config.provisioningInboxEnabled` | Provisioning events durable async processing flag | `false` |
 
 ### Image
 
