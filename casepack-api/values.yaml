@@ -45,6 +45,7 @@ config:
   webhookMaxPayload: "1048576"
   timelineEnabled: "true"
   provisioningInboxEnabled: "false"
+  onboardingEmailOutboxEnabled: "true"
   corsOrigins: "http://localhost:5173"
   swaggerPublic: "false"
   javaOpts: "-Xms256m -Xmx512m"

@@ -56,3 +56,4 @@ data:
   {{- end }}
   CASEPACK_KEYCLOAK_ACTION_TOKEN_LIFESPAN: {{ .Values.config.keycloakActionTokenLifespan | quote }}
   CASEPACK_PROVISIONING_INBOX_ENABLED: {{ .Values.config.provisioningInboxEnabled | quote }}
+  CASEPACK_ONBOARDING_EMAIL_OUTBOX_ENABLED: {{ .Values.config.onboardingEmailOutboxEnabled | quote }}
