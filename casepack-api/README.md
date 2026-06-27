@@ -83,6 +83,7 @@ The chart expects a Kubernetes Secret with the following keys:
 | `CASEPACK_LICENSE_TOKEN_FILE` | *(optional)* Path to license file (alternative to inline token) |
 | `CASEPACK_LICENSE_PUBLIC_KEY` | *(optional)* Base64-encoded Ed25519 JWK fallback for license verification. Omit when `CASEPACK_LICENSE_KEY_SOURCE=jwks`. |
 | `CASEPACK_PROVISIONING_SECRET` | *(optional)* HMAC-SHA256 shared secret for provisioning webhook verification (64-char hex string) |
+| `CASEPACK_TEST_DATA_RESET_HMAC_SECRET` | *(optional)* HMAC-SHA256 shared secret for stage/dev-only test-data reset |
 | `CASEPACK_KEYCLOAK_SA_CLIENT_ID` | *(optional)* Keycloak service account client ID for Admin API user management |
 | `CASEPACK_KEYCLOAK_SA_CLIENT_SECRET` | *(optional)* Keycloak service account client secret |
 | `CASEPACK_KEYCLOAK_SPA_CLIENT_ID` | OIDC client ID for action-email redirect (default: `casepack-spa`) |
@@ -144,6 +145,8 @@ secrets:
 | `config.swaggerPublic` | Allow unauthenticated Swagger UI access | `false` |
 | `config.javaOpts` | JVM options | `-Xms256m -Xmx512m` |
 | `config.provisioningInboxEnabled` | Provisioning events durable async processing flag | `false` |
+| `config.testDataResetEnabled` | Enable stage/dev/test-only internal test-data reset endpoint | `false` |
+| `config.testDataResetEnvironment` | Reset environment guard; use `staging`, `dev`, or `test` outside production | `local` |
 
 ### Image
 

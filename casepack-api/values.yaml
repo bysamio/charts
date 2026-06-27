@@ -46,6 +46,8 @@ config:
   timelineEnabled: "true"
   provisioningInboxEnabled: "false"
   onboardingEmailOutboxEnabled: "true"
+  testDataResetEnabled: "false"
+  testDataResetEnvironment: "local"
   corsOrigins: "http://localhost:5173"
   swaggerPublic: "false"
   javaOpts: "-Xms256m -Xmx512m"
@@ -80,6 +82,8 @@ secrets:
   licensePublicKey: ""
   # HMAC-SHA256 shared secret for provisioning webhook verification (64-char hex string)
   provisioningSecret: ""
+  # HMAC-SHA256 shared secret for stage/dev-only test-data reset.
+  testDataResetHmacSecret: ""
   # Keycloak service account credentials for Admin API (user provisioning)
   keycloakSaClientId: ""
   keycloakSaClientSecret: ""
