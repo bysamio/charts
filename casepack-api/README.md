@@ -46,6 +46,7 @@ config:
   oidcIssuerUri: "https://auth.example.com/realms/casepack"
   s3Endpoint: "http://seaweedfs-s3.casepack.svc.cluster.local:8333"
   s3PublicEndpoint: "https://s3.casepack.example.com"
+  gotenbergUrl: "http://gotenberg.gotenberg.svc.cluster.local:3000"
   corsOrigins: "https://casepack.example.com"
 
 secrets:
@@ -122,6 +123,7 @@ secrets:
 | `config.oidcJwkSetUri` | JWK set URI (auto-derived from issuer if empty) | `""` |
 | `config.s3Endpoint` | Internal S3 endpoint URL used by API server-side storage operations | `http://seaweedfs-s3:8333` |
 | `config.s3PublicEndpoint` | Optional browser-facing S3 endpoint used for presigned URLs; blank falls back to `config.s3Endpoint` | `""` |
+| `config.gotenbergUrl` | Gotenberg service URL used for document conversion | `http://localhost:3000` |
 | `config.s3Region` | S3 region | `us-east-1` |
 | `config.s3Bucket` | Default S3 bucket name | `casepack` |
 | `config.s3PathStyle` | Use path-style S3 access (required for SeaweedFS / Ceph RGW) | `true` |

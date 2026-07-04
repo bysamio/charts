@@ -177,6 +177,7 @@ helm upgrade --install casepack bysamio/casepack \
 | `casepack-api.config.oidcIssuerUri` | OIDC issuer URI | `http://casepack-keycloak/realms/casepack` |
 | `casepack-api.config.s3Endpoint` | Internal S3 endpoint used by API server-side storage operations | `http://casepack-seaweedfs-s3:8333` |
 | `casepack-api.config.s3PublicEndpoint` | Optional browser-facing S3 endpoint for presigned URLs; include `S3_PUBLIC_ENDPOINT` in `existingSecret` when using the Secret path | `""` |
+| `casepack-api.config.gotenbergUrl` | Gotenberg service URL used for document conversion | `http://localhost:3000` |
 | `casepack-api.config.corsOrigins` | CORS allowed origins | `http://localhost:3000` |
 | `casepack-api.config.deploymentMode` | Deployment mode; include `CASEPACK_DEPLOYMENT_MODE` in `existingSecret` when using the Secret path | `self_host` |
 | `casepack-api.config.installationId` | Installation ID; include `CASEPACK_INSTALLATION_ID` in `existingSecret` when using the Secret path | `""` |

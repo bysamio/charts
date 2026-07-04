@@ -25,6 +25,7 @@ config:
   oidcJwkSetUri: ""   # defaults to {oidcIssuerUri}/protocol/openid-connect/certs
   s3Endpoint: "http://seaweedfs-s3:8333"
   s3PublicEndpoint: "" # optional browser-facing presign endpoint; falls back to s3Endpoint
+  gotenbergUrl: "http://localhost:3000"
   s3Region: "us-east-1"
   s3Bucket: "casepack"
   s3PathStyle: "true"

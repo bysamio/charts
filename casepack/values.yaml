@@ -39,6 +39,7 @@ casepack-api:
     # For Kubernetes installs that use existingSecret, also include
     # S3_PUBLIC_ENDPOINT in that Secret.
     s3PublicEndpoint: ""
+    gotenbergUrl: "http://localhost:3000"
     s3Region: "us-east-1"
     s3Bucket: "casepack"
     s3PathStyle: "true"
