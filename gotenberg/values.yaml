@@ -1,0 +1,77 @@
+# Default values for gotenberg.
+# This is a YAML-formatted file.
+
+replicaCount: 1
+
+image:
+  repository: gotenberg/gotenberg
+  tag: "8-chromium"
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 3000
+  annotations: {}
+
+resources:
+  requests:
+    cpu: 250m
+    memory: 512Mi
+  limits:
+    cpu: "1"
+    memory: 1Gi
+
+securityContext:
+  runAsUser: 1001
+  allowPrivilegeEscalation: false
+  privileged: false
+  readOnlyRootFilesystem: false
+
+env:
+  API_TIMEOUT: "60s"
+  API_BODY_LIMIT: "50MB"
+  API_DISABLE_DOWNLOAD_FROM: "true"
+  API_ENABLE_DEBUG_ROUTE: "false"
+  CHROMIUM_MAX_CONCURRENCY: "2"
+  CHROMIUM_MAX_QUEUE_SIZE: "20"
+  CHROMIUM_CLEAR_CACHE: "true"
+  CHROMIUM_CLEAR_COOKIES: "true"
+  WEBHOOK_DISABLE: "true"
+
+podAnnotations: {}
+podLabels: {}
+podSecurityContext: {}
+automountServiceAccountToken: false
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: http
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: http
+
+startupProbe:
+  httpGet:
+    path: /health
+    port: http
+  failureThreshold: 30
+  periodSeconds: 10
+
+networkPolicy:
+  enabled: true
+  allowExternal: true
+  allowExternalEgress: true
+  extraIngress: []
+  extraEgress: []
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+topologySpreadConstraints: []

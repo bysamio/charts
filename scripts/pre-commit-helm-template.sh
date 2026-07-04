@@ -7,7 +7,7 @@ set -e
 
 echo "🧪 Testing Helm template rendering..."
 
-CHARTS=("keycloak" "postgresql" "mariadb" "memcached" "wordpress" "minio" "casepack-api" "casepack-spa" "casepack-docs" "casepack")
+CHARTS=("keycloak" "postgresql" "mariadb" "memcached" "wordpress" "minio" "gotenberg" "casepack-api" "casepack-spa" "casepack-docs" "casepack")
 KUBE_VERSIONS=("1.28" "1.30" "1.32")
 FAILED=0
 
@@ -19,12 +19,16 @@ for chart in "${CHARTS[@]}"; do
 
     echo "📦 Testing chart: $chart"
 
-    # Update dependencies first
-    if [ -f "$chart/Chart.yaml" ]; then
-        echo "  ↳ Updating dependencies..."
-        cd "$chart"
-        helm dependency update > /dev/null 2>&1 || true
-        cd ..
+    # Build dependencies from Chart.lock without regenerating lock files.
+    if grep -q "^dependencies:" "$chart/Chart.yaml"; then
+        echo "  ↳ Building dependencies..."
+        if ! helm dependency build "$chart" > /dev/null 2>&1; then
+            echo "  ❌ Failed to build dependencies"
+            helm dependency build "$chart"
+            FAILED=1
+            echo ""
+            continue
+        fi
     fi
 
     # Test with default values

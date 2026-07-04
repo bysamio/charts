@@ -18,6 +18,7 @@ helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 2.0.2
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
 helm install my-memcached oci://ghcr.io/bysamio/charts/memcached --version 1.0.2
 helm install my-keycloak oci://ghcr.io/bysamio/charts/keycloak --version 1.2.4
+helm install gotenberg oci://ghcr.io/bysamio/charts/gotenberg --version 0.1.0
 ```
 
 ### Traditional Helm Repository
@@ -62,6 +63,7 @@ Snapshot, SHA, and `latest` tags are ignored. PostgreSQL tracking is limited to 
 - [WordPress Chart](./wordpress/README.md) - WordPress chart documentation
 - [Keycloak Chart](./keycloak/README.md) - Keycloak chart documentation
 - [MinIO Chart](./minio/README.md) - MinIO chart documentation
+- [Gotenberg Chart](./gotenberg/README.md) - Gotenberg chart documentation
 
 ## 🔗 Links
 

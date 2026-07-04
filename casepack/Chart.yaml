@@ -37,7 +37,6 @@ dependencies:
   - name: casepack-spa
     version: "0.20.0"
     repository: "oci://ghcr.io/bysamio/charts"
-    condition: casepack-spa.enabled
 
   # ── Infrastructure (optional — disable if using external services) ─
   - name: postgresql

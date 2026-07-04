@@ -1,0 +1,24 @@
+apiVersion: v2
+name: gotenberg
+description: Minimal Gotenberg document conversion service chart
+type: application
+version: 0.1.0
+appVersion: "8-chromium"
+home: https://gotenberg.dev/
+icon: https://gotenberg.dev/img/logo.png
+sources:
+  - https://github.com/bysamio/charts
+  - https://github.com/gotenberg/gotenberg
+maintainers:
+  - name: BySam Charts
+    email: admin@bysam.io
+keywords:
+  - gotenberg
+  - pdf
+  - document-conversion
+annotations:
+  artifacthub.io/category: integration-delivery
+  artifacthub.io/license: MIT
+  images: |
+    - name: gotenberg
+      image: docker.io/gotenberg/gotenberg:8-chromium

@@ -1,0 +1,7 @@
+Gotenberg has been deployed.
+
+Service:
+  {{ include "gotenberg.fullname" . }}:{{ .Values.service.port }}
+
+Health endpoint:
+  http://{{ include "gotenberg.fullname" . }}:{{ .Values.service.port }}/health

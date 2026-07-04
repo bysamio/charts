@@ -11,6 +11,7 @@ on:
       - 'keycloak/**'
       - 'postgresql/**'
       - 'minio/**'
+      - 'gotenberg/**'
       - 'casepack-api/**'
       - 'casepack-spa/**'
       - 'casepack-docs/**'
@@ -59,7 +60,7 @@ jobs:
       - name: Update chart dependencies
         run: |
           set -euo pipefail
-          charts=(mariadb memcached wordpress keycloak postgresql minio casepack-api casepack-spa casepack-docs casepack)
+          charts=(mariadb memcached wordpress keycloak postgresql minio gotenberg casepack-api casepack-spa casepack-docs casepack)
           for chart in "${charts[@]}"; do
             if [ -f "${chart}/Chart.yaml" ]; then
               # `dependency update` resolves from Chart.yaml and regenerates
@@ -73,7 +74,7 @@ jobs:
       - name: Lint Helm charts
         run: |
           set -euo pipefail
-          for chart in mariadb memcached wordpress keycloak postgresql minio casepack-api casepack-spa casepack-docs casepack; do
+          for chart in mariadb memcached wordpress keycloak postgresql minio gotenberg casepack-api casepack-spa casepack-docs casepack; do
             helm lint "$chart"
           done
 
@@ -111,7 +112,7 @@ jobs:
             done
           else
             echo "No packaged charts found. Packaging now..."
-            for chart in mariadb memcached wordpress keycloak postgresql minio casepack-api casepack-spa casepack-docs casepack; do
+            for chart in mariadb memcached wordpress keycloak postgresql minio gotenberg casepack-api casepack-spa casepack-docs casepack; do
               package=$(helm package "$chart" | grep -oP '(?<=to: ).*')
               echo "Pushing $package to OCI registry..."
               helm push "$package" oci://ghcr.io/${{ github.repository_owner }}/charts
