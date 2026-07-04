@@ -735,6 +735,35 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/casepack-spa-0.19.0-dev/casepack-spa-0.19.0-dev.tgz
     version: 0.19.0-dev
+  gotenberg:
+  - annotations:
+      artifacthub.io/category: integration-delivery
+      artifacthub.io/license: MIT
+      images: |
+        - name: gotenberg
+          image: docker.io/gotenberg/gotenberg:8-chromium
+    apiVersion: v2
+    appVersion: 8-chromium
+    created: "2026-07-04T23:28:16.467497722Z"
+    description: Minimal Gotenberg document conversion service chart
+    digest: 48d0a4742ab5c370e771bacb3966a8a8a40ccdc9b9eb8e175fa0681d54f4cd6b
+    home: https://gotenberg.dev/
+    icon: https://gotenberg.dev/img/logo.png
+    keywords:
+    - gotenberg
+    - pdf
+    - document-conversion
+    maintainers:
+    - email: admin@bysam.io
+      name: BySam Charts
+    name: gotenberg
+    sources:
+    - https://github.com/bysamio/charts
+    - https://github.com/gotenberg/gotenberg
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/gotenberg-0.1.0/gotenberg-0.1.0.tgz
+    version: 0.1.0
   keycloak:
   - apiVersion: v2
     appVersion: 26.6.3
@@ -2300,4 +2329,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2026-07-03T21:32:27.273266495Z"
+generated: "2026-07-04T23:28:16.467678252Z"
