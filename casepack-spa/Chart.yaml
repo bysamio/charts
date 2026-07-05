@@ -2,8 +2,8 @@ apiVersion: v2
 name: casepack-spa
 description: CasePack SPA — React frontend for incident reporting and evidence management for MSPs.
 type: application
-version: 0.24.1
-appVersion: "0.24.1"
+version: 0.24.2
+appVersion: "0.24.2"
 home: https://casepack.app
 icon: https://casepack.app/apple-touch-icon.png
 sources:
