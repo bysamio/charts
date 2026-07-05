@@ -31,7 +31,7 @@ annotations:
 dependencies:
   # ── Core Application ───────────────────────────────────────────
   - name: casepack-api
-    version: "0.26.0"
+    version: "0.26.1"
     repository: "oci://ghcr.io/bysamio/charts"
 
   - name: casepack-spa
