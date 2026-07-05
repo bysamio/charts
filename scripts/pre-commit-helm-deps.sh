@@ -4,6 +4,12 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$REPO_ROOT"
+
+source "$SCRIPT_DIR/helm-local-deps.sh"
+
 echo "📋 Checking Helm chart dependencies..."
 
 # Add external Helm repos required by chart dependencies
@@ -24,18 +30,18 @@ for chart in "${CHARTS[@]}"; do
     if grep -q "^dependencies:" "$chart/Chart.yaml"; then
         echo "  ↳ Chart has dependencies, verifying..."
 
-        cd "$chart"
+        prepare_local_oci_dependencies "$chart"
 
         # Try to build dependencies
-        if helm dependency build > /dev/null 2>&1; then
+        if helm dependency build "$chart" > /dev/null 2>&1; then
             echo "  ✅ Dependencies resolved successfully"
+        elif [ "$LOCAL_DEPS_PREPARED" -eq 1 ] && dependency_status_ok "$chart"; then
+            echo "  ✅ Dependencies resolved using local chart cache"
         else
             echo "  ❌ Failed to resolve dependencies"
-            helm dependency build
+            helm dependency build "$chart"
             FAILED=1
         fi
-
-        cd ..
     else
         echo "  ↳ No dependencies (OK)"
     fi

@@ -57,6 +57,63 @@ jobs:
           helm repo add seaweedfs https://seaweedfs.github.io/seaweedfs/helm
           helm repo update
 
+      - name: Pre-publish dependency charts to OCI
+        run: |
+          set -euo pipefail
+
+          oci_repo="oci://ghcr.io/${{ github.repository_owner }}/charts"
+          package_dir=".oci-prepublish-packages"
+          mkdir -p "$package_dir"
+
+          push_chart_package() {
+            local package="$1"
+            local chart_name chart_version
+            chart_name=$(helm show chart "$package" | awk '$1 == "name:" { print $2; exit }')
+            chart_version=$(helm show chart "$package" | awk '$1 == "version:" { print $2; exit }')
+            if [ -z "$chart_name" ] || [ -z "$chart_version" ]; then
+              echo "Failed to read chart metadata from ${package}"
+              exit 1
+            fi
+
+            if helm show chart "${oci_repo}/${chart_name}" --version "$chart_version" > /dev/null 2>&1; then
+              echo "OCI chart ${chart_name}:${chart_version} already exists, skipping push"
+              return 0
+            fi
+
+            echo "Pushing ${chart_name}:${chart_version} to OCI registry..."
+            helm push "$package" "$oci_repo"
+          }
+
+          package_and_push_chart() {
+            local chart="$1"
+            helm lint "$chart"
+            local package
+            package=$(helm package "$chart" --destination "$package_dir" | awk -F'to: ' '/to: / { print $2; exit }')
+            if [ -z "$package" ]; then
+              echo "Failed to determine packaged chart path for ${chart}"
+              exit 1
+            fi
+            push_chart_package "$package"
+          }
+
+          # Publish charts that other charts may need as dependencies during
+          # this same release run. Helm dependency resolution pulls from OCI,
+          # not from sibling chart directories in this repository.
+          dependency_leaf_charts=(mariadb memcached postgresql minio gotenberg casepack-api casepack-spa casepack-docs)
+          for chart in "${dependency_leaf_charts[@]}"; do
+            if [ -f "${chart}/Chart.yaml" ]; then
+              package_and_push_chart "$chart"
+            fi
+          done
+
+          dependency_parent_charts=(keycloak wordpress)
+          for chart in "${dependency_parent_charts[@]}"; do
+            if [ -f "${chart}/Chart.yaml" ]; then
+              helm dependency update "$chart"
+              package_and_push_chart "$chart"
+            fi
+          done
+
       - name: Update chart dependencies
         run: |
           set -euo pipefail
@@ -102,20 +159,43 @@ jobs:
       - name: Push charts to OCI registry
         run: |
           set -euo pipefail
+          oci_repo="oci://ghcr.io/${{ github.repository_owner }}/charts"
+
+          push_chart_package() {
+            local package="$1"
+            local chart_name chart_version
+            chart_name=$(helm show chart "$package" | awk '$1 == "name:" { print $2; exit }')
+            chart_version=$(helm show chart "$package" | awk '$1 == "version:" { print $2; exit }')
+            if [ -z "$chart_name" ] || [ -z "$chart_version" ]; then
+              echo "Failed to read chart metadata from ${package}"
+              exit 1
+            fi
+
+            if helm show chart "${oci_repo}/${chart_name}" --version "$chart_version" > /dev/null 2>&1; then
+              echo "OCI chart ${chart_name}:${chart_version} already exists, skipping push"
+              return 0
+            fi
+
+            echo "Pushing ${chart_name}:${chart_version} to OCI registry..."
+            helm push "$package" "$oci_repo"
+          }
+
           # Find the packaged charts from chart-releaser
           if [ -d ".cr-release-packages" ]; then
             for package in .cr-release-packages/*.tgz; do
               if [ -f "$package" ]; then
-                echo "Pushing $package to OCI registry..."
-                helm push "$package" oci://ghcr.io/${{ github.repository_owner }}/charts
+                push_chart_package "$package"
               fi
             done
           else
             echo "No packaged charts found. Packaging now..."
             for chart in mariadb memcached wordpress keycloak postgresql minio gotenberg casepack-api casepack-spa casepack-docs casepack; do
-              package=$(helm package "$chart" | grep -oP '(?<=to: ).*')
-              echo "Pushing $package to OCI registry..."
-              helm push "$package" oci://ghcr.io/${{ github.repository_owner }}/charts
+              package=$(helm package "$chart" | awk -F'to: ' '/to: / { print $2; exit }')
+              if [ -z "$package" ]; then
+                echo "Failed to determine packaged chart path for ${chart}"
+                exit 1
+              fi
+              push_chart_package "$package"
             done
           fi
 

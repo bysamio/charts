@@ -5,6 +5,12 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+cd "$REPO_ROOT"
+
+source "$SCRIPT_DIR/helm-local-deps.sh"
+
 echo "🧪 Testing Helm template rendering..."
 
 CHARTS=("keycloak" "postgresql" "mariadb" "memcached" "wordpress" "minio" "gotenberg" "casepack-api" "casepack-spa" "casepack-docs" "casepack")
@@ -22,12 +28,17 @@ for chart in "${CHARTS[@]}"; do
     # Build dependencies from Chart.lock without regenerating lock files.
     if grep -q "^dependencies:" "$chart/Chart.yaml"; then
         echo "  ↳ Building dependencies..."
+        prepare_local_oci_dependencies "$chart"
         if ! helm dependency build "$chart" > /dev/null 2>&1; then
-            echo "  ❌ Failed to build dependencies"
-            helm dependency build "$chart"
-            FAILED=1
-            echo ""
-            continue
+            if [ "$LOCAL_DEPS_PREPARED" -eq 1 ] && dependency_status_ok "$chart"; then
+                echo "  ↳ Using local chart cache for same-repo dependencies"
+            else
+                echo "  ❌ Failed to build dependencies"
+                helm dependency build "$chart"
+                FAILED=1
+                echo ""
+                continue
+            fi
         fi
     fi
 

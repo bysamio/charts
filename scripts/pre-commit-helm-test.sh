@@ -8,6 +8,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 cd "$REPO_ROOT"
 
+source "$SCRIPT_DIR/helm-local-deps.sh"
+
 # Colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -77,6 +79,7 @@ test_chart() {
 
     # Update dependencies
     if [ -f "$chart/Chart.lock" ] || grep -q "dependencies:" "$chart/Chart.yaml" 2>/dev/null; then
+        prepare_local_oci_dependencies "$chart"
         helm dependency update "$chart" > /dev/null 2>&1 || true
     fi
 
