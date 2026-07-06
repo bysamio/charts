@@ -5,7 +5,7 @@ description: >-
   Deploys the full stack in one command.
 type: application
 version: 0.5.0
-appVersion: "0.4.0"
+appVersion: "0.5.0"
 home: https://casepack.app
 icon: https://casepack.app/apple-touch-icon.png
 sources:
