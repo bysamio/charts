@@ -1,5 +1,5 @@
 # CasePack Umbrella Helm Chart — Default Values
-# Deploys the full CasePack stack: API, SPA, PostgreSQL, Keycloak, SeaweedFS
+# Deploys the full CasePack stack: API, SPA, PostgreSQL, Keycloak, Gotenberg, SeaweedFS
 #
 # Override per-subchart using the subchart key prefix:
 #   casepack-api.config.corsOrigins: "https://casepack.example.com"
@@ -8,6 +8,7 @@
 # For production, disable bundled infra and point to external services:
 #   postgresql.enabled: false
 #   keycloak.enabled: false
+#   gotenberg.enabled: false
 #   seaweedfs.enabled: false
 
 # ─── Global ──────────────────────────────────────────────────────
@@ -39,7 +40,7 @@ casepack-api:
     # For Kubernetes installs that use existingSecret, also include
     # S3_PUBLIC_ENDPOINT in that Secret.
     s3PublicEndpoint: ""
-    gotenbergUrl: "http://localhost:3000"
+    gotenbergUrl: "http://casepack-gotenberg:3000"
     s3Region: "us-east-1"
     s3Bucket: "casepack"
     s3PathStyle: "true"
@@ -111,6 +112,9 @@ casepack-api:
     limits:
       cpu: "1"
       memory: 768Mi
+
+  podLabels:
+    gotenberg-client: "true"
 
 # ═══════════════════════════════════════════════════════════════
 #  CasePack SPA
@@ -200,6 +204,32 @@ keycloak:
           - path: /
             pathType: Prefix
     tls: []
+
+# ═══════════════════════════════════════════════════════════════
+#  Gotenberg (internal PDF rendering)
+# ═══════════════════════════════════════════════════════════════
+gotenberg:
+  enabled: true
+  replicaCount: 1
+  service:
+    type: ClusterIP
+    port: 3000
+  networkPolicy:
+    enabled: true
+    allowExternal: false
+    clientLabels:
+      gotenberg-client: "true"
+    allowExternalEgress: false
+  env:
+    API_TIMEOUT: "60s"
+    API_BODY_LIMIT: "50MB"
+    API_DISABLE_DOWNLOAD_FROM: "true"
+    API_ENABLE_DEBUG_ROUTE: "false"
+    CHROMIUM_MAX_CONCURRENCY: "2"
+    CHROMIUM_MAX_QUEUE_SIZE: "20"
+    CHROMIUM_CLEAR_CACHE: "true"
+    CHROMIUM_CLEAR_COOKIES: "true"
+    WEBHOOK_DISABLE: "true"
 
 # ═══════════════════════════════════════════════════════════════
 #  SeaweedFS (S3-compatible storage)

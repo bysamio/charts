@@ -27,9 +27,13 @@ resources:
 
 securityContext:
   runAsUser: 1001
+  runAsNonRoot: true
   allowPrivilegeEscalation: false
   privileged: false
   readOnlyRootFilesystem: false
+  capabilities:
+    drop:
+      - ALL
 
 env:
   API_TIMEOUT: "60s"
@@ -44,7 +48,13 @@ env:
 
 podAnnotations: {}
 podLabels: {}
-podSecurityContext: {}
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1001
+  runAsGroup: 1001
+  fsGroup: 1001
+  seccompProfile:
+    type: RuntimeDefault
 automountServiceAccountToken: false
 
 livenessProbe:
@@ -66,8 +76,10 @@ startupProbe:
 
 networkPolicy:
   enabled: true
-  allowExternal: true
-  allowExternalEgress: true
+  allowExternal: false
+  clientLabels:
+    gotenberg-client: "true"
+  allowExternalEgress: false
   extraIngress: []
   extraEgress: []
 

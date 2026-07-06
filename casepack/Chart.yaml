@@ -4,7 +4,7 @@ description: >-
   CasePack — multi-tenant incident evidence management platform for MSPs.
   Deploys the full stack in one command.
 type: application
-version: 0.4.0
+version: 0.5.0
 appVersion: "0.4.0"
 home: https://casepack.app
 icon: https://casepack.app/apple-touch-icon.png
@@ -48,6 +48,11 @@ dependencies:
     version: "1.2.4"
     repository: "oci://ghcr.io/bysamio/charts"
     condition: keycloak.enabled
+
+  - name: gotenberg
+    version: "0.2.0"
+    repository: "oci://ghcr.io/bysamio/charts"
+    condition: gotenberg.enabled
 
   - name: seaweedfs
     version: "4.34.0"

@@ -1,6 +1,6 @@
 # CasePack Helm Chart
 
-Umbrella Helm chart that deploys the full CasePack stack — API, SPA, PostgreSQL, Keycloak, and SeaweedFS — in a single command.
+Umbrella Helm chart that deploys the full CasePack stack — API, SPA, PostgreSQL, Keycloak, Gotenberg, and SeaweedFS — in a single command.
 
 ## Quick Start
 
@@ -28,6 +28,11 @@ This installs CasePack with all bundled infrastructure using default dev credent
 │         │                                      │            │
 │         ├──── OIDC auth ──┐                    │            │
 │         ├──── JDBC ───────┼────────────────────┘            │
+│         ├──── HTML → PDF ─┐                                 │
+│         │                 │                                 │
+│  ┌──────┴───────┐         │                                 │
+│  │  gotenberg   │◀────────┘                                 │
+│  │  (subchart)  │                                           │
 │         │                 │                                 │
 │  ┌──────┴───────┐  ┌─────┴──────┐                          │
 │  │  seaweedfs   │  │  keycloak  │                          │
@@ -44,6 +49,7 @@ This installs CasePack with all bundled infrastructure using default dev credent
 | CasePack SPA | `casepack-spa` | `0.24.2` | Always enabled |
 | PostgreSQL | `postgresql` (BySamio) | `2.3.1` | `postgresql.enabled` |
 | Keycloak | `keycloak` (BySamio) | `1.2.4` | `keycloak.enabled` |
+| Gotenberg | `gotenberg` (BySamio) | `0.2.0` | `gotenberg.enabled` |
 | SeaweedFS | `seaweedfs` | `4.34.0` | `seaweedfs.enabled` |
 
 ## Self-Host License Setup
@@ -122,6 +128,9 @@ postgresql:
 keycloak:
   enabled: false
 
+gotenberg:
+  enabled: false
+
 seaweedfs:
   enabled: false
 
@@ -134,6 +143,7 @@ casepack-api:
     s3PublicEndpoint: "https://s3.casepack.example.com"
     s3Region: "eu-central-1"
     s3PathStyle: "true"
+    gotenbergUrl: "http://gotenberg.gotenberg-prod.svc.cluster.local:3000"
     corsOrigins: "https://casepack.example.com"
   ingress:
     enabled: true
@@ -177,7 +187,7 @@ helm upgrade --install casepack bysamio/casepack \
 | `casepack-api.config.oidcIssuerUri` | OIDC issuer URI | `http://casepack-keycloak/realms/casepack` |
 | `casepack-api.config.s3Endpoint` | Internal S3 endpoint used by API server-side storage operations | `http://casepack-seaweedfs-s3:8333` |
 | `casepack-api.config.s3PublicEndpoint` | Optional browser-facing S3 endpoint for presigned URLs; include `S3_PUBLIC_ENDPOINT` in `existingSecret` when using the Secret path | `""` |
-| `casepack-api.config.gotenbergUrl` | Gotenberg service URL used for document conversion | `http://localhost:3000` |
+| `casepack-api.config.gotenbergUrl` | Internal Gotenberg service URL used for document conversion | `http://casepack-gotenberg:3000` |
 | `casepack-api.config.corsOrigins` | CORS allowed origins | `http://localhost:3000` |
 | `casepack-api.config.deploymentMode` | Deployment mode; include `CASEPACK_DEPLOYMENT_MODE` in `existingSecret` when using the Secret path | `self_host` |
 | `casepack-api.config.installationId` | Installation ID; include `CASEPACK_INSTALLATION_ID` in `existingSecret` when using the Secret path | `""` |
@@ -233,6 +243,17 @@ helm upgrade --install casepack bysamio/casepack \
 | `keycloak.database.password` | Database password | `keycloak` |
 | `keycloak.ingress.enabled` | Enable Keycloak Ingress | `false` |
 
+### Gotenberg (`gotenberg.*`)
+
+| Parameter | Description | Default |
+|---|---|---|
+| `gotenberg.enabled` | Deploy bundled internal Gotenberg renderer | `true` |
+| `gotenberg.service.type` | Gotenberg service type | `ClusterIP` |
+| `gotenberg.networkPolicy.enabled` | Create Gotenberg NetworkPolicy | `true` |
+| `gotenberg.networkPolicy.allowExternal` | Allow any pod to call Gotenberg | `false` |
+| `gotenberg.networkPolicy.allowExternalEgress` | Allow unrestricted Gotenberg egress | `false` |
+| `gotenberg.networkPolicy.clientLabels` | Required same-namespace client labels | `{gotenberg-client: "true"}` |
+
 ### SeaweedFS (`seaweedfs.*`)
 
 | Parameter | Description | Default |
@@ -273,6 +294,7 @@ helm uninstall casepack --namespace casepack
 | CasePack API | `bysamio/casepack-api` |
 | CasePack SPA | `bysamio/casepack-spa` |
 | Keycloak | `bysamio/keycloak` |
+| Gotenberg | `bysamio/gotenberg` |
 | SeaweedFS | `bysamio/seaweedfs` |
 | PostgreSQL | `bysamio/postgresql` |
 

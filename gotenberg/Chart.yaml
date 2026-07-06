@@ -2,7 +2,7 @@ apiVersion: v2
 name: gotenberg
 description: Minimal Gotenberg document conversion service chart
 type: application
-version: 0.1.0
+version: 0.2.0
 appVersion: "8-chromium"
 home: https://gotenberg.dev/
 icon: https://gotenberg.dev/img/logo.png
