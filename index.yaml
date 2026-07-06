@@ -6,6 +6,61 @@ entries:
       artifacthub.io/license: Proprietary
     apiVersion: v2
     appVersion: 0.4.0
+    created: "2026-07-06T09:11:11.671864136Z"
+    dependencies:
+    - name: casepack-api
+      repository: oci://ghcr.io/bysamio/charts
+      version: 0.26.1
+    - name: casepack-spa
+      repository: oci://ghcr.io/bysamio/charts
+      version: 0.24.2
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: oci://ghcr.io/bysamio/charts
+      version: 2.3.1
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: oci://ghcr.io/bysamio/charts
+      version: 1.2.4
+    - condition: gotenberg.enabled
+      name: gotenberg
+      repository: oci://ghcr.io/bysamio/charts
+      version: 0.2.0
+    - condition: seaweedfs.enabled
+      name: seaweedfs
+      repository: https://seaweedfs.github.io/seaweedfs/helm
+      version: 4.34.0
+    description: CasePack — multi-tenant incident evidence management platform for
+      MSPs. Deploys the full stack in one command.
+    digest: ae4bfe757356e0b972b5d1d146b271ff9a167291b5e4c0c7b2c4d8de39265a62
+    home: https://casepack.app
+    icon: https://casepack.app/apple-touch-icon.png
+    keywords:
+    - casepack
+    - incident-reporting
+    - incident-management
+    - evidence
+    - nis2
+    - msp
+    - multi-tenant
+    - keycloak
+    - seaweedfs
+    - self-host
+    maintainers:
+    - name: bysamio
+      url: https://github.com/bysamio
+    name: casepack
+    sources:
+    - https://github.com/bysamio/casepack
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/casepack-0.5.0/casepack-0.5.0.tgz
+    version: 0.5.0
+  - annotations:
+      artifacthub.io/category: security
+      artifacthub.io/license: Proprietary
+    apiVersion: v2
+    appVersion: 0.4.0
     created: "2026-06-17T23:31:55.377686891Z"
     dependencies:
     - name: casepack-api
@@ -840,6 +895,34 @@ entries:
     - https://github.com/bysamio/charts/releases/download/casepack-spa-0.19.0-dev/casepack-spa-0.19.0-dev.tgz
     version: 0.19.0-dev
   gotenberg:
+  - annotations:
+      artifacthub.io/category: integration-delivery
+      artifacthub.io/license: MIT
+      images: |
+        - name: gotenberg
+          image: docker.io/gotenberg/gotenberg:8-chromium
+    apiVersion: v2
+    appVersion: 8-chromium
+    created: "2026-07-06T09:11:11.884866971Z"
+    description: Minimal Gotenberg document conversion service chart
+    digest: e1ceaac405b3514b419f73197b41f8581d4d90e0470be317a42a12f66195476f
+    home: https://gotenberg.dev/
+    icon: https://gotenberg.dev/img/logo.png
+    keywords:
+    - gotenberg
+    - pdf
+    - document-conversion
+    maintainers:
+    - email: admin@bysam.io
+      name: BySam Charts
+    name: gotenberg
+    sources:
+    - https://github.com/bysamio/charts
+    - https://github.com/gotenberg/gotenberg
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/gotenberg-0.2.0/gotenberg-0.2.0.tgz
+    version: 0.2.0
   - annotations:
       artifacthub.io/category: integration-delivery
       artifacthub.io/license: MIT
@@ -2433,4 +2516,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2026-07-05T18:19:40.26113032Z"
+generated: "2026-07-06T09:11:11.885052065Z"
