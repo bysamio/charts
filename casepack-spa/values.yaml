@@ -27,6 +27,10 @@ config:
   # deployments from phoning home). Set both on the SAAS deployment to enable.
   umamiScriptUrl: ""
   umamiWebsiteId: ""
+  # Optional comma-separated hostnames to scope tracking to (e.g. "casepack.app").
+  # Umami's tracker only reports from these hostnames, so a non-prod environment
+  # that inherits the prod website id still won't pollute prod analytics.
+  umamiDomains: ""
 
 serviceAccount:
   create: true
