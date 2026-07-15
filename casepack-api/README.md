@@ -28,6 +28,14 @@ helm upgrade casepack-api oci://ghcr.io/bysamio/charts/casepack-api \
   -f my-values.yaml
 ```
 
+## Upgrading
+
+### 0.29.0
+
+Contact-request email delivery is opt-in. Set `config.contactEmailDeliveryEnabled=true`,
+configure the private marketing bucket, and reference an SMTP Secret through
+`smtp.existingSecret`. Existing installations keep delivery disabled.
+
 ## Uninstall
 
 ```bash
@@ -137,6 +145,7 @@ secrets:
 | `config.rateLimitFinalize` | Evidence finalize requests per minute | `30` |
 | `config.rateLimitGlobal` | Global requests per minute | `300` |
 | `config.rateLimitWebhookIntake` | Webhook intake requests per minute | `60` |
+| `config.rateLimitContactRequestsPerHour` | Public contact requests allowed per source IP per hour | `5` |
 | `config.exportMaxItems` | Max evidence items per export | `100` |
 | `config.exportMaxBytes` | Max export size in bytes | `536870912` (512 MB) |
 | `config.exportPoolSize` | Async export thread pool size | `2` |
@@ -149,6 +158,21 @@ secrets:
 | `config.provisioningInboxEnabled` | Provisioning events durable async processing flag | `false` |
 | `config.testDataResetEnabled` | Enable stage/dev/test-only internal test-data reset endpoint | `false` |
 | `config.testDataResetEnvironment` | Reset environment guard; use `staging`, `dev`, or `test` outside production | `local` |
+| `config.contactNotifyEmail` | Internal recipient for contact-request notifications | `admin@casepack.app` |
+| `config.emailFrom` | Sender address used for contact-request email | `noreply@mail.casepack.app` |
+| `config.marketingAssetsBucket` | Private S3 bucket containing allowlisted sample assets | `""` |
+| `config.marketingAssetLinkExpirySeconds` | Sample download link lifetime, up to seven days | `172800` |
+| `config.samplePackZipKey` | Fixed S3 key for the sample evidence pack | `samples/CasePack_Sample_Evidence_Pack.zip` |
+| `config.sampleReportPdfKey` | Fixed S3 key for the sample report | `samples/CasePack_Sample_Evidence_Pack_V2.pdf` |
+| `config.contactEmailDeliveryEnabled` | Enable durable SMTP delivery for public contact requests | `false` |
+| `config.contactEmailDeliveryDelayMs` | Delay between contact-request delivery polls | `5000` |
+| `smtp.existingSecret` | Existing Secret containing the SMTP host, username, and password | `""` |
+| `smtp.hostKey` | SMTP host key in the existing Secret | `smtp-host` |
+| `smtp.usernameKey` | SMTP username key in the existing Secret | `smtp-user` |
+| `smtp.passwordKey` | SMTP password key in the existing Secret | `smtp-password` |
+| `smtp.port` | SMTP server port | `587` |
+| `smtp.auth` | Enable SMTP authentication | `true` |
+| `smtp.starttls` | Enable SMTP STARTTLS | `true` |
 
 ### Image
 
