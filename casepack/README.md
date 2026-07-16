@@ -45,7 +45,7 @@ This installs CasePack with all bundled infrastructure using default dev credent
 
 | Component | Chart | Version | Condition |
 |---|---|---|---|
-| CasePack API | `casepack-api` | `0.28.0` | Always enabled |
+| CasePack API | `casepack-api` | `0.29.0` | Always enabled |
 | CasePack SPA | `casepack-spa` | `0.26.0` | Always enabled |
 | PostgreSQL | `postgresql` (BySamio) | `2.3.1` | `postgresql.enabled` |
 | Keycloak | `keycloak` (BySamio) | `1.2.4` | `keycloak.enabled` |
