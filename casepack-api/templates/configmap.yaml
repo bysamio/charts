@@ -32,6 +32,7 @@ data:
   CASEPACK_RATE_LIMIT_FINALIZE: {{ .Values.config.rateLimitFinalize | quote }}
   CASEPACK_RATE_LIMIT_GLOBAL: {{ .Values.config.rateLimitGlobal | quote }}
   CASEPACK_RATE_LIMIT_WEBHOOK_INTAKE: {{ .Values.config.rateLimitWebhookIntake | quote }}
+  CASEPACK_RATE_LIMIT_CONTACT_REQUESTS_PER_HOUR: {{ .Values.config.rateLimitContactRequestsPerHour | quote }}
   CASEPACK_EXPORT_MAX_ITEMS: {{ .Values.config.exportMaxItems | quote }}
   CASEPACK_EXPORT_MAX_BYTES: {{ .Values.config.exportMaxBytes | quote }}
   CASEPACK_EXPORT_POOL_SIZE: {{ .Values.config.exportPoolSize | quote }}
@@ -58,5 +59,21 @@ data:
   CASEPACK_KEYCLOAK_ACTION_TOKEN_LIFESPAN: {{ .Values.config.keycloakActionTokenLifespan | quote }}
   CASEPACK_PROVISIONING_INBOX_ENABLED: {{ .Values.config.provisioningInboxEnabled | quote }}
   CASEPACK_ONBOARDING_EMAIL_OUTBOX_ENABLED: {{ .Values.config.onboardingEmailOutboxEnabled | quote }}
+  CASEPACK_CONTACT_NOTIFY_EMAIL: {{ .Values.config.contactNotifyEmail | quote }}
+  CASEPACK_EMAIL_FROM: {{ .Values.config.emailFrom | quote }}
+  {{- if .Values.config.marketingAssetsBucket }}
+  CASEPACK_MARKETING_ASSETS_BUCKET: {{ .Values.config.marketingAssetsBucket | quote }}
+  {{- end }}
+  CASEPACK_MARKETING_ASSET_LINK_EXPIRY_SECONDS: {{ .Values.config.marketingAssetLinkExpirySeconds | quote }}
+  CASEPACK_SAMPLE_PACK_ZIP_KEY: {{ .Values.config.samplePackZipKey | quote }}
+  CASEPACK_SAMPLE_REPORT_PDF_KEY: {{ .Values.config.sampleReportPdfKey | quote }}
+  CASEPACK_CONTACT_EMAIL_DELIVERY_ENABLED: {{ .Values.config.contactEmailDeliveryEnabled | quote }}
+  CASEPACK_CONTACT_EMAIL_DELIVERY_DELAY_MS: {{ .Values.config.contactEmailDeliveryDelayMs | quote }}
+  CASEPACK_SMTP_PORT: {{ .Values.smtp.port | quote }}
+  CASEPACK_SMTP_AUTH: {{ .Values.smtp.auth | quote }}
+  CASEPACK_SMTP_STARTTLS: {{ .Values.smtp.starttls | quote }}
+  CASEPACK_SMTP_CONNECTION_TIMEOUT_MS: {{ .Values.smtp.connectionTimeoutMs | quote }}
+  CASEPACK_SMTP_READ_TIMEOUT_MS: {{ .Values.smtp.readTimeoutMs | quote }}
+  CASEPACK_SMTP_WRITE_TIMEOUT_MS: {{ .Values.smtp.writeTimeoutMs | quote }}
   CASEPACK_TEST_DATA_RESET_ENABLED: {{ .Values.config.testDataResetEnabled | quote }}
   CASEPACK_TEST_DATA_RESET_ENVIRONMENT: {{ .Values.config.testDataResetEnvironment | quote }}

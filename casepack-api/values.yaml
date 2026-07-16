@@ -39,6 +39,7 @@ config:
   rateLimitFinalize: "30"
   rateLimitGlobal: "300"
   rateLimitWebhookIntake: "60"
+  rateLimitContactRequestsPerHour: "5"
   exportMaxItems: "100"
   exportMaxBytes: "536870912"
   exportPoolSize: "2"
@@ -47,6 +48,14 @@ config:
   timelineEnabled: "true"
   provisioningInboxEnabled: "false"
   onboardingEmailOutboxEnabled: "true"
+  contactNotifyEmail: "admin@casepack.app"
+  emailFrom: "noreply@mail.casepack.app"
+  marketingAssetsBucket: ""
+  marketingAssetLinkExpirySeconds: "172800"
+  samplePackZipKey: "samples/CasePack_Sample_Evidence_Pack.zip"
+  sampleReportPdfKey: "samples/CasePack_Sample_Evidence_Pack_V2.pdf"
+  contactEmailDeliveryEnabled: "false"
+  contactEmailDeliveryDelayMs: "5000"
   testDataResetEnabled: "false"
   testDataResetEnvironment: "local"
   corsOrigins: "http://localhost:5173"
@@ -64,6 +73,21 @@ config:
   keycloakSpaClientId: "casepack-spa"
   keycloakSpaRedirectUri: ""
   keycloakActionTokenLifespan: "259200"   # 72 hours in seconds
+
+# ─── SMTP for contact-request delivery ───────────────────────────
+# The referenced Secret must contain the configured host/user/password keys.
+# Delivery remains disabled by default so self-hosted installs do not require SMTP.
+smtp:
+  existingSecret: ""
+  hostKey: "smtp-host"
+  usernameKey: "smtp-user"
+  passwordKey: "smtp-password"
+  port: "587"
+  auth: "true"
+  starttls: "true"
+  connectionTimeoutMs: "5000"
+  readTimeoutMs: "5000"
+  writeTimeoutMs: "5000"
 
 # ─── Secrets (SealedSecret references) ───────────────────────────
 # Set existingSecret to the name of a SealedSecret/Secret containing:

@@ -41,6 +41,23 @@ spec:
           env:
             - name: JAVA_OPTS
               value: {{ .Values.config.javaOpts | quote }}
+            {{- if .Values.smtp.existingSecret }}
+            - name: CASEPACK_SMTP_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.smtp.existingSecret | quote }}
+                  key: {{ .Values.smtp.hostKey | quote }}
+            - name: CASEPACK_SMTP_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.smtp.existingSecret | quote }}
+                  key: {{ .Values.smtp.usernameKey | quote }}
+            - name: CASEPACK_SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.smtp.existingSecret | quote }}
+                  key: {{ .Values.smtp.passwordKey | quote }}
+            {{- end }}
           envFrom:
             - configMapRef:
                 name: {{ include "casepack-api.fullname" . }}
