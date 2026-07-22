@@ -68,8 +68,13 @@ jobs:
           push_chart_package() {
             local package="$1"
             local chart_name chart_version
-            chart_name=$(helm show chart "$package" | awk '$1 == "name:" { print $2; exit }')
-            chart_version=$(helm show chart "$package" | awk '$1 == "version:" { print $2; exit }')
+            # `helm show chart` re-marshals Chart.yaml with keys sorted alphabetically,
+            # so `dependencies:` and `maintainers:` are emitted before `name:`. Anchor to
+            # column 0 to read the chart's own metadata — matching on the awk field alone
+            # picks up an indented dependency/maintainer name and silently skips the push.
+            chart_metadata=$(helm show chart "$package")
+            chart_name=$(printf '%s\n' "$chart_metadata" | awk '/^name:/ { print $2; exit }')
+            chart_version=$(printf '%s\n' "$chart_metadata" | awk '/^version:/ { print $2; exit }')
             if [ -z "$chart_name" ] || [ -z "$chart_version" ]; then
               echo "Failed to read chart metadata from ${package}"
               exit 1
@@ -164,8 +169,13 @@ jobs:
           push_chart_package() {
             local package="$1"
             local chart_name chart_version
-            chart_name=$(helm show chart "$package" | awk '$1 == "name:" { print $2; exit }')
-            chart_version=$(helm show chart "$package" | awk '$1 == "version:" { print $2; exit }')
+            # `helm show chart` re-marshals Chart.yaml with keys sorted alphabetically,
+            # so `dependencies:` and `maintainers:` are emitted before `name:`. Anchor to
+            # column 0 to read the chart's own metadata — matching on the awk field alone
+            # picks up an indented dependency/maintainer name and silently skips the push.
+            chart_metadata=$(helm show chart "$package")
+            chart_name=$(printf '%s\n' "$chart_metadata" | awk '/^name:/ { print $2; exit }')
+            chart_version=$(printf '%s\n' "$chart_metadata" | awk '/^version:/ { print $2; exit }')
             if [ -z "$chart_name" ] || [ -z "$chart_version" ]; then
               echo "Failed to read chart metadata from ${package}"
               exit 1
