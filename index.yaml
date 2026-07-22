@@ -1288,6 +1288,41 @@ entries:
     version: 0.1.0
   keycloak:
   - apiVersion: v2
+    appVersion: 26.7.0
+    created: "2026-07-22T17:54:21.410553094Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: oci://ghcr.io/bysamio/charts
+      version: 2.3.1
+    description: A Helm chart for Keycloak using BySamio hardened Docker image (runs
+      as UID 1001)
+    digest: 555f421a7c414c78ff67d4b823ac939dad00f1848b12a3fd6a70501fdbc51e7c
+    home: https://www.keycloak.org/
+    icon: https://avatars.githubusercontent.com/u/4921466?s=200&v=4
+    keywords:
+    - keycloak
+    - identity
+    - access-management
+    - sso
+    - oidc
+    - oauth2
+    - saml
+    - authentication
+    - authorization
+    maintainers:
+    - email: admin@bysam.io
+      name: BySam Charts
+    name: keycloak
+    sources:
+    - https://github.com/bysamio/charts
+    - https://github.com/bysamio/images
+    - https://github.com/keycloak/keycloak
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/keycloak-1.3.0/keycloak-1.3.0.tgz
+    version: 1.3.0
+  - apiVersion: v2
     appVersion: 26.6.3
     created: "2026-06-15T20:14:50.251879868Z"
     dependencies:
@@ -2851,4 +2886,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2026-07-19T22:11:38.892944068Z"
+generated: "2026-07-22T17:54:21.410736425Z"
