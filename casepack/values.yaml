@@ -170,7 +170,7 @@ postgresql:
 keycloak:
   enabled: true
   image:
-    tag: 26.6.3-optimized
+    tag: 26.7.0-optimized
   production: false
   httpEnabled: true
   auth:
