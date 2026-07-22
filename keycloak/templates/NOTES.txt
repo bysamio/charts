@@ -15,7 +15,12 @@ APP VERSION: {{ .Chart.AppVersion }}
 ║    ✓ Faster startup (no build phase required)                              ║
 ║    ✓ Read-only root filesystem (enhanced security)                         ║
 ║    ✓ Smaller attack surface (distroless base)                              ║
+{{- if include "keycloak.isDebugImage" . }}
+║    ! Debug variant: a busybox shell IS present (/busybox/sh)               ║
+║      Use it for troubleshooting only, not for steady-state production.     ║
+{{- else }}
 ║    ✓ No shell access (security hardened)                                   ║
+{{- end }}
 ║                                                                            ║
 ║  Note: Configuration changes require a new optimized image build.          ║
 ╚════════════════════════════════════════════════════════════════════════════╝

@@ -85,7 +85,18 @@ usePasswordFiles: false
 ## @section Keycloak parameters
 
 ## BySamio hardened Keycloak image
-## ref: https://github.com/bysamio/images/tree/main/keycloak
+## ref: https://github.com/bysamio/images/blob/main/keycloak/README.md
+##
+## Three variants are published for every version:
+##   <version>            Flexible (Alpine, UID 1001)   — runtime providers/SPIs, auto-builds at startup
+##   <version>-optimized  Optimized (Distroless, UID 65532) — pre-built, near-zero CVEs, fastest startup
+##   <version>-debug      Debug (Distroless-debug, UID 65532) — optimized plus a busybox shell
+## The chart detects the optimized/debug variants from the tag (including the
+## floating "optimized" and "debug" tags) and keeps
+## readOnlyRootFilesystem enabled for them (see keycloak.containerSecurityContext).
+## containerSecurityContext.runAsUser stays at 1001 by default and works with all
+## three variants; set it to 65532 to match the image's own user on distroless tags.
+##
 ## @param image.registry [default: ghcr.io] Keycloak image registry
 ## @param image.repository [default: bysamio/keycloak] Keycloak image repository
 ## @skip image.tag Keycloak image tag (immutable tags are recommended)
@@ -97,7 +108,7 @@ usePasswordFiles: false
 image:
   registry: ghcr.io
   repository: bysamio/keycloak
-  tag: "26.6.3"
+  tag: "26.7.0"
   digest: ""
   ## Specify a imagePullPolicy
   ## ref: https://kubernetes.io/docs/concepts/containers/images/#pre-pulled-images
@@ -1007,6 +1018,14 @@ keycloakConfigCli:
   enabled: false
   ## Adorsys keycloak-config-cli image
   ## ref: https://hub.docker.com/r/adorsys/keycloak-config-cli/tags/
+  ##
+  ## The tag format is <config-cli-version>-<keycloak-version>. The Keycloak part
+  ## intentionally lags this chart's appVersion: upstream publishes no 26.6.x or
+  ## 26.7.x build, so 6.5.1-26.5.5 is the newest tag that exists. keycloak-config-cli
+  ## supports the latest 4 Keycloak releases, and 6.5.1-26.5.5 is verified working
+  ## against the 26.7.0 server (import and idempotent re-import). Do not "fix" this to
+  ## a tag matching appVersion — check quay.io first, the tag has to exist.
+  ##
   ## @param keycloakConfigCli.image.registry [default: REGISTRY_NAME] keycloak-config-cli container image registry
   ## @param keycloakConfigCli.image.repository [default: REPOSITORY_NAME/keycloak-config-cli] keycloak-config-cli container image repository
   ## @skip keycloakConfigCli.image.tag keycloak-config-cli container image tag

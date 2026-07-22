@@ -4,13 +4,13 @@ A Helm chart for deploying [Keycloak](https://www.keycloak.org/) using BySamio h
 
 ## Overview
 
-This chart deploys Keycloak, an open-source Identity and Access Management solution, on Kubernetes. It uses BySamio's hardened container images that run as non-root (UID 1001) with security best practices.
+This chart deploys Keycloak, an open-source Identity and Access Management solution, on Kubernetes. It uses [BySamio's hardened container images](https://github.com/bysamio/images/blob/main/keycloak/README.md) that run as non-root with security best practices.
 
 ## Features
 
 - **Hardened Images**: Uses BySamio's security-hardened Keycloak images
 - **Non-root Execution**: Runs as UID 1001 for enhanced security
-- **Optimized Image Support**: Automatic detection of pre-built optimized images
+- **Optimized Image Support**: Automatic detection of pre-built optimized and debug images
 - **PostgreSQL Integration**: Bundled PostgreSQL subchart for database
 - **High Availability**: Support for clustered deployments with Infinispan caching
 - **Metrics & Monitoring**: Prometheus ServiceMonitor and metrics endpoint
@@ -90,17 +90,30 @@ The following tables document all available configuration options in `values.yam
 |-----------|------|---------|-------------|
 | `image.registry` | string | `"ghcr.io"` | Keycloak image registry |
 | `image.repository` | string | `"bysamio/keycloak"` | Keycloak image repository |
-| `image.tag` | string | `"26.6.3"` | Keycloak image tag (immutable tags are recommended) |
+| `image.tag` | string | `"26.7.0"` | Keycloak image tag (immutable tags are recommended) |
 | `image.digest` | string | `""` | Keycloak image digest (sha256:...). Overrides tag if set |
 | `image.pullPolicy` | string | `"IfNotPresent"` | Keycloak image pull policy |
 | `image.pullSecrets` | array | `[]` | Keycloak image pull secrets |
 | `image.debug` | boolean | `false` | Enable Keycloak image debug mode |
 
-**Image Types**: This chart supports two BySamio Keycloak images:
-- **Flexible** (`26.6.3`): Alpine-based, can auto-build on startup
-- **Optimized** (`26.6.3-optimized`): Distroless, pre-built, faster startup
+**Image Variants**: [`ghcr.io/bysamio/keycloak`](https://github.com/bysamio/images/blob/main/keycloak/README.md) publishes three variants per version:
 
-The chart automatically detects optimized images by the `-optimized` suffix.
+| Variant | Tag | Base | Image UID | Startup | Runtime providers/SPIs |
+|---------|-----|------|-----------|---------|------------------------|
+| Flexible (default) | `26.7.0` | Alpine | 1001 | Auto-builds when providers change | Yes |
+| Optimized | `26.7.0-optimized` | Distroless | 65532 | Pre-built (~5s) | No — build-time only |
+| Debug | `26.7.0-debug` | Distroless + busybox | 65532 | Pre-built (~5s) | No — build-time only |
+
+The chart detects the pre-built variants from the tag — `26.7.0-optimized`, `26.7.0-debug`, and the floating `optimized`/`debug` tags (immutable versioned tags are still recommended). For those tags it:
+
+- passes `start --optimized` instead of `start`
+- keeps `containerSecurityContext.readOnlyRootFilesystem` at its configured value (default `true`)
+- skips the `prepare-write-dirs` init container and the writable `lib` overlay (distroless has no `/bin/sh`)
+- omits build-time env vars (`KC_HTTP_RELATIVE_PATH`, `KC_CACHE*`), which are already baked into the image
+
+Flexible tags get the inverse: `readOnlyRootFilesystem` is forced to `false` so the Quarkus auto-build can write.
+
+`containerSecurityContext.runAsUser` defaults to `1001` and works with all three variants — `/opt/keycloak` is world-readable and the pre-built variants never write to it. Set it (and `runAsGroup`/`podSecurityContext.fsGroup`) to `65532` if you want the pod to match the distroless image's own user.
 
 ---
 
@@ -212,11 +225,11 @@ The chart automatically detects optimized images by the `-optimized` suffix.
 | `podSecurityContext.sysctls` | array | `[]` | Set kernel settings using sysctl interface |
 | `podSecurityContext.supplementalGroups` | array | `[]` | Set filesystem extra groups |
 | `containerSecurityContext.enabled` | boolean | `true` | Enable containers' Security Context |
-| `containerSecurityContext.runAsUser` | number | `1001` | Containers' Security Context runAsUser |
+| `containerSecurityContext.runAsUser` | number | `1001` | Containers' Security Context runAsUser. Works with all variants; use `65532` to match the distroless image user on `-optimized`/`-debug` tags |
 | `containerSecurityContext.runAsGroup` | number | `1001` | Containers' Security Context runAsGroup |
 | `containerSecurityContext.runAsNonRoot` | boolean | `true` | Run containers as non-root |
 | `containerSecurityContext.privileged` | boolean | `false` | Set container privileged |
-| `containerSecurityContext.readOnlyRootFilesystem` | boolean | `true` | Read-only root filesystem. Automatically overridden to `false` for flexible images |
+| `containerSecurityContext.readOnlyRootFilesystem` | boolean | `true` | Read-only root filesystem. Automatically overridden to `false` for flexible images (kept for `-optimized`/`-debug` tags) |
 | `containerSecurityContext.allowPrivilegeEscalation` | boolean | `false` | Allow privilege escalation |
 | `containerSecurityContext.capabilities.drop` | array | `["ALL"]` | List of capabilities to drop |
 | `containerSecurityContext.seccompProfile.type` | string | `"RuntimeDefault"` | Set seccomp profile type |
@@ -438,6 +451,8 @@ The chart automatically detects optimized images by the `-optimized` suffix.
 
 ### Keycloak Config CLI Parameters
 
+> **Why the tag lags `appVersion`**: keycloak-config-cli tags are `<config-cli-version>-<keycloak-version>`, and upstream has not published a 26.6.x or 26.7.x build — `6.5.1-26.5.5` is the newest tag that exists. keycloak-config-cli [supports the latest four Keycloak releases](https://github.com/adorsys/keycloak-config-cli#compatibility-with-keycloak), and this pin is verified against the 26.7.0 server (initial import and idempotent re-import both succeed). Check [quay.io](https://quay.io/repository/adorsys/keycloak-config-cli?tab=tags) before changing it — a tag matching `appVersion` may not exist.
+
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `keycloakConfigCli.enabled` | boolean | `false` | Enable keycloak-config-cli job |
@@ -583,11 +598,28 @@ resources:
 ## Security Considerations
 
 - The chart runs as non-root user (UID 1001) by default
-- `readOnlyRootFilesystem` is automatically enabled for optimized images and disabled for flexible images (which need writable filesystem for auto-build)
+- `readOnlyRootFilesystem` is automatically enabled for the pre-built `-optimized`/`-debug` images and disabled for flexible images (which need a writable filesystem for auto-build)
+- The `-optimized` variant is the hardened default for production: distroless base, no shell, 0-10 known CVEs. Prefer it unless you need runtime SPI loading
 - Network policies restrict traffic by default
 - Passwords are passed via `secretKeyRef` environment variables (Keycloak does not support `_FILE` suffix env vars natively)
 
 ## Upgrading
+
+### To 1.3.0
+
+- **Security**: Default Keycloak image updated to `26.7.0`. This image overlays Jackson Core/Databind `2.21.4`, pgJDBC `42.7.12`, and OpenTelemetry `1.62.0` over the upstream server libraries to fix `GHSA-r7wm-3cxj-wff9`, `CVE-2026-54512`, `CVE-2026-54513`, `CVE-2026-54291`, and to retain the `CVE-2026-45292` mitigation. See the [image release notes](https://github.com/bysamio/images/blob/main/keycloak/README.md#vulnerability-scanning).
+- **Fix**: `-debug` image tags are now recognised as pre-built distroless images, the same as `-optimized`. Previously a `-debug` tag was treated as a flexible image, which injected the `prepare-write-dirs` init container that calls `/bin/sh` — a path the distroless base does not have, so the pod never started. Debug tags now run `start --optimized`, skip that init container, and keep `readOnlyRootFilesystem`.
+- **Fix**: the floating `optimized` and `debug` tags are detected too. Previously only tags containing `-optimized` matched, so `image.tag: optimized` silently got flexible-image behaviour.
+- **Unchanged**: `keycloakConfigCli.image.tag` stays at `6.5.1-26.5.5`. No 26.6.x/26.7.x build is published upstream, and this one is verified against the 26.7.0 server — see the note under [Keycloak Config CLI Parameters](#keycloak-config-cli-parameters).
+- **Behaviour change (upstream, Keycloak 26.7)**: Keycloak now opens its HTTP and management ports while bootstrapping is still in progress. This chart's readiness probe already targets `/health/ready`, so rollouts are unaffected. To restore the previous behaviour, append the flag to the startup args:
+
+  ```yaml
+  extraStartupArgs: |
+    - --server-async-bootstrap=false
+  ```
+
+- **Behaviour change (upstream, Keycloak 26.7)**: the default shutdown timeout increased from 1s to 10s, and clustered deployments now wait for cache rebalancing before exiting. This fits inside Kubernetes' default 30s grace period; raise `terminationGracePeriodSeconds` if you have shortened it.
+- **Removed (upstream, Keycloak 26.7)**: the `view-system` admin role was removed for security reasons. Full server information now requires a `master` realm user with `manage-realm`. Identity Provider aliases are also immutable after creation via the Admin REST API.
 
 ### To 1.2.4
 
@@ -623,6 +655,19 @@ Initial release. No upgrade path required.
 ### Pod fails to start with optimized image
 
 Ensure you're not setting build-time environment variables like `KC_FEATURES` with optimized images. These images are pre-built.
+
+Runtime SPI JARs mounted into `/opt/keycloak/providers` are also ignored by the `-optimized`/`-debug` variants — they only load providers baked in at build time. Use the flexible tag (`26.7.0`) for runtime provider loading, or build your own image on top of `26.7.0-optimized`.
+
+### Getting a shell in a distroless pod
+
+The `-optimized` variant intentionally ships no shell. Deploy the debug variant temporarily — it is the same build on a `distroless:debug-nonroot` base:
+
+```bash
+helm upgrade keycloak ./keycloak --reuse-values --set image.tag=26.7.0-debug
+kubectl exec -it <keycloak-pod> -c keycloak -- /busybox/sh
+```
+
+Roll back to `26.7.0-optimized` once you are done.
 
 ### Database connection issues
 

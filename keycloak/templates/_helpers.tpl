@@ -508,12 +508,26 @@ Return pod security context
 {{- end }}
 
 {{/*
-Return whether the image is an optimized (pre-built) version
-Checks if the image tag contains '-optimized'
+Return whether the image is an optimized (pre-built, distroless) variant
+Both '-optimized' and '-debug' tags are the same pre-built Quarkus build on a
+distroless base and must run with 'start --optimized'. The debug variant only
+adds a busybox shell, so it shares every optimized behaviour in this chart.
+ref: https://github.com/bysamio/images/blob/main/keycloak/README.md
 */}}
 {{- define "keycloak.isOptimizedImage" -}}
 {{- $tag := .Values.image.tag | default .Chart.AppVersion | toString -}}
-{{- if contains "-optimized" $tag -}}
+{{- if or (contains "-optimized" $tag) (eq $tag "optimized") (include "keycloak.isDebugImage" .) -}}
+{{- true -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return whether the image is the debug (distroless + busybox shell) variant
+Matches both the versioned tag ('26.7.0-debug') and the floating 'debug' tag.
+*/}}
+{{- define "keycloak.isDebugImage" -}}
+{{- $tag := .Values.image.tag | default .Chart.AppVersion | toString -}}
+{{- if or (contains "-debug" $tag) (eq $tag "debug") -}}
 {{- true -}}
 {{- end -}}
 {{- end -}}
@@ -533,7 +547,7 @@ Resolution order: hostname (explicit) > ingress.hostname (if ingress enabled) > 
 {{/*
 Return container security context
 Automatically adjusts readOnlyRootFilesystem based on image type:
-- Optimized images (tag contains '-optimized'): uses the configured value (default true)
+- Optimized images (tag contains '-optimized' or '-debug'): uses the configured value (default true)
 - Flexible images (auto-build at startup): forced to false (Quarkus build needs writable filesystem)
 */}}
 {{- define "keycloak.containerSecurityContext" -}}

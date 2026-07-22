@@ -17,7 +17,7 @@ helm install casepack-spa oci://ghcr.io/bysamio/charts/casepack-spa --version 0.
 helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 2.0.2
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
 helm install my-memcached oci://ghcr.io/bysamio/charts/memcached --version 1.0.2
-helm install my-keycloak oci://ghcr.io/bysamio/charts/keycloak --version 1.2.4
+helm install my-keycloak oci://ghcr.io/bysamio/charts/keycloak --version 1.3.0
 helm install gotenberg oci://ghcr.io/bysamio/charts/gotenberg --version 0.1.0
 ```
 
@@ -139,9 +139,9 @@ The BySam chart collection provides a complete WordPress stack and identity mana
 
 ### Keycloak (`bysam/keycloak`)
 
-- **Base Image**: `ghcr.io/bysamio/keycloak:26.6.2`
+- **Base Image**: `ghcr.io/bysamio/keycloak:26.7.0` (variants: `26.7.0`, `26.7.0-optimized`, `26.7.0-debug`)
 - **Features**: Open-source Identity and Access Management (IAM) with SSO, OIDC, OAuth2, SAML support
-- **Security Context**: Hardened non-root container (UID 1001)
+- **Security Context**: Hardened non-root container (UID 1001 on the Alpine variant, 65532 on the distroless `-optimized`/`-debug` variants)
 - **Configuration**: Includes PostgreSQL subchart, metrics, high availability support
 - **Use Cases**: Single Sign-On (SSO), user federation, multi-factor authentication, API security
 

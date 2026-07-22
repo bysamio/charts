@@ -83,14 +83,34 @@ Commit types: `fix`, `feat`, `docs`, `refactor`, `chore`
 
 ## Skills
 
-This repo ships agent skills in [`.agents/skills/`](.agents/skills/). Always invoke the relevant skill before and during matching work. Each skill carries the project's standards for its domain.
+This repo ships agent skills in [`.agents/skills/`](.agents/skills/). Read the relevant `SKILL.md` before and during matching work — each carries the project's standards for its domain. Start with [`using-agent-skills`](.agents/skills/using-agent-skills/SKILL.md) if you are unsure which applies.
+
+### Core — expect to use these on most chart work
 
 | Skill | Use it whenever you are... |
 |---|---|
-| [`incremental-implementation`](.agents/skills/incremental-implementation/SKILL.md) | Implementing any change that touches more than one file, or any feature large enough to feel like "a lot of code at once." Build in thin, verifiable slices. |
-| [`frontend-ui-engineering`](.agents/skills/frontend-ui-engineering/SKILL.md) | Building or modifying any user-facing UI in the SPA repo. |
-| [`security-and-hardening`](.agents/skills/security-and-hardening/SKILL.md) | Touching user input, authentication/authorization, secrets, licensing, file uploads, storage, webhooks, or external integrations. |
-| [`code-review-and-quality`](.agents/skills/code-review-and-quality/SKILL.md) | Reviewing any change before it merges, including your own changes. |
+| [`source-driven-development`](.agents/skills/source-driven-development/SKILL.md) | Setting any chart value, env var, or image tag. Chart params mirror upstream contracts (Keycloak `KC_*`, PostgreSQL, MinIO) and the [`bysamio/images`](https://github.com/bysamio/images) READMEs — verify against those sources, never from memory. Cite what you checked. |
+| [`documentation-and-adrs`](.agents/skills/documentation-and-adrs/SKILL.md) | Changing anything user-visible. Every value change lands in the chart `README.md` param table, and every version bump gets an entry under `## Upgrading`. Docs are part of the change, not a follow-up. |
+| [`git-workflow-and-versioning`](.agents/skills/git-workflow-and-versioning/SKILL.md) | Bumping `Chart.yaml` `version`/`appVersion` or committing. Semver drives what consumers get: patch = fix/image bump, minor = new non-breaking values, major = breaking values. Commits are `<type>(<chart>): <description>`. |
+| [`api-and-interface-design`](.agents/skills/api-and-interface-design/SKILL.md) | Adding, renaming, or removing anything in `values.yaml`. Values are this repo's public API — renames and default changes are breaking changes for every consumer. |
+| [`security-and-hardening`](.agents/skills/security-and-hardening/SKILL.md) | Touching security contexts, secrets, RBAC, network policies, TLS, or image provenance. This repo's whole reason to exist is hardened defaults. |
+| [`code-review-and-quality`](.agents/skills/code-review-and-quality/SKILL.md) | Reviewing any change before it merges, including your own. |
+
+### Situational — use when the task matches
+
+| Skill | Use it whenever you are... |
+|---|---|
+| [`incremental-implementation`](.agents/skills/incremental-implementation/SKILL.md) | Making a change that spans more than one file or chart. Land thin slices, each rendering cleanly with `helm template`. |
+| [`deprecation-and-migration`](.agents/skills/deprecation-and-migration/SKILL.md) | Removing or renaming a value, changing a default, or writing an upgrade path for existing releases. |
+| [`ci-cd-and-automation`](.agents/skills/ci-cd-and-automation/SKILL.md) | Touching `.pre-commit-config.yaml`, `scripts/`, `renovate.json`, or `.github/workflows/release-charts.yml`. |
+| [`debugging-and-error-recovery`](.agents/skills/debugging-and-error-recovery/SKILL.md) | A template fails to render, a hook fails, or a pod crash-loops on a test cluster. Find the root cause; don't paper over it with a value override. |
+| [`observability-and-instrumentation`](.agents/skills/observability-and-instrumentation/SKILL.md) | Working on `metrics`, `ServiceMonitor`, `PrometheusRule`, probes, or anything that determines whether an operator can see the workload. |
+| [`planning-and-task-breakdown`](.agents/skills/planning-and-task-breakdown/SKILL.md) | Coordinating a change across several charts (e.g. an image bump that ripples into the `casepack` umbrella). |
+| [`code-simplification`](.agents/skills/code-simplification/SKILL.md) | Refactoring `_helpers.tpl` or templates that have grown hard to follow, without changing rendered output. |
+
+### Not applicable here
+
+`frontend-ui-engineering`, `browser-testing-with-devtools`, `test-driven-development`, and `performance-optimization` target application repos. This repo has no UI and no unit-test suite — verification is `helm lint`, `helm template`, and a real deploy to minikube (see Development Workflow above).
 
 Rules:
 - Default to using a skill when a task plausibly matches its trigger.
