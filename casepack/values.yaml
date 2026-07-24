@@ -171,6 +171,10 @@ keycloak:
   enabled: true
   image:
     tag: 26.7.0-optimized
+  # The bundled realm is imported before Keycloak becomes ready. Keycloak
+  # skips startup imports when the realm already exists.
+  extraStartupArgs: |-
+    - --import-realm
   production: false
   httpEnabled: true
   auth:
@@ -187,6 +191,121 @@ keycloak:
     database: keycloak
     user: keycloak
     password: keycloak             # Override in production!
+  # The bootstrap realm's service-account client secret is never stored in
+  # its ConfigMap. When set, this Secret must contain
+  # CASEPACK_KEYCLOAK_SA_CLIENT_SECRET and should be the same Secret used by
+  # casepack-api.secrets.existingSecret.
+  bootstrapRealm:
+    existingSecret: ""
+  # SMTP is used by Keycloak for invitations, password setup, and password
+  # resets. Prefer existingSecret in production. The Secret must contain all
+  # nine KC_SMTP_* keys documented in this chart's README.
+  smtp:
+    existingSecret: ""
+    host: ""
+    port: "587"
+    from: noreply@localhost
+    fromDisplayName: CasePack
+    auth: "true"
+    user: ""
+    password: ""
+    starttls: "true"
+    ssl: "false"
+  theme:
+    image:
+      repository: ghcr.io/bysamio/keycloak-themes
+      tag: 0.5.0
+      pullPolicy: IfNotPresent
+  extraEnvVars:
+    - name: CASEPACK_KEYCLOAK_SA_CLIENT_SECRET
+      valueFrom:
+        secretKeyRef:
+          name: '{{ if .Values.bootstrapRealm.existingSecret }}{{ .Values.bootstrapRealm.existingSecret }}{{ else }}{{ include "casepack.keycloakBootstrapSecretName" . }}{{ end }}'
+          key: CASEPACK_KEYCLOAK_SA_CLIENT_SECRET
+    - name: KC_SMTP_HOST
+      valueFrom:
+        secretKeyRef:
+          name: '{{ if .Values.smtp.existingSecret }}{{ .Values.smtp.existingSecret }}{{ else }}{{ include "casepack.keycloakSmtpSecretName" . }}{{ end }}'
+          key: KC_SMTP_HOST
+    - name: KC_SMTP_PORT
+      valueFrom:
+        secretKeyRef:
+          name: '{{ if .Values.smtp.existingSecret }}{{ .Values.smtp.existingSecret }}{{ else }}{{ include "casepack.keycloakSmtpSecretName" . }}{{ end }}'
+          key: KC_SMTP_PORT
+    - name: KC_SMTP_FROM
+      valueFrom:
+        secretKeyRef:
+          name: '{{ if .Values.smtp.existingSecret }}{{ .Values.smtp.existingSecret }}{{ else }}{{ include "casepack.keycloakSmtpSecretName" . }}{{ end }}'
+          key: KC_SMTP_FROM
+    - name: KC_SMTP_FROM_DISPLAY_NAME
+      valueFrom:
+        secretKeyRef:
+          name: '{{ if .Values.smtp.existingSecret }}{{ .Values.smtp.existingSecret }}{{ else }}{{ include "casepack.keycloakSmtpSecretName" . }}{{ end }}'
+          key: KC_SMTP_FROM_DISPLAY_NAME
+    - name: KC_SMTP_AUTH
+      valueFrom:
+        secretKeyRef:
+          name: '{{ if .Values.smtp.existingSecret }}{{ .Values.smtp.existingSecret }}{{ else }}{{ include "casepack.keycloakSmtpSecretName" . }}{{ end }}'
+          key: KC_SMTP_AUTH
+    - name: KC_SMTP_USER
+      valueFrom:
+        secretKeyRef:
+          name: '{{ if .Values.smtp.existingSecret }}{{ .Values.smtp.existingSecret }}{{ else }}{{ include "casepack.keycloakSmtpSecretName" . }}{{ end }}'
+          key: KC_SMTP_USER
+    - name: KC_SMTP_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: '{{ if .Values.smtp.existingSecret }}{{ .Values.smtp.existingSecret }}{{ else }}{{ include "casepack.keycloakSmtpSecretName" . }}{{ end }}'
+          key: KC_SMTP_PASSWORD
+    - name: KC_SMTP_STARTTLS
+      valueFrom:
+        secretKeyRef:
+          name: '{{ if .Values.smtp.existingSecret }}{{ .Values.smtp.existingSecret }}{{ else }}{{ include "casepack.keycloakSmtpSecretName" . }}{{ end }}'
+          key: KC_SMTP_STARTTLS
+    - name: KC_SMTP_SSL
+      valueFrom:
+        secretKeyRef:
+          name: '{{ if .Values.smtp.existingSecret }}{{ .Values.smtp.existingSecret }}{{ else }}{{ include "casepack.keycloakSmtpSecretName" . }}{{ end }}'
+          key: KC_SMTP_SSL
+  initContainers:
+    - name: theme-loader
+      image: '{{ printf "%s:%s" .Values.theme.image.repository .Values.theme.image.tag }}'
+      imagePullPolicy: '{{ .Values.theme.image.pullPolicy }}'
+      command: ["sh", "-c", "cp -r /themes/casepack /target/"]
+      securityContext:
+        allowPrivilegeEscalation: false
+        capabilities:
+          drop:
+            - ALL
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        seccompProfile:
+          type: RuntimeDefault
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 100m
+          memory: 64Mi
+      volumeMounts:
+        - name: themes
+          mountPath: /target
+  extraVolumes:
+    - name: themes
+      emptyDir: {}
+    - name: casepack-realm
+      configMap:
+        name: '{{ include "casepack.keycloakRealmConfigMapName" . }}'
+  extraVolumeMounts:
+    - name: themes
+      mountPath: /opt/keycloak/themes
+      readOnly: true
+    - name: casepack-realm
+      mountPath: /opt/keycloak/data/import
+      readOnly: true
   replicaCount: 1
   resources:
     requests:

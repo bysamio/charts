@@ -1,0 +1,12 @@
+{{- if .Values.keycloak.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "casepack.keycloakRealmConfigMapName" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "casepack.labels" . | nindent 4 }}
+data:
+  casepack-realm.json: |-
+{{ .Files.Get "files/casepack-realm.json" | nindent 4 }}
+{{- end }}

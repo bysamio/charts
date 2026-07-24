@@ -97,6 +97,10 @@ Then install with:
 casepack-api:
   secrets:
     existingSecret: "casepack-api-selfhost"
+
+keycloak:
+  bootstrapRealm:
+    existingSecret: "casepack-api-selfhost"
 ```
 
 The Docker Compose path mounts `license.jwt` and `activation.json` directly. For
@@ -115,6 +119,53 @@ kubectl create secret generic casepack-api-selfhost \
 
 kubectl rollout restart deployment/casepack-casepack-api -n casepack
 ```
+
+## Keycloak Realm, Theme, and Email
+
+When bundled Keycloak is enabled, the chart installs the official CasePack
+theme and imports the `casepack` realm during Keycloak's first startup. The
+realm includes the SPA and user-management clients needed for onboarding.
+The theme image is published publicly on GHCR, so no registry pull Secret is
+required. If your cluster pulls images through a private mirror or registry
+that requires authentication, create a pull Secret in the release namespace
+and add it to `keycloak.imagePullSecrets`.
+
+For a multi-user deployment, configure Keycloak SMTP so CasePack can send
+invitations, password-setup links, and password-reset emails. Create a Secret
+in the release namespace before installing the chart:
+
+```bash
+kubectl create secret generic casepack-keycloak-smtp \
+  --namespace casepack \
+  --from-literal=KC_SMTP_HOST=smtp.example.com \
+  --from-literal=KC_SMTP_PORT=587 \
+  --from-literal=KC_SMTP_FROM=noreply@example.com \
+  --from-literal=KC_SMTP_FROM_DISPLAY_NAME=CasePack \
+  --from-literal=KC_SMTP_AUTH=true \
+  --from-literal=KC_SMTP_USER=your-smtp-username \
+  --from-literal=KC_SMTP_PASSWORD=your-smtp-password \
+  --from-literal=KC_SMTP_STARTTLS=true \
+  --from-literal=KC_SMTP_SSL=false
+```
+
+Reference it from your values file:
+
+```yaml
+keycloak:
+  smtp:
+    existingSecret: casepack-keycloak-smtp
+```
+
+Port `587` with STARTTLS is common. For implicit TLS on port `465`, set
+`KC_SMTP_PORT=465`, `KC_SMTP_STARTTLS=false`, and `KC_SMTP_SSL=true`. For an
+unauthenticated private relay, set `KC_SMTP_AUTH=false` and leave
+`KC_SMTP_USER` and `KC_SMTP_PASSWORD` empty. Do not enable STARTTLS and SSL at
+the same time.
+
+Keycloak only imports a realm when it does not already exist. For an existing
+installation, configure email under **Realm settings → Email** in the
+`casepack` realm and use **Test connection**. If needed, select `casepack` as
+both the login theme and email theme under **Realm settings → Themes**.
 
 ## Production Deployment
 
@@ -237,10 +288,25 @@ helm upgrade --install casepack bysamio/casepack \
 | `keycloak.enabled` | Deploy bundled Keycloak | `true` |
 | `keycloak.auth.adminUser` | Admin username | `admin` |
 | `keycloak.auth.adminPassword` | Admin password | `admin` |
-| `keycloak.database.host` | Database host | `casepack-postgresql` |
-| `keycloak.database.database` | Database name | `keycloak` |
-| `keycloak.database.user` | Database user | `keycloak` |
-| `keycloak.database.password` | Database password | `keycloak` |
+| `keycloak.imagePullSecrets` | Optional registry pull Secrets for Keycloak and the theme loader; the theme image is public, so none are required by default | `[]` |
+| `keycloak.externalDatabase.host` | Database host | `casepack-postgresql-primary` |
+| `keycloak.externalDatabase.database` | Database name | `keycloak` |
+| `keycloak.externalDatabase.user` | Database user | `keycloak` |
+| `keycloak.externalDatabase.password` | Database password | `keycloak` |
+| `keycloak.bootstrapRealm.existingSecret` | Existing Secret containing `CASEPACK_KEYCLOAK_SA_CLIENT_SECRET`; use the API Secret when applicable | `""` |
+| `keycloak.smtp.existingSecret` | Existing Secret containing all nine `KC_SMTP_*` keys | `""` |
+| `keycloak.smtp.host` | SMTP server used when the chart creates the Secret | `""` |
+| `keycloak.smtp.port` | SMTP port | `587` |
+| `keycloak.smtp.from` | Sender email address; replace for multi-user deployments | `noreply@localhost` |
+| `keycloak.smtp.fromDisplayName` | Sender display name | `CasePack` |
+| `keycloak.smtp.auth` | Enable SMTP authentication | `true` |
+| `keycloak.smtp.user` | SMTP username | `""` |
+| `keycloak.smtp.password` | SMTP password; prefer `existingSecret` in production | `""` |
+| `keycloak.smtp.starttls` | Enable STARTTLS | `true` |
+| `keycloak.smtp.ssl` | Enable implicit TLS | `false` |
+| `keycloak.theme.image.repository` | Official CasePack theme image repository | `ghcr.io/bysamio/keycloak-themes` |
+| `keycloak.theme.image.tag` | Official CasePack theme image tag | `0.5.0` |
+| `keycloak.theme.image.pullPolicy` | Theme loader image pull policy | `IfNotPresent` |
 | `keycloak.ingress.enabled` | Enable Keycloak Ingress | `false` |
 
 ### Gotenberg (`gotenberg.*`)
@@ -268,7 +334,15 @@ helm upgrade --install casepack bysamio/casepack \
 
 When both `postgresql.enabled` and `keycloak.enabled` are `true`, the chart deploys a `post-install` Job that creates the `keycloak` database and user in the bundled PostgreSQL instance.
 
-## Upgrade
+## Upgrading
+
+### To 0.6.0
+
+This release adds the CasePack Keycloak theme, first-start realm import, and
+Secret-backed Keycloak SMTP settings. New installations receive the bootstrap
+realm automatically. Keycloak skips startup imports for an existing realm, so
+existing installations should configure SMTP and select the `casepack` themes
+in the Keycloak Admin Console as described above.
 
 ```bash
 helm upgrade casepack bysamio/casepack \

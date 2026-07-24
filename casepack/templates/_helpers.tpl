@@ -50,3 +50,19 @@ Selector labels
 app.kubernetes.io/name: {{ include "casepack.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Name the Keycloak bootstrap resources without truncating their distinguishing
+suffixes when the Helm release name is long.
+*/}}
+{{- define "casepack.keycloakBootstrapSecretName" -}}
+{{- printf "%s-keycloak-bootstrap" (.Release.Name | trunc 44 | trimSuffix "-") -}}
+{{- end }}
+
+{{- define "casepack.keycloakSmtpSecretName" -}}
+{{- printf "%s-keycloak-smtp" (.Release.Name | trunc 48 | trimSuffix "-") -}}
+{{- end }}
+
+{{- define "casepack.keycloakRealmConfigMapName" -}}
+{{- printf "%s-keycloak-realm" (.Release.Name | trunc 48 | trimSuffix "-") -}}
+{{- end }}
