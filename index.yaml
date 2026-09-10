@@ -5,6 +5,61 @@ entries:
       artifacthub.io/category: security
       artifacthub.io/license: Proprietary
     apiVersion: v2
+    appVersion: 0.7.0
+    created: "2026-09-10T16:42:44.206487627Z"
+    dependencies:
+    - name: casepack-api
+      repository: oci://ghcr.io/bysamio/charts
+      version: 0.31.0
+    - name: casepack-spa
+      repository: oci://ghcr.io/bysamio/charts
+      version: 0.30.0
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: oci://ghcr.io/bysamio/charts
+      version: 2.3.1
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: oci://ghcr.io/bysamio/charts
+      version: 1.4.0
+    - condition: gotenberg.enabled
+      name: gotenberg
+      repository: oci://ghcr.io/bysamio/charts
+      version: 0.2.0
+    - condition: seaweedfs.enabled
+      name: seaweedfs
+      repository: https://seaweedfs.github.io/seaweedfs/helm
+      version: 4.34.0
+    description: CasePack — multi-tenant incident evidence management platform for
+      MSPs. Deploys the full stack in one command.
+    digest: f7af3831364e779ce2b8e751453ac37abb73dbde216428990b7a70274d8536e1
+    home: https://casepack.app
+    icon: https://casepack.app/apple-touch-icon.png
+    keywords:
+    - casepack
+    - incident-reporting
+    - incident-management
+    - evidence
+    - nis2
+    - msp
+    - multi-tenant
+    - keycloak
+    - seaweedfs
+    - self-host
+    maintainers:
+    - name: bysamio
+      url: https://github.com/bysamio
+    name: casepack
+    sources:
+    - https://github.com/bysamio/casepack
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/casepack-0.7.0/casepack-0.7.0.tgz
+    version: 0.7.0
+  - annotations:
+      artifacthub.io/category: security
+      artifacthub.io/license: Proprietary
+    apiVersion: v2
     appVersion: 0.6.0
     created: "2026-07-24T23:49:01.574590924Z"
     dependencies:
@@ -1494,6 +1549,41 @@ entries:
     - https://github.com/bysamio/charts/releases/download/gotenberg-0.1.0/gotenberg-0.1.0.tgz
     version: 0.1.0
   keycloak:
+  - apiVersion: v2
+    appVersion: 26.7.3
+    created: "2026-09-10T16:42:44.540071316Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: oci://ghcr.io/bysamio/charts
+      version: 2.3.1
+    description: A Helm chart for Keycloak using BySamio hardened Docker image (runs
+      as UID 1001)
+    digest: 68232f3128c753a1b54ba337918a810acd57a6bc695c6307e638e85bb3a42e7b
+    home: https://www.keycloak.org/
+    icon: https://avatars.githubusercontent.com/u/4921466?s=200&v=4
+    keywords:
+    - keycloak
+    - identity
+    - access-management
+    - sso
+    - oidc
+    - oauth2
+    - saml
+    - authentication
+    - authorization
+    maintainers:
+    - email: admin@bysam.io
+      name: BySam Charts
+    name: keycloak
+    sources:
+    - https://github.com/bysamio/charts
+    - https://github.com/bysamio/images
+    - https://github.com/keycloak/keycloak
+    type: application
+    urls:
+    - https://github.com/bysamio/charts/releases/download/keycloak-1.4.0/keycloak-1.4.0.tgz
+    version: 1.4.0
   - apiVersion: v2
     appVersion: 26.7.0
     created: "2026-07-22T17:54:21.410553094Z"
@@ -3093,4 +3183,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2026-07-30T14:27:23.47318857Z"
+generated: "2026-09-10T16:42:44.540317874Z"
