@@ -336,6 +336,14 @@ When both `postgresql.enabled` and `keycloak.enabled` are `true`, the chart depl
 
 ## Upgrading
 
+### To 0.7.1
+
+Security update: the bundled Keycloak now runs image `26.7.4-optimized` (was
+`26.7.3-optimized`). It picks up six upstream Keycloak CVE fixes and a Bouncy
+Castle overlay for `CVE-2026-8763` (CRITICAL). See the
+[Keycloak chart upgrade notes](../keycloak/README.md#to-141) for details. No
+values changed. If you override `keycloak.image.tag`, move it to `26.7.4-optimized`.
+
 ### To 0.6.0
 
 This release adds the CasePack Keycloak theme, first-start realm import, and

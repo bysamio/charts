@@ -170,7 +170,7 @@ postgresql:
 keycloak:
   enabled: true
   image:
-    tag: 26.7.3-optimized
+    tag: 26.7.4-optimized
   # The bundled realm is imported before Keycloak becomes ready. Keycloak
   # skips startup imports when the realm already exists.
   extraStartupArgs: |-

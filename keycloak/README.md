@@ -90,7 +90,7 @@ The following tables document all available configuration options in `values.yam
 |-----------|------|---------|-------------|
 | `image.registry` | string | `"ghcr.io"` | Keycloak image registry |
 | `image.repository` | string | `"bysamio/keycloak"` | Keycloak image repository |
-| `image.tag` | string | `"26.7.3"` | Keycloak image tag (immutable tags are recommended) |
+| `image.tag` | string | `"26.7.4"` | Keycloak image tag (immutable tags are recommended) |
 | `image.digest` | string | `""` | Keycloak image digest (sha256:...). Overrides tag if set |
 | `image.pullPolicy` | string | `"IfNotPresent"` | Keycloak image pull policy |
 | `image.pullSecrets` | array | `[]` | Keycloak image pull secrets |
@@ -100,11 +100,11 @@ The following tables document all available configuration options in `values.yam
 
 | Variant | Tag | Base | Image UID | Startup | Runtime providers/SPIs |
 |---------|-----|------|-----------|---------|------------------------|
-| Flexible (default) | `26.7.3` | Alpine | 1001 | Auto-builds when providers change | Yes |
-| Optimized | `26.7.3-optimized` | Distroless | 65532 | Pre-built (~5s) | No — build-time only |
-| Debug | `26.7.3-debug` | Distroless + busybox | 65532 | Pre-built (~5s) | No — build-time only |
+| Flexible (default) | `26.7.4` | Alpine | 1001 | Auto-builds when providers change | Yes |
+| Optimized | `26.7.4-optimized` | Distroless | 65532 | Pre-built (~5s) | No — build-time only |
+| Debug | `26.7.4-debug` | Distroless + busybox | 65532 | Pre-built (~5s) | No — build-time only |
 
-The chart detects the pre-built variants from the tag — `26.7.3-optimized`, `26.7.3-debug`, and the floating `optimized`/`debug` tags (immutable versioned tags are still recommended). For those tags it:
+The chart detects the pre-built variants from the tag — `26.7.4-optimized`, `26.7.4-debug`, and the floating `optimized`/`debug` tags (immutable versioned tags are still recommended). For those tags it:
 
 - passes `start --optimized` instead of `start`
 - keeps `containerSecurityContext.readOnlyRootFilesystem` at its configured value (default `true`)
@@ -605,6 +605,12 @@ resources:
 
 ## Upgrading
 
+### To 1.4.1
+
+- **Security**: Default Keycloak image updated to `26.7.4`, an upstream security release that fixes six Keycloak CVEs. They include `CVE-2026-17526` (the `impersonation` role can impersonate a realm administrator) and `CVE-2026-79651` (unauthenticated denial of service via unbounded locale caching). The other four are `CVE-2026-90997`, `CVE-2026-74909`, `CVE-2026-19607` and `CVE-2026-18212`. See the [upstream release notes](https://github.com/keycloak/keycloak/releases/tag/26.7.4). **Upgrading is strongly recommended.**
+- **Security**: The `26.7.4` image adds a Bouncy Castle `1.86` overlay for `CVE-2026-8763` (CRITICAL, name constraints bypass) and `CVE-2026-13506` (HIGH, ASN.1 denial of service), because upstream `26.7.4` still ships the affected `1.84`. It keeps the Netty `4.1.138.Final` and OpenTelemetry `1.62.0` overlays. See the [image release notes](https://github.com/bysamio/images/blob/main/keycloak/README.md#vulnerability-scanning).
+- **Unchanged**: No values were added, renamed or removed. `keycloakConfigCli.image.tag` stays at `6.5.1-26.5.5`, because upstream still publishes no 26.6.x/26.7.x build. Its compatibility note still records verification against the **26.7.0** server. The idempotent re-import check has not been re-run against 26.7.4.
+
 ### To 1.4.0
 
 - **Security**: Default Keycloak image updated to `26.7.3`. This closes `CVE-2026-18963` (CRITICAL) — unauthenticated account takeover via the reset-credentials flow bypass — which is present in `26.7.0` and fixed upstream in `26.7.2`. **Upgrading is strongly recommended**, and there is no configuration workaround.
@@ -663,18 +669,18 @@ Initial release. No upgrade path required.
 
 Ensure you're not setting build-time environment variables like `KC_FEATURES` with optimized images. These images are pre-built.
 
-Runtime SPI JARs mounted into `/opt/keycloak/providers` are also ignored by the `-optimized`/`-debug` variants — they only load providers baked in at build time. Use the flexible tag (`26.7.3`) for runtime provider loading, or build your own image on top of `26.7.3-optimized`.
+Runtime SPI JARs mounted into `/opt/keycloak/providers` are also ignored by the `-optimized`/`-debug` variants — they only load providers baked in at build time. Use the flexible tag (`26.7.4`) for runtime provider loading, or build your own image on top of `26.7.4-optimized`.
 
 ### Getting a shell in a distroless pod
 
 The `-optimized` variant intentionally ships no shell. Deploy the debug variant temporarily — it is the same build on a `distroless:debug-nonroot` base:
 
 ```bash
-helm upgrade keycloak ./keycloak --reuse-values --set image.tag=26.7.3-debug
+helm upgrade keycloak ./keycloak --reuse-values --set image.tag=26.7.4-debug
 kubectl exec -it <keycloak-pod> -c keycloak -- /busybox/sh
 ```
 
-Roll back to `26.7.3-optimized` once you are done.
+Roll back to `26.7.4-optimized` once you are done.
 
 ### Database connection issues
 
