@@ -139,7 +139,7 @@ The BySam chart collection provides a complete WordPress stack and identity mana
 
 ### Keycloak (`bysam/keycloak`)
 
-- **Base Image**: `ghcr.io/bysamio/keycloak:26.7.3` (variants: `26.7.3`, `26.7.3-optimized`, `26.7.3-debug`)
+- **Base Image**: `ghcr.io/bysamio/keycloak:26.7.4` (variants: `26.7.4`, `26.7.4-optimized`, `26.7.4-debug`)
 - **Features**: Open-source Identity and Access Management (IAM) with SSO, OIDC, OAuth2, SAML support
 - **Security Context**: Hardened non-root container (UID 1001 on the Alpine variant, 65532 on the distroless `-optimized`/`-debug` variants)
 - **Configuration**: Includes PostgreSQL subchart, metrics, high availability support
