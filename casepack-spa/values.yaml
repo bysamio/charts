@@ -87,6 +87,9 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 
-# Nginx configuration override
-# If empty, the default SPA-friendly config is used
+# Nginx server config override (the whole default.conf).
+# Leave empty to use the config built into the image, which serves the
+# prerendered marketing pages, falls back to the noindex app shell for app
+# routes, and sends the security/cache headers and /healthz. An override
+# replaces all of that, so only set it if you reproduce that behaviour.
 nginxConfig: ""
