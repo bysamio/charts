@@ -31,6 +31,7 @@ helm install casepack-spa oci://ghcr.io/bysamio/charts/casepack-spa \
 | `resources.requests.memory` | Memory request | `32Mi` |
 | `resources.limits.cpu` | CPU limit | `200m` |
 | `resources.limits.memory` | Memory limit | `64Mi` |
+| `nginxConfig` | Complete nginx `default.conf` to use instead of the image's own config (see below) | `""` |
 
 ## Runtime Configuration
 
@@ -42,3 +43,27 @@ The SPA reads `window.__RUNTIME_CONFIG__` for:
 - `API_BASE_URL` — backend API endpoint
 - `OIDC_AUTHORITY` — Keycloak realm URL
 - `OIDC_CLIENT_ID` — OIDC client identifier
+
+## Nginx Configuration
+
+By default the pod runs the nginx config built into the `casepack-spa` image.
+It serves the prerendered marketing pages, falls back to the `noindex` app
+shell for app routes and unknown paths, sends the security and cache headers,
+and answers `/healthz`.
+
+Setting `nginxConfig` replaces that whole config through a ConfigMap. Only do
+this if your config reproduces the same routing and headers.
+
+## Upgrading
+
+### To the release after 0.32.0
+
+The chart no longer mounts its own nginx config by default. Earlier versions
+always replaced the image's config with a generic SPA fallback
+(`try_files $uri $uri/ /index.html`). Since the image started prerendering
+the marketing pages, that fallback served the landing page for every app
+route and unknown path, and dropped the image's `no-cache` and `noindex`
+headers. The security headers and `/healthz` that the chart's config provided
+are now part of the image. If you relied on the old ConfigMap, set
+`nginxConfig` explicitly. `nginxConfig` was previously ignored; it now takes
+effect.

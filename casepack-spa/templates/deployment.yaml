@@ -13,11 +13,15 @@ spec:
       {{- include "casepack-spa.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      {{- if or .Values.nginxConfig .Values.podAnnotations }}
       annotations:
+        {{- if .Values.nginxConfig }}
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- end }}
         {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
+      {{- end }}
       labels:
         {{- include "casepack-spa.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
@@ -77,10 +81,12 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
+            {{- if .Values.nginxConfig }}
             - name: nginx-config
               mountPath: /etc/nginx/conf.d/default.conf
               subPath: default.conf
               readOnly: true
+            {{- end }}
             - name: tmp
               mountPath: /tmp
             - name: nginx-cache
@@ -88,9 +94,11 @@ spec:
             - name: nginx-run
               mountPath: /var/run
       volumes:
+        {{- if .Values.nginxConfig }}
         - name: nginx-config
           configMap:
             name: {{ include "casepack-spa.fullname" . }}-nginx
+        {{- end }}
         - name: tmp
           emptyDir: {}
         - name: nginx-cache
