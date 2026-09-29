@@ -43,6 +43,8 @@ The full, always-current list of charts and their latest versions is published a
 
 Application release workflows in `casepack-api` and `casepack-spa` open immediate chart update PRs in this repository after stable image releases. Renovate remains enabled here as a chart-owned safety net and for infrastructure image updates.
 
+After the OCI chart release job succeeds, this repository notifies `bysamio/argocd` for the CasePack API, SPA, and docs chart versions. Its automation opens or updates a staging PR only for a newer published chart. The CasePack Keycloak values revision moves with the API release. A production PR follows after the exact staging revisions are Synced, Healthy, and pass a public smoke check. The notification needs the GitHub App variable and secret documented in `argocd/docs/release-promotion.md`; publication still succeeds with a warning until those credentials are configured.
+
 | Chart | Image | Renovate behavior |
 |-------|-------|-------------------|
 | `casepack-api` | `ghcr.io/bysamio/casepack-api` | Sync chart `version` and `appVersion` to stable app image tags |
