@@ -77,6 +77,23 @@ test_chart() {
 
     log_info "Testing chart: $chart"
 
+    # Values for charts with required settings, used by render and install alike
+    local chart_args=""
+    case "$chart" in
+        keycloak)
+            chart_args="--set auth.adminPassword=testpass123 --set postgresql.auth.postgresPassword=testpass123 --set postgresql.auth.password=testpass123 --set usePasswordFiles=false"
+            ;;
+        postgresql)
+            chart_args="--set auth.postgresPassword=testpass123 --set auth.password=testpass123"
+            ;;
+        mariadb)
+            chart_args="--set auth.rootPassword=testpass123"
+            ;;
+        wordpress)
+            chart_args="--set wordpressPassword=testpass123 --set mariadb.auth.rootPassword=testpass123"
+            ;;
+    esac
+
     # Update dependencies
     if [ -f "$chart/Chart.lock" ] || grep -q "dependencies:" "$chart/Chart.yaml" 2>/dev/null; then
         prepare_local_oci_dependencies "$chart"
@@ -91,7 +108,7 @@ test_chart() {
     log_info "$chart: Lint passed"
 
     # Template render test
-    if ! helm template "$release" "$chart" > /dev/null 2>&1; then
+    if ! helm template "$release" "$chart" $chart_args > /dev/null 2>&1; then
         log_error "$chart: Template render failed"
         return 1
     fi
@@ -101,23 +118,7 @@ test_chart() {
     if minikube status &> /dev/null; then
         kubectl create namespace "$namespace" --dry-run=client -o yaml | kubectl apply -f - > /dev/null 2>&1
 
-        # Build install command with chart-specific values
-        local install_args="--namespace $namespace --dry-run=server --timeout 30s"
-
-        case "$chart" in
-            keycloak)
-                install_args="$install_args --set auth.adminPassword=testpass123 --set postgresql.auth.postgresPassword=testpass123 --set postgresql.auth.password=testpass123 --set usePasswordFiles=false"
-                ;;
-            postgresql)
-                install_args="$install_args --set auth.postgresPassword=testpass123 --set auth.password=testpass123"
-                ;;
-            mariadb)
-                install_args="$install_args --set auth.rootPassword=testpass123"
-                ;;
-            wordpress)
-                install_args="$install_args --set wordpressPassword=testpass123 --set mariadb.auth.rootPassword=testpass123"
-                ;;
-        esac
+        local install_args="--namespace $namespace --dry-run=server --timeout 30s $chart_args"
 
         if ! helm install "$release" "$chart" $install_args > /dev/null 2>&1; then
             log_error "$chart: Dry-run install failed"

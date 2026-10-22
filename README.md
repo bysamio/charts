@@ -14,7 +14,7 @@ Install charts directly from GitHub Container Registry:
 helm install casepack oci://ghcr.io/bysamio/charts/casepack --version 0.1.0
 helm install casepack-api oci://ghcr.io/bysamio/charts/casepack-api --version 0.20.0-SNAPSHOT
 helm install casepack-spa oci://ghcr.io/bysamio/charts/casepack-spa --version 0.19.0-dev
-helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 2.0.2
+helm install my-wordpress oci://ghcr.io/bysamio/charts/wordpress --version 3.0.0
 helm install my-mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2
 helm install my-memcached oci://ghcr.io/bysamio/charts/memcached --version 1.0.2
 helm install my-keycloak oci://ghcr.io/bysamio/charts/keycloak --version 1.3.0
@@ -120,9 +120,9 @@ The BySam chart collection provides a complete WordPress stack and identity mana
 
 ### WordPress (`bysam/wordpress`)
 
-- **Base Image**: `wordpress:6.9.0-apache`
+- **Image**: `ghcr.io/bysamio/wordpress:7.1.3` (built on `wordpress:7.1.3-apache`)
 - **Features**: Full WordPress functionality with Apache, PHP, and MySQL/MariaDB support
-- **Security Context**: Uses standard `www-data` user (UID 33)
+- **Security Context**: Non-root `bysamio` user (UID 1001) on port 8080
 - **Configuration**: Standard WordPress environment variables
 
 ### MariaDB (`bysam/mariadb`)
