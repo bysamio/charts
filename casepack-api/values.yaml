@@ -56,6 +56,9 @@ config:
   sampleReportPdfKey: "samples/CasePack_Sample_Evidence_Pack_V2.pdf"
   contactEmailDeliveryEnabled: "false"
   contactEmailDeliveryDelayMs: "5000"
+  notificationEmailDeliveryEnabled: "false" # send NIS2 reminder emails; in-app reminders work either way
+  appBaseUrl: ""                            # SPA URL used for links in reminder emails, e.g. https://casepack.example.com
+  apiPublicUrl: ""                          # public API URL for the one-click unsubscribe header in reminder emails
   testDataResetEnabled: "false"
   testDataResetEnvironment: "local"
   corsOrigins: "http://localhost:5173"
