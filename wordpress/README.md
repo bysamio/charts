@@ -6,7 +6,7 @@ A production-ready Helm chart for deploying WordPress on Kubernetes using the of
 
 This Helm chart deploys WordPress on Kubernetes with the following features:
 
-- **Official WordPress Image**: Uses the official `wordpress:6.9.0-apache` Docker image
+- **BySamio WordPress Image**: Uses `ghcr.io/bysamio/wordpress:7.1.3`, built on the official `wordpress:7.1.3-apache` image and running as non-root UID 1001 on port 8080
 - **Automatic Installation**: Automatically installs WordPress using wp-cli, eliminating the need for manual web-based setup
 - **High Availability**: Supports multiple replicas with rolling updates for zero-downtime deployments
 - **Database Integration**: Integrated MariaDB subchart for database management
@@ -61,9 +61,9 @@ The following tables document all available configuration options in `values.yam
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `image.registry` | string | `"docker.io"` | Docker image registry |
-| `image.repository` | string | `"wordpress"` | Docker image repository |
-| `image.tag` | string | `"6.9.0-apache"` | Docker image tag |
+| `image.registry` | string | `"ghcr.io"` | Docker image registry |
+| `image.repository` | string | `"bysamio/wordpress"` | Docker image repository |
+| `image.tag` | string | `"7.1.3"` | Docker image tag |
 | `image.digest` | string | `""` | Docker image digest (for immutable images) |
 | `image.pullPolicy` | string | `"IfNotPresent"` | Image pull policy (`Always`, `IfNotPresent`, `Never`) |
 | `image.pullSecrets` | array | `[]` | Docker registry secret names |
@@ -558,6 +558,33 @@ The following are the most commonly used Memcached configuration parameters. For
 |-----------|------|---------|-------------|
 | `externalCache.host` | string | `"localhost"` | External Memcached host |
 | `externalCache.port` | integer | `11211` | External Memcached port |
+
+---
+
+## Upgrading
+
+### To 3.0.0
+
+**Security release. Upgrade promptly.** The default image moves from
+`ghcr.io/bysamio/wordpress:6.9.0` to `7.1.3`. Its PHP 8.3.36 fixes PHP2Shell
+(CVE-2026-109618, CVE-2026-109619), unauthenticated remote code execution that PHP
+rates most severe under Apache mod_php, which this image uses. The 6.9.0 image runs
+PHP 8.3.30 and is vulnerable. The new image also clears 844 fixable HIGH/CRITICAL
+Debian CVEs. See the [image README](https://github.com/bysamio/images/tree/main/wordpress#vulnerability-status).
+
+The major version follows the WordPress move from 6.9 to 7.1. No values or templates
+changed.
+
+- **PHP and OS fixes apply on rollout**, including to existing installations, because
+  they live in the image.
+- **WordPress core on an existing volume is not replaced.** The image only copies core
+  into an empty `/var/www/html`. After upgrading, update core from **Dashboard →
+  Updates**, which runs as the file owner (UID 1001). Back up the database and the
+  persistent volume first. Do not run `wp core update` in the `wordpress-installer`
+  sidecar: it runs as UID 33, cannot write the core files and fails with "Could not
+  create directory". Fresh installs get 7.1.3.
+- If you override `image.tag`, set it to `7.1.3`. A pinned `image.digest` takes
+  precedence over the tag, so update it too.
 
 ---
 

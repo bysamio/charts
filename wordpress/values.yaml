@@ -20,12 +20,12 @@ extraDeploy: []
 
 ## @section WordPress Image parameters
 ## BySamio WordPress - Non-root image running on port 8080
-## For official WordPress image, set: registry: docker.io, repository: wordpress, tag: "6.9.0-apache"
+## For official WordPress image, set: registry: docker.io, repository: wordpress, tag: "7.1.3-apache"
 ## and update containerPorts.http to 80 and security context accordingly
 image:
   registry: ghcr.io
   repository: bysamio/wordpress
-  tag: "6.9.0"  # BySamio non-root WordPress (runs as UID 1001 on port 8080)
+  tag: "7.1.3"  # BySamio non-root WordPress (runs as UID 1001 on port 8080)
   digest: ""  # Use digest for production (e.g., "sha256:...") for immutable images
   pullPolicy: IfNotPresent  # Set to "Always" for production to ensure latest security patches
   pullSecrets: []
