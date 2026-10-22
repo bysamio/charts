@@ -69,6 +69,13 @@ data:
   CASEPACK_SAMPLE_REPORT_PDF_KEY: {{ .Values.config.sampleReportPdfKey | quote }}
   CASEPACK_CONTACT_EMAIL_DELIVERY_ENABLED: {{ .Values.config.contactEmailDeliveryEnabled | quote }}
   CASEPACK_CONTACT_EMAIL_DELIVERY_DELAY_MS: {{ .Values.config.contactEmailDeliveryDelayMs | quote }}
+  CASEPACK_NOTIFICATION_EMAIL_DELIVERY_ENABLED: {{ .Values.config.notificationEmailDeliveryEnabled | quote }}
+  {{- if .Values.config.appBaseUrl }}
+  CASEPACK_APP_BASE_URL: {{ .Values.config.appBaseUrl | quote }}
+  {{- end }}
+  {{- if .Values.config.apiPublicUrl }}
+  CASEPACK_API_PUBLIC_URL: {{ .Values.config.apiPublicUrl | quote }}
+  {{- end }}
   CASEPACK_SMTP_PORT: {{ .Values.smtp.port | quote }}
   CASEPACK_SMTP_AUTH: {{ .Values.smtp.auth | quote }}
   CASEPACK_SMTP_STARTTLS: {{ .Values.smtp.starttls | quote }}
