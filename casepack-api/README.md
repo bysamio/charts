@@ -30,6 +30,15 @@ helm upgrade casepack-api oci://ghcr.io/bysamio/charts/casepack-api \
 
 ## Upgrading
 
+### 0.33.1
+
+NIS2 reminder email delivery is opt-in. Set `config.notificationEmailDeliveryEnabled=true`
+and `config.appBaseUrl` to the SPA's public URL, and reference an SMTP Secret through
+`smtp.existingSecret`. Without `config.appBaseUrl`, links in reminder emails point to
+`http://localhost:5173`. Set `config.apiPublicUrl` to add the RFC 8058 one-click
+unsubscribe header for external contacts. Existing installations keep reminder email
+disabled; reminders still appear in the app.
+
 ### 0.29.0
 
 Contact-request email delivery is opt-in. Set `config.contactEmailDeliveryEnabled=true`,
@@ -166,6 +175,9 @@ secrets:
 | `config.sampleReportPdfKey` | Fixed S3 key for the sample report | `samples/CasePack_Sample_Evidence_Pack_V2.pdf` |
 | `config.contactEmailDeliveryEnabled` | Enable durable SMTP delivery for public contact requests | `false` |
 | `config.contactEmailDeliveryDelayMs` | Delay between contact-request delivery polls | `5000` |
+| `config.notificationEmailDeliveryEnabled` | Send NIS2 deadline reminder emails over SMTP; reminders always appear in the app | `false` |
+| `config.appBaseUrl` | SPA URL for links in reminder emails; required when reminder email is on | `""` |
+| `config.apiPublicUrl` | Public API URL for the one-click unsubscribe header in reminder emails | `""` |
 | `smtp.existingSecret` | Existing Secret containing the SMTP host, username, and password | `""` |
 | `smtp.hostKey` | SMTP host key in the existing Secret | `smtp-host` |
 | `smtp.usernameKey` | SMTP username key in the existing Secret | `smtp-user` |
