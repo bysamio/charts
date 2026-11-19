@@ -13,7 +13,7 @@ Deploy CasePack API on Kubernetes — multi-tenant incident evidence management 
 ## Install
 
 ```bash
-helm install casepack-api oci://ghcr.io/bysamio/charts/casepack-api \
+helm install casepack-api oci://ghcr.io/sammyeby/charts/casepack-api \
   --version 0.3.0 \
   --namespace casepack \
   --create-namespace \
@@ -23,7 +23,7 @@ helm install casepack-api oci://ghcr.io/bysamio/charts/casepack-api \
 ## Upgrade
 
 ```bash
-helm upgrade casepack-api oci://ghcr.io/bysamio/charts/casepack-api \
+helm upgrade casepack-api oci://ghcr.io/sammyeby/charts/casepack-api \
   --version 0.4.0 \
   -f my-values.yaml
 ```
@@ -57,7 +57,7 @@ Create a `my-values.yaml` file:
 
 ```yaml
 image:
-  repository: ghcr.io/bysamio/casepack-api
+  repository: ghcr.io/sammyeby/casepack-api
 
 config:
   oidcIssuerUri: "https://auth.example.com/realms/casepack"
@@ -190,7 +190,7 @@ secrets:
 
 | Parameter | Description | Default |
 |---|---|---|
-| `image.repository` | Container image repository | `ghcr.io/bysamio/casepack-api` |
+| `image.repository` | Container image repository | `ghcr.io/sammyeby/casepack-api` |
 | `image.tag` | Image tag (defaults to `appVersion`) | `""` |
 | `image.pullPolicy` | Image pull policy | `IfNotPresent` |
 | `imagePullSecrets` | Image pull secrets | `[]` |
@@ -254,4 +254,4 @@ A valid license token is required to start CasePack. Obtain a license from [bysa
 ## Support
 
 - Documentation: [https://docs.casepack.app](https://docs.casepack.app)
-- Issues: [https://github.com/bysamio/casepack-api/issues](https://github.com/bysamio/casepack-api/issues)
+- Issues: [https://github.com/sammyeby/casepack-api/issues](https://github.com/sammyeby/casepack-api/issues)

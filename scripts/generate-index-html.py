@@ -9,10 +9,12 @@ Usage:
     generate-index-html.py <index.yaml> <output.html>
 
 Environment overrides (all optional):
-    REPO_OWNER    GitHub owner / GHCR namespace      (default: bysamio)
+    REPO_OWNER    GitHub owner / GHCR namespace      (default: sammyeby)
     REPO_NAME     GitHub repository name             (default: charts)
-    PAGES_URL     Helm repo / Pages base URL         (default: https://bysamio.github.io/charts/)
-    OCI_BASE      OCI registry base                  (default: oci://ghcr.io/bysamio/charts)
+    PAGES_URL     Helm repo / Pages base URL         (default: https://sammyeby.github.io/charts/)
+    OCI_BASE      OCI registry base                  (default: oci://ghcr.io/sammyeby/charts)
+    ARTIFACTHUB_REPO  Artifact Hub repository name   (default: bysamio; it was registered
+                      before the move and keeps its name)
 """
 import html
 import os
@@ -24,12 +26,13 @@ try:
 except ImportError:
     sys.exit("PyYAML is required: pip install pyyaml")
 
-REPO_OWNER = os.environ.get("REPO_OWNER", "bysamio")
+REPO_OWNER = os.environ.get("REPO_OWNER", "sammyeby")
 REPO_NAME = os.environ.get("REPO_NAME", "charts")
 PAGES_URL = os.environ.get("PAGES_URL", f"https://{REPO_OWNER}.github.io/{REPO_NAME}/")
 OCI_BASE = os.environ.get("OCI_BASE", f"oci://ghcr.io/{REPO_OWNER}/{REPO_NAME}")
 GITHUB_URL = f"https://github.com/{REPO_OWNER}/{REPO_NAME}"
-ARTIFACTHUB_URL = f"https://artifacthub.io/packages/search?repo={REPO_OWNER}"
+ARTIFACTHUB_REPO = os.environ.get("ARTIFACTHUB_REPO", "bysamio")
+ARTIFACTHUB_URL = f"https://artifacthub.io/packages/search?repo={ARTIFACTHUB_REPO}"
 
 
 def latest_version(versions):
@@ -95,7 +98,7 @@ def build_html(charts):
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Official Helm charts repository for {e(REPO_OWNER)}.">
-  <title>BySam Helm Charts</title>
+  <title>SamSoft Helm Charts</title>
   <style>
     :root {{
       --bg: #0d1117; --surface: #161b22; --border: #30363d;
@@ -159,8 +162,8 @@ def build_html(charts):
 </head>
 <body>
   <header class="hero">
-    <h1>🚀 BySamIO Helm Charts</h1>
-    <p>Official Helm charts repository for CasePack and BySamIO infrastructure</p>
+    <h1>🚀 SamSoft Helm Charts</h1>
+    <p>Official Helm charts repository for CasePack and SamSoft infrastructure</p>
   </header>
 
   <div class="wrap">

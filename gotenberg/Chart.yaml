@@ -2,16 +2,16 @@ apiVersion: v2
 name: gotenberg
 description: Minimal Gotenberg document conversion service chart
 type: application
-version: 0.2.0
+version: 0.2.1
 appVersion: "8-chromium"
 home: https://gotenberg.dev/
 icon: https://gotenberg.dev/img/logo.png
 sources:
-  - https://github.com/bysamio/charts
+  - https://github.com/sammyeby/charts
   - https://github.com/gotenberg/gotenberg
 maintainers:
-  - name: BySam Charts
-    email: admin@bysam.io
+  - name: SamSoft Technologies
+    url: https://github.com/sammyeby
 keywords:
   - gotenberg
   - pdf

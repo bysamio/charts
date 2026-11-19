@@ -49,8 +49,8 @@ Release:   {{ .Release.Name }}
 
 ── Documentation ──────────────────────────────────────────────
 
-  Deployment guide:  https://github.com/bysamio/casepack
-  Chart source:      https://github.com/bysamio/casepack/tree/main/charts/casepack
+  Deployment guide:  https://github.com/sammyeby/casepack
+  Chart source:      https://github.com/sammyeby/casepack/tree/main/charts/casepack
 
 ── License Renewal ────────────────────────────────────────────
 

@@ -10,10 +10,10 @@ keywords:
   - casepack
   - documentation
 sources:
-  - https://github.com/bysamio/casepack-docs
+  - https://github.com/sammyeby/casepack-docs
 maintainers:
-  - name: bysamio
-    email: admin@bysam.io
+  - name: SamSoft Technologies
+    url: https://github.com/sammyeby
 annotations:
   artifacthub.io/license: Proprietary
   artifacthub.io/category: security

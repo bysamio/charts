@@ -2,16 +2,16 @@ apiVersion: v2
 name: minio
 description: A Helm chart for deploying MinIO object storage using hardened container images
 type: application
-version: 1.0.3
+version: 1.0.4
 appVersion: "2025.9.7"
 keywords:
   - minio
   - s3
   - object-storage
   - storage
-home: https://github.com/bysamio/charts
+home: https://github.com/sammyeby/charts
 sources:
-  - https://github.com/bysamio/charts
+  - https://github.com/sammyeby/charts
 maintainers:
-  - name: BySamio
-    url: https://github.com/bysamio
+  - name: SamSoft Technologies
+    url: https://github.com/sammyeby

@@ -1,6 +1,6 @@
-# BySamio PostgreSQL Helm Chart
-# Uses hardened BySamio PostgreSQL image (runs as UID 1001)
-# Source: https://github.com/bysamio/images
+# SamSoft PostgreSQL Helm Chart
+# Uses hardened SamSoft PostgreSQL image (runs as UID 1001)
+# Source: https://github.com/sammyeby/images
 
 ## @section Global parameters
 ## Please, note that this will override the parameters, including dependencies, configured to use the global value
@@ -109,10 +109,10 @@ diagnosticMode:
 ## @section PostgreSQL common parameters
 ##
 
-## BySamio hardened PostgreSQL image
-## ref: https://github.com/bysamio/images
+## SamSoft hardened PostgreSQL image
+## ref: https://github.com/sammyeby/images
 ## @param image.registry [default: ghcr.io] PostgreSQL image registry
-## @param image.repository [default: bysamio/postgresql] PostgreSQL image repository
+## @param image.repository [default: sammyeby/postgresql] PostgreSQL image repository
 ## @skip image.tag PostgreSQL image tag (immutable tags are recommended)
 ## @param image.digest PostgreSQL image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
 ## @param image.pullPolicy PostgreSQL image pull policy
@@ -121,7 +121,7 @@ diagnosticMode:
 ##
 image:
   registry: ghcr.io
-  repository: bysamio/postgresql
+  repository: sammyeby/postgresql
   tag: "17.10-alpine"
   digest: ""
   ## Specify a imagePullPolicy
@@ -182,7 +182,7 @@ auth:
   ##   - /var/lib/postgresql/secrets/postgres-password
   ##   - /var/lib/postgresql/secrets/password
   ##   - /var/lib/postgresql/secrets/replication-password
-  ## The current bysamio/postgresql image uses environment variables (POSTGRES_PASSWORD, etc.)
+  ## The current sammyeby/postgresql image uses environment variables (POSTGRES_PASSWORD, etc.)
   ## instead of password files, so this must remain false until the entrypoint is updated.
   ##
   usePasswordFiles: false

@@ -1,8 +1,8 @@
 apiVersion: v2
 name: keycloak
-description: A Helm chart for Keycloak using BySamio hardened Docker image (runs as UID 1001)
+description: A Helm chart for Keycloak using SamSoft hardened Docker image (runs as UID 1001)
 type: application
-version: 1.4.1
+version: 1.4.2
 appVersion: "26.7.4"
 keywords:
   - keycloak
@@ -17,14 +17,14 @@ keywords:
 home: https://www.keycloak.org/
 icon: https://avatars.githubusercontent.com/u/4921466?s=200&v=4
 sources:
-- https://github.com/bysamio/charts
-- https://github.com/bysamio/images
+- https://github.com/sammyeby/charts
+- https://github.com/sammyeby/images
 - https://github.com/keycloak/keycloak
 maintainers:
-- email: admin@bysam.io
-  name: BySam Charts
+- name: SamSoft Technologies
+  url: https://github.com/sammyeby
 dependencies:
   - name: postgresql
-    version: "2.3.1"
-    repository: oci://ghcr.io/bysamio/charts
+    version: "2.3.2"
+    repository: oci://ghcr.io/sammyeby/charts
     condition: postgresql.enabled

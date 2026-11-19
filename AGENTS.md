@@ -2,10 +2,10 @@
 
 ## Repository Overview
 
-BySamio Helm charts for Kubernetes. Ships hardened, non-root container images via `ghcr.io/bysamio/`.
+SamSoft Helm charts for Kubernetes. Ships hardened, non-root container images via `ghcr.io/sammyeby/`.
 
 **Charts:** `wordpress/`, `keycloak/`, `postgresql/`, `mariadb/`, `memcached/`, `minio/`
-**Registry:** `oci://ghcr.io/bysamio/charts`
+**Registry:** `oci://ghcr.io/sammyeby/charts`
 **CI:** `.github/workflows/release-charts.yml` — packages and pushes charts on merge to `main`
 
 ## Project Structure
@@ -25,7 +25,7 @@ scripts/              # Pre-commit hook scripts (lint, template, deps, test)
 
 ## Key Conventions
 
-- **Images:** All charts use `ghcr.io/bysamio/<app>` images. Keycloak has two variants: flexible (default, auto-builds at startup) and optimized (tag contains `-optimized`, pre-built).
+- **Images:** All charts use `ghcr.io/sammyeby/<app>` images. Keycloak has two variants: flexible (default, auto-builds at startup) and optimized (tag contains `-optimized`, pre-built).
 - **Security:** Non-root (UID 1001), `readOnlyRootFilesystem` where possible, network policies default on. Keycloak auto-adjusts `readOnlyRootFilesystem` based on image variant.
 - **Passwords:** Always use `secretKeyRef` env vars. Never use `_FILE` suffix env vars (that's a Bitnami convention, not supported by upstream images).
 - **Helpers:** All reusable logic goes in `_helpers.tpl`. Use `include` not `template`. Helpers handle image resolution, secret names, security contexts, and feature detection.
@@ -75,7 +75,7 @@ Commit types: `fix`, `feat`, `docs`, `refactor`, `chore`
 - `minio.distributedArgs` helper builds the erasure-coding URL pattern `http://<name>-{0...N-1}.<headless>/data{0...D-1}`
 - Headless service (`<name>-headless`) provides stable DNS for StatefulSet pods
 - `initBuckets` Job creates buckets via `mc`; set `useHelmHooks: false` + custom `annotations` for ArgoCD compatibility
-- Image is upstream `quay.io/minio/minio` — will be replaced with `ghcr.io/bysamio/minio` once the hardened image is built
+- Image is upstream `quay.io/minio/minio` — will be replaced with `ghcr.io/sammyeby/minio` once the hardened image is built
 
 ### WordPress
 - Depends on `mariadb` and `memcached` subcharts
@@ -89,7 +89,7 @@ This repo ships agent skills in [`.agents/skills/`](.agents/skills/). Read the r
 
 | Skill | Use it whenever you are... |
 |---|---|
-| [`source-driven-development`](.agents/skills/source-driven-development/SKILL.md) | Setting any chart value, env var, or image tag. Chart params mirror upstream contracts (Keycloak `KC_*`, PostgreSQL, MinIO) and the [`bysamio/images`](https://github.com/bysamio/images) READMEs — verify against those sources, never from memory. Cite what you checked. |
+| [`source-driven-development`](.agents/skills/source-driven-development/SKILL.md) | Setting any chart value, env var, or image tag. Chart params mirror upstream contracts (Keycloak `KC_*`, PostgreSQL, MinIO) and the [`sammyeby/images`](https://github.com/sammyeby/images) READMEs — verify against those sources, never from memory. Cite what you checked. |
 | [`documentation-and-adrs`](.agents/skills/documentation-and-adrs/SKILL.md) | Changing anything user-visible. Every value change lands in the chart `README.md` param table, and every version bump gets an entry under `## Upgrading`. Docs are part of the change, not a follow-up. |
 | [`git-workflow-and-versioning`](.agents/skills/git-workflow-and-versioning/SKILL.md) | Bumping `Chart.yaml` `version`/`appVersion` or committing. Semver drives what consumers get: patch = fix/image bump, minor = new non-breaking values, major = breaking values. Commits are `<type>(<chart>): <description>`. |
 | [`api-and-interface-design`](.agents/skills/api-and-interface-design/SKILL.md) | Adding, renaming, or removing anything in `values.yaml`. Values are this repo's public API — renames and default changes are breaking changes for every consumer. |

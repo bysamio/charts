@@ -1,6 +1,6 @@
-# Default values for WordPress using BySamio WordPress Docker image
+# Default values for WordPress using SamSoft WordPress Docker image
 # This is a YAML-formatted file.
-# Base image: ghcr.io/bysamio/wordpress (non-root WordPress image on port 8080)
+# Base image: ghcr.io/sammyeby/wordpress (non-root WordPress image on port 8080)
 # Compatible with Kubernetes restricted Pod Security Standards
 # Compatible with Minikube, MicroK8s, and production clusters
 
@@ -19,13 +19,13 @@ clusterDomain: cluster.local
 extraDeploy: []
 
 ## @section WordPress Image parameters
-## BySamio WordPress - Non-root image running on port 8080
+## SamSoft WordPress - Non-root image running on port 8080
 ## For official WordPress image, set: registry: docker.io, repository: wordpress, tag: "7.1.3-apache"
 ## and update containerPorts.http to 80 and security context accordingly
 image:
   registry: ghcr.io
-  repository: bysamio/wordpress
-  tag: "7.1.3"  # BySamio non-root WordPress (runs as UID 1001 on port 8080)
+  repository: sammyeby/wordpress
+  tag: "7.1.3"  # SamSoft non-root WordPress (runs as UID 1001 on port 8080)
   digest: ""  # Use digest for production (e.g., "sha256:...") for immutable images
   pullPolicy: IfNotPresent  # Set to "Always" for production to ensure latest security patches
   pullSecrets: []
@@ -191,7 +191,7 @@ resources:
 
 ## Container ports
 ## Official WordPress image uses port 80 for HTTP (Apache)
-## Container ports - BySamio image uses non-privileged ports
+## Container ports - SamSoft image uses non-privileged ports
 ## For official WordPress image, change to http: 80, https: 443
 containerPorts:
   http: 8080
@@ -200,24 +200,24 @@ containerPorts:
 extraContainerPorts: []
 
 ## Configure Pods Security Context
-## BySamio WordPress uses UID/GID 1001
+## SamSoft WordPress uses UID/GID 1001
 ## For official WordPress image, change fsGroup to 33 (www-data)
 podSecurityContext:
   enabled: true
   fsGroupChangePolicy: Always
   sysctls: []
   supplementalGroups: []
-  fsGroup: 1001 # BySamio group for non-root WordPress
+  fsGroup: 1001 # SamSoft group for non-root WordPress
 
 ## Configure Container Security Context
-## BySamio WordPress runs as non-root (UID 1001) on port 8080
+## SamSoft WordPress runs as non-root (UID 1001) on port 8080
 ## Compatible with Kubernetes restricted Pod Security Standards
 ## For official WordPress image, set: runAsUser: 0, runAsNonRoot: false, allowPrivilegeEscalation: true, capabilities: {}
 containerSecurityContext:
   enabled: true
   seLinuxOptions: {}
-  runAsUser: 1001   # BySamio user - non-root
-  runAsGroup: 1001  # BySamio group
+  runAsUser: 1001   # SamSoft user - non-root
+  runAsGroup: 1001  # SamSoft group
   runAsNonRoot: true  # Enforces non-root execution
   privileged: false
   readOnlyRootFilesystem: false # WordPress needs to write to filesystem

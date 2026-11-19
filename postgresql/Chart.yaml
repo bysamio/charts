@@ -1,8 +1,8 @@
 apiVersion: v2
 name: postgresql
-description: A Helm chart for PostgreSQL using BySamio hardened Docker image (runs as UID 1001)
+description: A Helm chart for PostgreSQL using SamSoft hardened Docker image (runs as UID 1001)
 type: application
-version: 2.3.1
+version: 2.3.2
 appVersion: "17.10-alpine"
 keywords:
   - postgresql
@@ -14,9 +14,9 @@ keywords:
 home: https://www.postgresql.org/
 icon: https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg
 sources:
-- https://github.com/bysamio/charts
-- https://github.com/bysamio/images
+- https://github.com/sammyeby/charts
+- https://github.com/sammyeby/images
 - https://github.com/postgres/postgres
 maintainers:
-- email: admin@bysam.io
-  name: BySam Charts
+- name: SamSoft Technologies
+  url: https://github.com/sammyeby

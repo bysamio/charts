@@ -1,6 +1,6 @@
-# BySamio Keycloak Helm Chart
-# Uses hardened BySamio Keycloak image (runs as UID 1001)
-# Source: https://github.com/bysamio/images/tree/main/keycloak
+# SamSoft Keycloak Helm Chart
+# Uses hardened SamSoft Keycloak image (runs as UID 1001)
+# Source: https://github.com/sammyeby/images/tree/main/keycloak
 
 ## @section Global parameters
 
@@ -84,8 +84,8 @@ usePasswordFiles: false
 
 ## @section Keycloak parameters
 
-## BySamio hardened Keycloak image
-## ref: https://github.com/bysamio/images/blob/main/keycloak/README.md
+## SamSoft hardened Keycloak image
+## ref: https://github.com/sammyeby/images/blob/main/keycloak/README.md
 ##
 ## Three variants are published for every version:
 ##   <version>            Flexible (Alpine, UID 1001)   — runtime providers/SPIs, auto-builds at startup
@@ -98,7 +98,7 @@ usePasswordFiles: false
 ## three variants; set it to 65532 to match the image's own user on distroless tags.
 ##
 ## @param image.registry [default: ghcr.io] Keycloak image registry
-## @param image.repository [default: bysamio/keycloak] Keycloak image repository
+## @param image.repository [default: sammyeby/keycloak] Keycloak image repository
 ## @skip image.tag Keycloak image tag (immutable tags are recommended)
 ## @param image.digest Keycloak image digest in the way sha256:aa.... Please note this parameter, if set, will override the tag
 ## @param image.pullPolicy Keycloak image pull policy
@@ -107,7 +107,7 @@ usePasswordFiles: false
 ##
 image:
   registry: ghcr.io
-  repository: bysamio/keycloak
+  repository: sammyeby/keycloak
   tag: "26.7.4"
   digest: ""
   ## Specify a imagePullPolicy
@@ -1278,11 +1278,11 @@ defaultInitContainers:
 
 ## @section Database parameters
 
-## BySamio PostgreSQL chart configuration (deployed as a subchart)
-## Uses the hardened BySamio PostgreSQL image by default
-## ref: https://github.com/bysamio/charts/tree/main/postgresql
+## SamSoft PostgreSQL chart configuration (deployed as a subchart)
+## Uses the hardened SamSoft PostgreSQL image by default
+## ref: https://github.com/sammyeby/charts/tree/main/postgresql
 ##
-## By default, postgresql.enabled=true deploys a PostgreSQL instance using the BySamio chart.
+## By default, postgresql.enabled=true deploys a PostgreSQL instance using the SamSoft chart.
 ## To use an external database instead, set postgresql.enabled=false and configure externalDatabase.
 ##
 ## @param postgresql.enabled Switch to enable or disable the PostgreSQL helm chart (set to false to use externalDatabase)
@@ -1295,7 +1295,7 @@ defaultInitContainers:
 ## @param postgresql.architecture PostgreSQL architecture (`standalone` or `replication`)
 ##
 postgresql:
-  ## @param postgresql.enabled Enable BySamio PostgreSQL subchart deployment
+  ## @param postgresql.enabled Enable SamSoft PostgreSQL subchart deployment
   ## Set to false if using an external database (configure externalDatabase below)
   ##
   enabled: true

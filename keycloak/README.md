@@ -1,14 +1,14 @@
 # Keycloak Helm Chart
 
-A Helm chart for deploying [Keycloak](https://www.keycloak.org/) using BySamio hardened Docker images.
+A Helm chart for deploying [Keycloak](https://www.keycloak.org/) using SamSoft hardened Docker images.
 
 ## Overview
 
-This chart deploys Keycloak, an open-source Identity and Access Management solution, on Kubernetes. It uses [BySamio's hardened container images](https://github.com/bysamio/images/blob/main/keycloak/README.md) that run as non-root with security best practices.
+This chart deploys Keycloak, an open-source Identity and Access Management solution, on Kubernetes. It uses [SamSoft's hardened container images](https://github.com/sammyeby/images/blob/main/keycloak/README.md) that run as non-root with security best practices.
 
 ## Features
 
-- **Hardened Images**: Uses BySamio's security-hardened Keycloak images
+- **Hardened Images**: Uses SamSoft's security-hardened Keycloak images
 - **Non-root Execution**: Runs as UID 1001 for enhanced security
 - **Optimized Image Support**: Automatic detection of pre-built optimized and debug images
 - **PostgreSQL Integration**: Bundled PostgreSQL subchart for database
@@ -28,7 +28,7 @@ This chart deploys Keycloak, an open-source Identity and Access Management solut
 ### From OCI Registry
 
 ```bash
-helm install keycloak oci://ghcr.io/bysamio/charts/keycloak \
+helm install keycloak oci://ghcr.io/sammyeby/charts/keycloak \
   --namespace keycloak \
   --create-namespace \
   --set auth.adminPassword=your-admin-password \
@@ -89,14 +89,14 @@ The following tables document all available configuration options in `values.yam
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `image.registry` | string | `"ghcr.io"` | Keycloak image registry |
-| `image.repository` | string | `"bysamio/keycloak"` | Keycloak image repository |
+| `image.repository` | string | `"sammyeby/keycloak"` | Keycloak image repository |
 | `image.tag` | string | `"26.7.4"` | Keycloak image tag (immutable tags are recommended) |
 | `image.digest` | string | `""` | Keycloak image digest (sha256:...). Overrides tag if set |
 | `image.pullPolicy` | string | `"IfNotPresent"` | Keycloak image pull policy |
 | `image.pullSecrets` | array | `[]` | Keycloak image pull secrets |
 | `image.debug` | boolean | `false` | Enable Keycloak image debug mode |
 
-**Image Variants**: [`ghcr.io/bysamio/keycloak`](https://github.com/bysamio/images/blob/main/keycloak/README.md) publishes three variants per version:
+**Image Variants**: [`ghcr.io/sammyeby/keycloak`](https://github.com/sammyeby/images/blob/main/keycloak/README.md) publishes three variants per version:
 
 | Variant | Tag | Base | Image UID | Startup | Runtime providers/SPIs |
 |---------|-----|------|-----------|---------|------------------------|
@@ -605,22 +605,27 @@ resources:
 
 ## Upgrading
 
+### To 1.4.2
+
+- **Registry move**: the default image is now `ghcr.io/sammyeby/keycloak` (was `ghcr.io/bysamio/keycloak`). The PostgreSQL subchart is `2.3.2`, which makes the same move for its image, and comes from `oci://ghcr.io/sammyeby/charts`. SamSoft now publishes these charts and images under `ghcr.io/sammyeby`. Every existing version was copied there with an identical digest, so the same image runs. `ghcr.io/bysamio` keeps the versions it has but gets no new ones.
+- **Action**: if you set `image.repository: bysamio/keycloak`, change it to `sammyeby/keycloak` to keep receiving updates. No values were added, renamed or removed.
+
 ### To 1.4.1
 
 - **Security**: Default Keycloak image updated to `26.7.4`, an upstream security release that fixes six Keycloak CVEs. They include `CVE-2026-17526` (the `impersonation` role can impersonate a realm administrator) and `CVE-2026-79651` (unauthenticated denial of service via unbounded locale caching). The other four are `CVE-2026-90997`, `CVE-2026-74909`, `CVE-2026-19607` and `CVE-2026-18212`. See the [upstream release notes](https://github.com/keycloak/keycloak/releases/tag/26.7.4). **Upgrading is strongly recommended.**
-- **Security**: The `26.7.4` image adds a Bouncy Castle `1.86` overlay for `CVE-2026-8763` (CRITICAL, name constraints bypass) and `CVE-2026-13506` (HIGH, ASN.1 denial of service), because upstream `26.7.4` still ships the affected `1.84`. It keeps the Netty `4.1.138.Final` and OpenTelemetry `1.62.0` overlays. See the [image release notes](https://github.com/bysamio/images/blob/main/keycloak/README.md#vulnerability-scanning).
+- **Security**: The `26.7.4` image adds a Bouncy Castle `1.86` overlay for `CVE-2026-8763` (CRITICAL, name constraints bypass) and `CVE-2026-13506` (HIGH, ASN.1 denial of service), because upstream `26.7.4` still ships the affected `1.84`. It keeps the Netty `4.1.138.Final` and OpenTelemetry `1.62.0` overlays. See the [image release notes](https://github.com/sammyeby/images/blob/main/keycloak/README.md#vulnerability-scanning).
 - **Unchanged**: No values were added, renamed or removed. `keycloakConfigCli.image.tag` stays at `6.5.1-26.5.5`, because upstream still publishes no 26.6.x/26.7.x build. Its compatibility note still records verification against the **26.7.0** server. The idempotent re-import check has not been re-run against 26.7.4.
 
 ### To 1.4.0
 
 - **Security**: Default Keycloak image updated to `26.7.3`. This closes `CVE-2026-18963` (CRITICAL) — unauthenticated account takeover via the reset-credentials flow bypass — which is present in `26.7.0` and fixed upstream in `26.7.2`. **Upgrading is strongly recommended**, and there is no configuration workaround.
-- **Security**: The `26.7.3` image also drops the Jackson and pgJDBC overlays that `26.7.0` carried, because upstream now ships Jackson `2.21.5` and pgJDBC `42.7.13` — newer than what those overlays supplied. It adds a Netty `4.1.138.Final` overlay for `CVE-2026-75595` (CRITICAL, `netty-handler`) and retains the OpenTelemetry `1.62.0` overlay for `CVE-2026-45292`. See the [image release notes](https://github.com/bysamio/images/blob/main/keycloak/README.md#vulnerability-scanning).
+- **Security**: The `26.7.3` image also drops the Jackson and pgJDBC overlays that `26.7.0` carried, because upstream now ships Jackson `2.21.5` and pgJDBC `42.7.13` — newer than what those overlays supplied. It adds a Netty `4.1.138.Final` overlay for `CVE-2026-75595` (CRITICAL, `netty-handler`) and retains the OpenTelemetry `1.62.0` overlay for `CVE-2026-45292`. See the [image release notes](https://github.com/sammyeby/images/blob/main/keycloak/README.md#vulnerability-scanning).
 - **Security**: The `-optimized` and `-debug` variants moved from a Debian 12 distroless base to Debian 13, which scans clean where the Debian 12 base carried fixable `libexpat1` and `liblcms2` findings that distroless cannot patch in.
 - **Unchanged**: `keycloakConfigCli.image.tag` stays at `6.5.1-26.5.5`. Upstream still publishes no 26.6.x/26.7.x build. Note that its compatibility note records verification against the **26.7.0** server, not 26.7.3; keycloak-config-cli supports the latest four Keycloak releases, so 26.7.3 is within the supported window, but the idempotent-re-import check has not been re-run against it.
 
 ### To 1.3.0
 
-- **Security**: Default Keycloak image updated to `26.7.0`. This image overlays Jackson Core/Databind `2.21.4`, pgJDBC `42.7.12`, and OpenTelemetry `1.62.0` over the upstream server libraries to fix `GHSA-r7wm-3cxj-wff9`, `CVE-2026-54512`, `CVE-2026-54513`, `CVE-2026-54291`, and to retain the `CVE-2026-45292` mitigation. See the [image release notes](https://github.com/bysamio/images/blob/main/keycloak/README.md#vulnerability-scanning).
+- **Security**: Default Keycloak image updated to `26.7.0`. This image overlays Jackson Core/Databind `2.21.4`, pgJDBC `42.7.12`, and OpenTelemetry `1.62.0` over the upstream server libraries to fix `GHSA-r7wm-3cxj-wff9`, `CVE-2026-54512`, `CVE-2026-54513`, `CVE-2026-54291`, and to retain the `CVE-2026-45292` mitigation. See the [image release notes](https://github.com/sammyeby/images/blob/main/keycloak/README.md#vulnerability-scanning).
 - **Fix**: `-debug` image tags are now recognised as pre-built distroless images, the same as `-optimized`. Previously a `-debug` tag was treated as a flexible image, which injected the `prepare-write-dirs` init container that calls `/bin/sh` — a path the distroless base does not have, so the pod never started. Debug tags now run `start --optimized`, skip that init container, and keep `readOnlyRootFilesystem`.
 - **Fix**: the floating `optimized` and `debug` tags are detected too. Previously only tags containing `-optimized` matched, so `image.tag: optimized` silently got flexible-image behaviour.
 - **Unchanged**: `keycloakConfigCli.image.tag` stays at `6.5.1-26.5.5`. No 26.6.x/26.7.x build is published upstream, and this one is verified against the 26.7.0 server — see the note under [Keycloak Config CLI Parameters](#keycloak-config-cli-parameters).
@@ -698,5 +703,5 @@ This chart is licensed under the Apache 2.0 License.
 ## Links
 
 - [Keycloak Documentation](https://www.keycloak.org/documentation)
-- [BySamio Images Repository](https://github.com/bysamio/images)
-- [BySamio Charts Repository](https://github.com/bysamio/charts)
+- [SamSoft Images Repository](https://github.com/sammyeby/images)
+- [SamSoft Charts Repository](https://github.com/sammyeby/charts)

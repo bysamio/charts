@@ -21,7 +21,7 @@
       "matchStrings": [
         "appVersion:\\s*\\\"?(?<currentValue>[^\\\"\\n]+)\\\"?"
       ],
-      "depNameTemplate": "ghcr.io/bysamio/casepack-api",
+      "depNameTemplate": "ghcr.io/sammyeby/casepack-api",
       "datasourceTemplate": "docker",
       "versioningTemplate": "semver",
       "autoReplaceStringTemplate": "appVersion: \"{{{newValue}}}\""
@@ -35,7 +35,7 @@
       "matchStrings": [
         "appVersion:\\s*\\\"?(?<currentValue>[^\\\"\\n]+)\\\"?"
       ],
-      "depNameTemplate": "ghcr.io/bysamio/casepack-spa",
+      "depNameTemplate": "ghcr.io/sammyeby/casepack-spa",
       "datasourceTemplate": "docker",
       "versioningTemplate": "semver",
       "autoReplaceStringTemplate": "appVersion: \"{{{newValue}}}\""
@@ -49,7 +49,7 @@
       "matchStrings": [
         "appVersion:\\s*\\\"?(?<currentValue>[^\\\"\\n]+)\\\"?"
       ],
-      "depNameTemplate": "ghcr.io/bysamio/casepack-docs",
+      "depNameTemplate": "ghcr.io/sammyeby/casepack-docs",
       "datasourceTemplate": "docker",
       "versioningTemplate": "semver",
       "autoReplaceStringTemplate": "appVersion: \"{{{newValue}}}\""
@@ -61,12 +61,12 @@
         "/^keycloak\\/values\\.yaml$/"
       ],
       "matchStrings": [
-        "image:\\s*\\n\\s+registry:\\s*ghcr\\.io\\s*\\n\\s+repository:\\s*bysamio/keycloak\\s*\\n\\s+tag:\\s*\\\"(?<currentValue>[^\\\"]+)\\\""
+        "image:\\s*\\n\\s+registry:\\s*ghcr\\.io\\s*\\n\\s+repository:\\s*sammyeby/keycloak\\s*\\n\\s+tag:\\s*\\\"(?<currentValue>[^\\\"]+)\\\""
       ],
-      "depNameTemplate": "ghcr.io/bysamio/keycloak",
+      "depNameTemplate": "ghcr.io/sammyeby/keycloak",
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker",
-      "autoReplaceStringTemplate": "image:\n  registry: ghcr.io\n  repository: bysamio/keycloak\n  tag: \"{{{newValue}}}\""
+      "autoReplaceStringTemplate": "image:\n  registry: ghcr.io\n  repository: sammyeby/keycloak\n  tag: \"{{{newValue}}}\""
     },
     {
       "customType": "regex",
@@ -75,12 +75,12 @@
         "/^wordpress\\/values\\.yaml$/"
       ],
       "matchStrings": [
-        "image:\\s*\\n\\s+registry:\\s*ghcr\\.io\\s*\\n\\s+repository:\\s*bysamio/wordpress\\s*\\n\\s+tag:\\s*\\\"(?<currentValue>[^\\\"]+)\\\"[^\\n]*"
+        "image:\\s*\\n\\s+registry:\\s*ghcr\\.io\\s*\\n\\s+repository:\\s*sammyeby/wordpress\\s*\\n\\s+tag:\\s*\\\"(?<currentValue>[^\\\"]+)\\\"[^\\n]*"
       ],
-      "depNameTemplate": "ghcr.io/bysamio/wordpress",
+      "depNameTemplate": "ghcr.io/sammyeby/wordpress",
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker",
-      "autoReplaceStringTemplate": "image:\n  registry: ghcr.io\n  repository: bysamio/wordpress\n  tag: \"{{{newValue}}}\"  # BySamio non-root WordPress (runs as UID 1001 on port 8080)"
+      "autoReplaceStringTemplate": "image:\n  registry: ghcr.io\n  repository: sammyeby/wordpress\n  tag: \"{{{newValue}}}\"  # SamSoft non-root WordPress (runs as UID 1001 on port 8080)"
     },
     {
       "customType": "regex",
@@ -89,12 +89,12 @@
         "/^postgresql\\/values\\.yaml$/"
       ],
       "matchStrings": [
-        "image:\\s*\\n\\s+registry:\\s*ghcr\\.io\\s*\\n\\s+repository:\\s*bysamio/postgresql\\s*\\n\\s+tag:\\s*\\\"(?<currentValue>[^\\\"]+)\\\""
+        "image:\\s*\\n\\s+registry:\\s*ghcr\\.io\\s*\\n\\s+repository:\\s*sammyeby/postgresql\\s*\\n\\s+tag:\\s*\\\"(?<currentValue>[^\\\"]+)\\\""
       ],
-      "depNameTemplate": "ghcr.io/bysamio/postgresql",
+      "depNameTemplate": "ghcr.io/sammyeby/postgresql",
       "datasourceTemplate": "docker",
       "versioningTemplate": "docker",
-      "autoReplaceStringTemplate": "image:\n  registry: ghcr.io\n  repository: bysamio/postgresql\n  tag: \"{{{newValue}}}\""
+      "autoReplaceStringTemplate": "image:\n  registry: ghcr.io\n  repository: sammyeby/postgresql\n  tag: \"{{{newValue}}}\""
     }
   ],
   "packageRules": [
@@ -104,9 +104,9 @@
         "docker"
       ],
       "matchPackageNames": [
-        "ghcr.io/bysamio/casepack-api",
-        "ghcr.io/bysamio/casepack-spa",
-        "ghcr.io/bysamio/casepack-docs"
+        "ghcr.io/sammyeby/casepack-api",
+        "ghcr.io/sammyeby/casepack-spa",
+        "ghcr.io/sammyeby/casepack-docs"
       ],
       "allowedVersions": "/^\\d+\\.\\d+\\.\\d+$/",
       "semanticCommitType": "chore",
@@ -129,13 +129,13 @@
       ]
     },
     {
-      "description": "Only promote stable BySam infrastructure image tags into charts",
+      "description": "Only promote stable SamSoft infrastructure image tags into charts",
       "matchDatasources": [
         "docker"
       ],
       "matchPackageNames": [
-        "ghcr.io/bysamio/keycloak",
-        "ghcr.io/bysamio/wordpress"
+        "ghcr.io/sammyeby/keycloak",
+        "ghcr.io/sammyeby/wordpress"
       ],
       "allowedVersions": "/^\\d+\\.\\d+\\.\\d+$/",
       "semanticCommitType": "chore",
@@ -173,7 +173,7 @@
         "docker"
       ],
       "matchPackageNames": [
-        "ghcr.io/bysamio/postgresql"
+        "ghcr.io/sammyeby/postgresql"
       ],
       "allowedVersions": "/^\\d+\\.\\d+(?:\\.\\d+)?-alpine$/",
       "semanticCommitType": "chore",
@@ -207,7 +207,7 @@
     },
     {
       "matchPackageNames": [
-        "ghcr.io/bysamio/casepack-api"
+        "ghcr.io/sammyeby/casepack-api"
       ],
       "semanticCommitScope": "casepack-api",
       "additionalBranchPrefix": "casepack-api-",
@@ -219,7 +219,7 @@
     },
     {
       "matchPackageNames": [
-        "ghcr.io/bysamio/casepack-spa"
+        "ghcr.io/sammyeby/casepack-spa"
       ],
       "semanticCommitScope": "casepack-spa",
       "additionalBranchPrefix": "casepack-spa-",
@@ -231,7 +231,7 @@
     },
     {
       "matchPackageNames": [
-        "ghcr.io/bysamio/casepack-docs"
+        "ghcr.io/sammyeby/casepack-docs"
       ],
       "semanticCommitScope": "casepack-docs",
       "additionalBranchPrefix": "casepack-docs-",
@@ -243,7 +243,7 @@
     },
     {
       "matchPackageNames": [
-        "ghcr.io/bysamio/keycloak"
+        "ghcr.io/sammyeby/keycloak"
       ],
       "semanticCommitScope": "keycloak",
       "additionalBranchPrefix": "keycloak-",
@@ -255,7 +255,7 @@
     },
     {
       "matchPackageNames": [
-        "ghcr.io/bysamio/wordpress"
+        "ghcr.io/sammyeby/wordpress"
       ],
       "semanticCommitScope": "wordpress",
       "additionalBranchPrefix": "wordpress-",
@@ -267,7 +267,7 @@
     },
     {
       "matchPackageNames": [
-        "ghcr.io/bysamio/postgresql"
+        "ghcr.io/sammyeby/postgresql"
       ],
       "semanticCommitScope": "postgresql",
       "additionalBranchPrefix": "postgresql-",

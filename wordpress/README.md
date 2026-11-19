@@ -6,7 +6,7 @@ A production-ready Helm chart for deploying WordPress on Kubernetes using the of
 
 This Helm chart deploys WordPress on Kubernetes with the following features:
 
-- **BySamio WordPress Image**: Uses `ghcr.io/bysamio/wordpress:7.1.3`, built on the official `wordpress:7.1.3-apache` image and running as non-root UID 1001 on port 8080
+- **SamSoft WordPress Image**: Uses `ghcr.io/sammyeby/wordpress:7.1.3`, built on the official `wordpress:7.1.3-apache` image and running as non-root UID 1001 on port 8080
 - **Automatic Installation**: Automatically installs WordPress using wp-cli, eliminating the need for manual web-based setup
 - **High Availability**: Supports multiple replicas with rolling updates for zero-downtime deployments
 - **Database Integration**: Integrated MariaDB subchart for database management
@@ -62,7 +62,7 @@ The following tables document all available configuration options in `values.yam
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `image.registry` | string | `"ghcr.io"` | Docker image registry |
-| `image.repository` | string | `"bysamio/wordpress"` | Docker image repository |
+| `image.repository` | string | `"sammyeby/wordpress"` | Docker image repository |
 | `image.tag` | string | `"7.1.3"` | Docker image tag |
 | `image.digest` | string | `""` | Docker image digest (for immutable images) |
 | `image.pullPolicy` | string | `"IfNotPresent"` | Image pull policy (`Always`, `IfNotPresent`, `Never`) |
@@ -499,7 +499,7 @@ The following tables document all available configuration options in `values.yam
 
 ## MariaDB Configuration
 
-The following are the most commonly used MariaDB configuration parameters. For the complete list of all available configurable values, see the [MariaDB chart values.yaml](https://github.com/bysamio/charts/blob/main/mariadb/values.yaml).
+The following are the most commonly used MariaDB configuration parameters. For the complete list of all available configurable values, see the [MariaDB chart values.yaml](https://github.com/sammyeby/charts/blob/main/mariadb/values.yaml).
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
@@ -537,7 +537,7 @@ The following are the most commonly used MariaDB configuration parameters. For t
 
 ## Memcached Configuration
 
-The following are the most commonly used Memcached configuration parameters. For the complete list of all available configurable values, see the [Memcached chart values.yaml](https://github.com/bysamio/charts/blob/main/memcached/values.yaml).
+The following are the most commonly used Memcached configuration parameters. For the complete list of all available configurable values, see the [Memcached chart values.yaml](https://github.com/sammyeby/charts/blob/main/memcached/values.yaml).
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
@@ -563,14 +563,19 @@ The following are the most commonly used Memcached configuration parameters. For
 
 ## Upgrading
 
+### To 3.0.1
+
+- **Registry move**: the default image is now `ghcr.io/sammyeby/wordpress` (was `ghcr.io/bysamio/wordpress`). The MariaDB and Memcached subcharts keep their versions and now come from `oci://ghcr.io/sammyeby/charts`. SamSoft now publishes these charts and images under `ghcr.io/sammyeby`. Every existing version was copied there with an identical digest, so the same image runs. `ghcr.io/bysamio` keeps the versions it has but gets no new ones.
+- **Action**: if you set `image.repository: bysamio/wordpress`, change it to `sammyeby/wordpress` to keep receiving updates. No values were added, renamed or removed.
+
 ### To 3.0.0
 
 **Security release. Upgrade promptly.** The default image moves from
-`ghcr.io/bysamio/wordpress:6.9.0` to `7.1.3`. Its PHP 8.3.36 fixes PHP2Shell
+`ghcr.io/sammyeby/wordpress:6.9.0` to `7.1.3`. Its PHP 8.3.36 fixes PHP2Shell
 (CVE-2026-109618, CVE-2026-109619), unauthenticated remote code execution that PHP
 rates most severe under Apache mod_php, which this image uses. The 6.9.0 image runs
 PHP 8.3.30 and is vulnerable. The new image also clears 844 fixable HIGH/CRITICAL
-Debian CVEs. See the [image README](https://github.com/bysamio/images/tree/main/wordpress#vulnerability-status).
+Debian CVEs. See the [image README](https://github.com/sammyeby/images/tree/main/wordpress#vulnerability-status).
 
 The major version follows the WordPress move from 6.9 to 7.1. No values or templates
 changed.

@@ -512,7 +512,7 @@ Return whether the image is an optimized (pre-built, distroless) variant
 Both '-optimized' and '-debug' tags are the same pre-built Quarkus build on a
 distroless base and must run with 'start --optimized'. The debug variant only
 adds a busybox shell, so it shares every optimized behaviour in this chart.
-ref: https://github.com/bysamio/images/blob/main/keycloak/README.md
+ref: https://github.com/sammyeby/images/blob/main/keycloak/README.md
 */}}
 {{- define "keycloak.isOptimizedImage" -}}
 {{- $tag := .Values.image.tag | default .Chart.AppVersion | toString -}}

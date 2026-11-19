@@ -1,14 +1,14 @@
 # PostgreSQL Helm Chart
 
-A Helm chart for deploying [PostgreSQL](https://www.postgresql.org/) using BySamio hardened Docker images.
+A Helm chart for deploying [PostgreSQL](https://www.postgresql.org/) using SamSoft hardened Docker images.
 
 ## Overview
 
-This chart deploys PostgreSQL, the world's most advanced open-source relational database, on Kubernetes. It uses BySamio's hardened container images that run as non-root (UID 1001) with security best practices.
+This chart deploys PostgreSQL, the world's most advanced open-source relational database, on Kubernetes. It uses SamSoft's hardened container images that run as non-root (UID 1001) with security best practices.
 
 ## Features
 
-- **Hardened Images**: Uses BySamio's security-hardened PostgreSQL images
+- **Hardened Images**: Uses SamSoft's security-hardened PostgreSQL images
 - **Non-root Execution**: Runs as UID 1001 for enhanced security
 - **Standalone & Replication**: Support for both standalone and primary-replica architectures
 - **Metrics & Monitoring**: Prometheus exporter, ServiceMonitor, and PrometheusRule support
@@ -27,7 +27,7 @@ This chart deploys PostgreSQL, the world's most advanced open-source relational 
 ### From OCI Registry
 
 ```bash
-helm install postgresql oci://ghcr.io/bysamio/charts/postgresql \
+helm install postgresql oci://ghcr.io/sammyeby/charts/postgresql \
   --namespace database \
   --create-namespace \
   --set auth.postgresPassword=your-admin-password \
@@ -97,7 +97,7 @@ The following tables document all available configuration options in `values.yam
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
 | `image.registry` | string | `"ghcr.io"` | PostgreSQL image registry |
-| `image.repository` | string | `"bysamio/postgresql"` | PostgreSQL image repository |
+| `image.repository` | string | `"sammyeby/postgresql"` | PostgreSQL image repository |
 | `image.tag` | string | `"17.10-alpine"` | PostgreSQL image tag (immutable tags recommended) |
 | `image.digest` | string | `""` | PostgreSQL image digest (overrides tag if set) |
 | `image.pullPolicy` | string | `"IfNotPresent"` | PostgreSQL image pull policy |
@@ -713,7 +713,7 @@ backup:
 ## Security Considerations
 
 - Runs as non-root user (UID 1001) by default
-- Root startup is intentionally unsupported by the BySamio image; use `volumePermissions.enabled` when PVC ownership needs repair
+- Root startup is intentionally unsupported by the SamSoft image; use `volumePermissions.enabled` when PVC ownership needs repair
 - `readOnlyRootFilesystem` is enabled
 - Network policies restrict traffic by default
 - Passwords mounted as files (not environment variables) when `auth.usePasswordFiles: true`
@@ -721,10 +721,15 @@ backup:
 
 ## Upgrading
 
+### To 2.3.2
+
+- **Registry move**: the default image is now `ghcr.io/sammyeby/postgresql` (was `ghcr.io/bysamio/postgresql`). SamSoft now publishes these charts and images under `ghcr.io/sammyeby`. Every existing version was copied there with an identical digest, so the same image runs. `ghcr.io/bysamio` keeps the versions it has but gets no new ones.
+- **Action**: if you set `image.repository: bysamio/postgresql`, change it to `sammyeby/postgresql` to keep receiving updates. No values were added, renamed or removed.
+
 ### To 2.3.1
 
 - **Security**: Default PostgreSQL image updated to `17.10-alpine`.
-- **Security**: The BySamio PostgreSQL image removes inherited `gosu` and rejects root startup. Existing chart defaults already run as UID 1001; enable `volumePermissions.enabled` if a PVC needs ownership repair.
+- **Security**: The SamSoft PostgreSQL image removes inherited `gosu` and rejects root startup. Existing chart defaults already run as UID 1001; enable `volumePermissions.enabled` if a PVC needs ownership repair.
 
 ### To 2.0.0
 
@@ -780,5 +785,5 @@ This chart is licensed under the Apache 2.0 License.
 ## Links
 
 - [PostgreSQL Documentation](https://www.postgresql.org/docs/)
-- [BySamio Images Repository](https://github.com/bysamio/images)
-- [BySamio Charts Repository](https://github.com/bysamio/charts)
+- [SamSoft Images Repository](https://github.com/sammyeby/images)
+- [SamSoft Charts Repository](https://github.com/sammyeby/charts)
