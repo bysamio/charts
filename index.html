@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Official Helm charts repository for bysamio.">
-  <title>BySam Helm Charts</title>
+  <meta name="description" content="Official Helm charts repository for sammyeby.">
+  <title>SamSoft Helm Charts</title>
   <style>
     :root {
       --bg: #0d1117; --surface: #161b22; --border: #30363d;
@@ -68,19 +68,19 @@
 </head>
 <body>
   <header class="hero">
-    <h1>🚀 BySamIO Helm Charts</h1>
-    <p>Official Helm charts repository for CasePack and BySamIO infrastructure</p>
+    <h1>🚀 SamSoft Helm Charts</h1>
+    <p>Official Helm charts repository for CasePack and SamSoft infrastructure</p>
   </header>
 
   <div class="wrap">
     <section class="quickstart">
       <h2>⚡ Quick Start</h2>
       <p><strong>Traditional Helm repository:</strong></p>
-      <pre><code>helm repo add bysamio https://bysamio.github.io/charts/
+      <pre><code>helm repo add sammyeby https://sammyeby.github.io/charts/
 helm repo update
-helm search repo bysamio</code></pre>
+helm search repo sammyeby</code></pre>
       <p><strong>OCI registry (Helm 3.8+):</strong></p>
-      <pre><code>helm install my-release oci://ghcr.io/bysamio/charts/&lt;chart&gt; --version &lt;version&gt;</code></pre>
+      <pre><code>helm install my-release oci://ghcr.io/sammyeby/charts/&lt;chart&gt; --version &lt;version&gt;</code></pre>
     </section>
 
     <h2 class="section">📦 Available Charts <span class="count">(11)</span></h2>
@@ -91,13 +91,13 @@ helm search repo bysamio</code></pre>
             <div class="card-title">
               <h3><a href="https://casepack.app" target="_blank" rel="noopener">casepack</a></h3>
               <div class="badges">
-                <span class="badge">v0.7.1</span>
-                <span class="badge badge--app">app 0.7.1</span>
+                <span class="badge">v0.8.0</span>
+                <span class="badge badge--app">app 0.8.0</span>
               </div>
             </div>
           </div>
           <p class="card-desc">CasePack — multi-tenant incident evidence management platform for MSPs. Deploys the full stack in one command.</p>
-          <pre class="install"><code>helm install casepack oci://ghcr.io/bysamio/charts/casepack --version 0.7.1</code></pre>
+          <pre class="install"><code>helm install casepack oci://ghcr.io/sammyeby/charts/casepack --version 0.8.0</code></pre>
         </article>
         <article class="card">
           <div class="card-head">
@@ -111,7 +111,7 @@ helm search repo bysamio</code></pre>
             </div>
           </div>
           <p class="card-desc">CasePack API — Java backend for incident reporting and evidence management for MSPs</p>
-          <pre class="install"><code>helm install casepack-api oci://ghcr.io/bysamio/charts/casepack-api --version 0.34.0</code></pre>
+          <pre class="install"><code>helm install casepack-api oci://ghcr.io/sammyeby/charts/casepack-api --version 0.34.0</code></pre>
         </article>
         <article class="card">
           <div class="card-head">
@@ -125,7 +125,7 @@ helm search repo bysamio</code></pre>
             </div>
           </div>
           <p class="card-desc">CasePack Docs — Documentation for CasePack - Incident reporting, evidence management for MSPs.</p>
-          <pre class="install"><code>helm install casepack-docs oci://ghcr.io/bysamio/charts/casepack-docs --version 0.11.0</code></pre>
+          <pre class="install"><code>helm install casepack-docs oci://ghcr.io/sammyeby/charts/casepack-docs --version 0.11.0</code></pre>
         </article>
         <article class="card">
           <div class="card-head">
@@ -139,7 +139,7 @@ helm search repo bysamio</code></pre>
             </div>
           </div>
           <p class="card-desc">CasePack SPA — React frontend for incident reporting and evidence management for MSPs.</p>
-          <pre class="install"><code>helm install casepack-spa oci://ghcr.io/bysamio/charts/casepack-spa --version 0.34.0</code></pre>
+          <pre class="install"><code>helm install casepack-spa oci://ghcr.io/sammyeby/charts/casepack-spa --version 0.34.0</code></pre>
         </article>
         <article class="card">
           <div class="card-head">
@@ -147,13 +147,13 @@ helm search repo bysamio</code></pre>
             <div class="card-title">
               <h3><a href="https://gotenberg.dev/" target="_blank" rel="noopener">gotenberg</a></h3>
               <div class="badges">
-                <span class="badge">v0.2.0</span>
+                <span class="badge">v0.2.1</span>
                 <span class="badge badge--app">app 8-chromium</span>
               </div>
             </div>
           </div>
           <p class="card-desc">Minimal Gotenberg document conversion service chart</p>
-          <pre class="install"><code>helm install gotenberg oci://ghcr.io/bysamio/charts/gotenberg --version 0.2.0</code></pre>
+          <pre class="install"><code>helm install gotenberg oci://ghcr.io/sammyeby/charts/gotenberg --version 0.2.1</code></pre>
         </article>
         <article class="card">
           <div class="card-head">
@@ -161,27 +161,27 @@ helm search repo bysamio</code></pre>
             <div class="card-title">
               <h3><a href="https://www.keycloak.org/" target="_blank" rel="noopener">keycloak</a></h3>
               <div class="badges">
-                <span class="badge">v1.4.1</span>
+                <span class="badge">v1.4.2</span>
                 <span class="badge badge--app">app 26.7.4</span>
               </div>
             </div>
           </div>
-          <p class="card-desc">A Helm chart for Keycloak using BySamio hardened Docker image (runs as UID 1001)</p>
-          <pre class="install"><code>helm install keycloak oci://ghcr.io/bysamio/charts/keycloak --version 1.4.1</code></pre>
+          <p class="card-desc">A Helm chart for Keycloak using SamSoft hardened Docker image (runs as UID 1001)</p>
+          <pre class="install"><code>helm install keycloak oci://ghcr.io/sammyeby/charts/keycloak --version 1.4.2</code></pre>
         </article>
         <article class="card">
           <div class="card-head">
-            <img class="chart-icon" src="https://mariadb.org/wp-content/uploads/2019/11/mariadb-logo-vert_blue-transparent.png" alt="" loading="lazy" onerror="this.style.display='none'">
+            <img class="chart-icon" src="https://mariadb.com/wp-content/uploads/2019/11/mariadb-logo_blue-transparent.png" alt="" loading="lazy" onerror="this.style.display='none'">
             <div class="card-title">
               <h3><a href="https://mariadb.org/" target="_blank" rel="noopener">mariadb</a></h3>
               <div class="badges">
-                <span class="badge">v1.0.2</span>
+                <span class="badge">v1.0.3</span>
                 <span class="badge badge--app">app 12.0.2</span>
               </div>
             </div>
           </div>
           <p class="card-desc">MariaDB database deployment using official Docker images</p>
-          <pre class="install"><code>helm install mariadb oci://ghcr.io/bysamio/charts/mariadb --version 1.0.2</code></pre>
+          <pre class="install"><code>helm install mariadb oci://ghcr.io/sammyeby/charts/mariadb --version 1.0.3</code></pre>
         </article>
         <article class="card">
           <div class="card-head">
@@ -189,27 +189,27 @@ helm search repo bysamio</code></pre>
             <div class="card-title">
               <h3><a href="https://memcached.org/" target="_blank" rel="noopener">memcached</a></h3>
               <div class="badges">
-                <span class="badge">v1.0.2</span>
+                <span class="badge">v1.0.3</span>
                 <span class="badge badge--app">app 1.6.24</span>
               </div>
             </div>
           </div>
           <p class="card-desc">Memcached caching system deployment using official Docker images</p>
-          <pre class="install"><code>helm install memcached oci://ghcr.io/bysamio/charts/memcached --version 1.0.2</code></pre>
+          <pre class="install"><code>helm install memcached oci://ghcr.io/sammyeby/charts/memcached --version 1.0.3</code></pre>
         </article>
         <article class="card">
           <div class="card-head">
             <div class="chart-icon chart-icon--placeholder">📦</div>
             <div class="card-title">
-              <h3><a href="https://github.com/bysamio/charts" target="_blank" rel="noopener">minio</a></h3>
+              <h3><a href="https://github.com/sammyeby/charts" target="_blank" rel="noopener">minio</a></h3>
               <div class="badges">
-                <span class="badge">v1.0.3</span>
+                <span class="badge">v1.0.4</span>
                 <span class="badge badge--app">app 2025.9.7</span>
               </div>
             </div>
           </div>
           <p class="card-desc">A Helm chart for deploying MinIO object storage using hardened container images</p>
-          <pre class="install"><code>helm install minio oci://ghcr.io/bysamio/charts/minio --version 1.0.3</code></pre>
+          <pre class="install"><code>helm install minio oci://ghcr.io/sammyeby/charts/minio --version 1.0.4</code></pre>
         </article>
         <article class="card">
           <div class="card-head">
@@ -217,13 +217,13 @@ helm search repo bysamio</code></pre>
             <div class="card-title">
               <h3><a href="https://www.postgresql.org/" target="_blank" rel="noopener">postgresql</a></h3>
               <div class="badges">
-                <span class="badge">v2.3.1</span>
+                <span class="badge">v2.3.2</span>
                 <span class="badge badge--app">app 17.10-alpine</span>
               </div>
             </div>
           </div>
-          <p class="card-desc">A Helm chart for PostgreSQL using BySamio hardened Docker image (runs as UID 1001)</p>
-          <pre class="install"><code>helm install postgresql oci://ghcr.io/bysamio/charts/postgresql --version 2.3.1</code></pre>
+          <p class="card-desc">A Helm chart for PostgreSQL using SamSoft hardened Docker image (runs as UID 1001)</p>
+          <pre class="install"><code>helm install postgresql oci://ghcr.io/sammyeby/charts/postgresql --version 2.3.2</code></pre>
         </article>
         <article class="card">
           <div class="card-head">
@@ -231,26 +231,26 @@ helm search repo bysamio</code></pre>
             <div class="card-title">
               <h3><a href="https://wordpress.org/" target="_blank" rel="noopener">wordpress</a></h3>
               <div class="badges">
-                <span class="badge">v3.0.0</span>
+                <span class="badge">v3.0.1</span>
                 <span class="badge badge--app">app 7.1.3</span>
               </div>
             </div>
           </div>
-          <p class="card-desc">A Helm chart for WordPress using BySamio non-root Docker image (runs as UID 1001 on port 8080)</p>
-          <pre class="install"><code>helm install wordpress oci://ghcr.io/bysamio/charts/wordpress --version 3.0.0</code></pre>
+          <p class="card-desc">A Helm chart for WordPress using SamSoft non-root Docker image (runs as UID 1001 on port 8080)</p>
+          <pre class="install"><code>helm install wordpress oci://ghcr.io/sammyeby/charts/wordpress --version 3.0.1</code></pre>
         </article>
     </div>
 
     <div class="links">
       <a href="https://artifacthub.io/packages/search?repo=bysamio" target="_blank" rel="noopener">🔎 Artifact Hub</a>
-      <a href="https://github.com/bysamio/charts" target="_blank" rel="noopener">🐙 GitHub</a>
+      <a href="https://github.com/sammyeby/charts" target="_blank" rel="noopener">🐙 GitHub</a>
       <a href="./index.yaml">📄 index.yaml</a>
       <a href="./artifacthub-repo.yml">⚙️ artifacthub-repo.yml</a>
     </div>
 
     <footer>
-      Generated from <code>index.yaml</code> on 2026-11-17 08:15 UTC ·
-      <a href="https://github.com/bysamio/charts">bysamio/charts</a>
+      Generated from <code>index.yaml</code> on 2026-11-19 19:42 UTC ·
+      <a href="https://github.com/sammyeby/charts">sammyeby/charts</a>
     </footer>
   </div>
 </body>
