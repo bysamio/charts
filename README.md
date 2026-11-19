@@ -2,7 +2,7 @@
 
 Official Helm charts repository for CasePack and SamSoft infrastructure charts.
 
-[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/bysamio-charts)](https://artifacthub.io/packages/search?repo=bysamio)
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/sammyeby)](https://artifacthub.io/packages/search?repo=sammyeby)
 
 ## 🚀 Quick Start
 
@@ -34,7 +34,7 @@ helm install my-wordpress sammyeby/wordpress
 The full, always-current list of charts and their latest versions is published at:
 
 - **Landing page:** <https://sammyeby.github.io/charts/>
-- **Artifact Hub:** <https://artifacthub.io/packages/search?repo=bysamio>
+- **Artifact Hub:** <https://artifacthub.io/packages/search?repo=sammyeby>
 
 > This list is generated from the published `index.yaml`, so it is intentionally not duplicated here to avoid drift.
 
@@ -58,7 +58,6 @@ Snapshot, SHA, and `latest` tags are ignored. PostgreSQL tracking is limited to 
 
 ## 📖 Documentation
 
-- [Setup Guide](./ARTIFACT_HUB_SETUP.md) - Complete setup and configuration guide
 - [CasePack Chart](./casepack/README.md) - Full stack chart documentation
 - [CasePack API Chart](./casepack-api/README.md) - API chart documentation
 - [CasePack SPA Chart](./casepack-spa/README.md) - SPA chart documentation
@@ -69,7 +68,7 @@ Snapshot, SHA, and `latest` tags are ignored. PostgreSQL tracking is limited to 
 
 ## 🔗 Links
 
-- **Artifact Hub**: https://artifacthub.io/packages/search?repo=bysamio
+- **Artifact Hub**: https://artifacthub.io/packages/search?repo=sammyeby
 - **GitHub Repository**: https://github.com/sammyeby/charts
 - **Helm Repository**: https://sammyeby.github.io/charts/
 - **OCI Registry**: `oci://ghcr.io/sammyeby/charts`
