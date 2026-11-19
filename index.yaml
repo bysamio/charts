@@ -5,6 +5,61 @@ entries:
       artifacthub.io/category: security
       artifacthub.io/license: Proprietary
     apiVersion: v2
+    appVersion: 0.8.0
+    created: "2026-11-19T19:41:52.79732235Z"
+    dependencies:
+    - name: casepack-api
+      repository: oci://ghcr.io/sammyeby/charts
+      version: 0.34.0
+    - name: casepack-spa
+      repository: oci://ghcr.io/sammyeby/charts
+      version: 0.34.0
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: oci://ghcr.io/sammyeby/charts
+      version: 2.3.2
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: oci://ghcr.io/sammyeby/charts
+      version: 1.4.1
+    - condition: gotenberg.enabled
+      name: gotenberg
+      repository: oci://ghcr.io/sammyeby/charts
+      version: 0.2.0
+    - condition: seaweedfs.enabled
+      name: seaweedfs
+      repository: https://seaweedfs.github.io/seaweedfs/helm
+      version: 4.34.0
+    description: CasePack — multi-tenant incident evidence management platform for
+      MSPs. Deploys the full stack in one command.
+    digest: f6df4f50178490f1a98862a1d91b852736db2da5413cf8904f3255dff944518c
+    home: https://casepack.app
+    icon: https://casepack.app/apple-touch-icon.png
+    keywords:
+    - casepack
+    - incident-reporting
+    - incident-management
+    - evidence
+    - nis2
+    - msp
+    - multi-tenant
+    - keycloak
+    - seaweedfs
+    - self-host
+    maintainers:
+    - name: SamSoft Technologies
+      url: https://github.com/sammyeby
+    name: casepack
+    sources:
+    - https://github.com/sammyeby/casepack
+    type: application
+    urls:
+    - https://github.com/sammyeby/charts/releases/download/casepack-0.8.0/casepack-0.8.0.tgz
+    version: 0.8.0
+  - annotations:
+      artifacthub.io/category: security
+      artifacthub.io/license: Proprietary
+    apiVersion: v2
     appVersion: 0.7.1
     created: "2026-09-27T10:05:55.41512561Z"
     dependencies:
@@ -1856,6 +1911,34 @@ entries:
           image: docker.io/gotenberg/gotenberg:8-chromium
     apiVersion: v2
     appVersion: 8-chromium
+    created: "2026-11-19T19:41:53.639740938Z"
+    description: Minimal Gotenberg document conversion service chart
+    digest: bd8411180beac4c9cb67d191200b3584e1b5e78122e3204e1b14c0989a68def6
+    home: https://gotenberg.dev/
+    icon: https://gotenberg.dev/img/logo.png
+    keywords:
+    - gotenberg
+    - pdf
+    - document-conversion
+    maintainers:
+    - name: SamSoft Technologies
+      url: https://github.com/sammyeby
+    name: gotenberg
+    sources:
+    - https://github.com/sammyeby/charts
+    - https://github.com/gotenberg/gotenberg
+    type: application
+    urls:
+    - https://github.com/sammyeby/charts/releases/download/gotenberg-0.2.1/gotenberg-0.2.1.tgz
+    version: 0.2.1
+  - annotations:
+      artifacthub.io/category: integration-delivery
+      artifacthub.io/license: MIT
+      images: |
+        - name: gotenberg
+          image: docker.io/gotenberg/gotenberg:8-chromium
+    apiVersion: v2
+    appVersion: 8-chromium
     created: "2026-07-06T09:11:11.884866971Z"
     description: Minimal Gotenberg document conversion service chart
     digest: e1ceaac405b3514b419f73197b41f8581d4d90e0470be317a42a12f66195476f
@@ -1905,6 +1988,41 @@ entries:
     - https://github.com/bysamio/charts/releases/download/gotenberg-0.1.0/gotenberg-0.1.0.tgz
     version: 0.1.0
   keycloak:
+  - apiVersion: v2
+    appVersion: 26.7.4
+    created: "2026-11-19T19:41:53.866162011Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: oci://ghcr.io/sammyeby/charts
+      version: 2.3.2
+    description: A Helm chart for Keycloak using SamSoft hardened Docker image (runs
+      as UID 1001)
+    digest: a2369cad8033a13df352ac762ff342f5c4e85fe34d4d637239750bdd3dc5f3de
+    home: https://www.keycloak.org/
+    icon: https://avatars.githubusercontent.com/u/4921466?s=200&v=4
+    keywords:
+    - keycloak
+    - identity
+    - access-management
+    - sso
+    - oidc
+    - oauth2
+    - saml
+    - authentication
+    - authorization
+    maintainers:
+    - name: SamSoft Technologies
+      url: https://github.com/sammyeby
+    name: keycloak
+    sources:
+    - https://github.com/sammyeby/charts
+    - https://github.com/sammyeby/images
+    - https://github.com/keycloak/keycloak
+    type: application
+    urls:
+    - https://github.com/sammyeby/charts/releases/download/keycloak-1.4.2/keycloak-1.4.2.tgz
+    version: 1.4.2
   - apiVersion: v2
     appVersion: 26.7.4
     created: "2026-09-27T10:05:55.734410529Z"
@@ -2299,6 +2417,35 @@ entries:
       licenses: GPL-2.0+
     apiVersion: v2
     appVersion: 12.0.2
+    created: "2026-11-19T19:41:54.122280634Z"
+    description: MariaDB database deployment using official Docker images
+    digest: e86d220611ce1dd7c7632580241105263b52747d80b6f5be0a559eb0b2bd4f0a
+    home: https://mariadb.org/
+    icon: https://mariadb.com/wp-content/uploads/2019/11/mariadb-logo_blue-transparent.png
+    keywords:
+    - mariadb
+    - mysql
+    - database
+    - sql
+    maintainers:
+    - name: SamSoft Technologies
+      url: https://github.com/sammyeby
+    name: mariadb
+    sources:
+    - https://github.com/sammyeby/charts
+    - https://github.com/MariaDB/server
+    type: application
+    urls:
+    - https://github.com/sammyeby/charts/releases/download/mariadb-1.0.3/mariadb-1.0.3.tgz
+    version: 1.0.3
+  - annotations:
+      category: Database
+      images: |
+        - name: mariadb
+          image: docker.io/mariadb:12.0.2
+      licenses: GPL-2.0+
+    apiVersion: v2
+    appVersion: 12.0.2
     created: "2025-10-31T22:13:04.827610422Z"
     description: MariaDB database deployment using official Docker images
     digest: 66fdc4461f1454e3638d8c773ac250eba75ffe792c14937e928e0add0d4ce589
@@ -2321,6 +2468,34 @@ entries:
     - https://github.com/bysamio/charts/releases/download/mariadb-1.0.2/mariadb-1.0.2.tgz
     version: 1.0.2
   memcached:
+  - annotations:
+      category: Database
+      images: |
+        - name: memcached
+          image: docker.io/memcached:1.6.24-alpine
+      licenses: BSD-3-Clause
+    apiVersion: v2
+    appVersion: 1.6.24
+    created: "2026-11-19T19:41:54.302572403Z"
+    description: Memcached caching system deployment using official Docker images
+    digest: 7214207cdec5ddb4018fa5c84430e6a88df393d5b798973b858371a137ba1b0d
+    home: https://memcached.org/
+    icon: https://www.memcached.org/logo.png
+    keywords:
+    - memcached
+    - cache
+    - in-memory
+    maintainers:
+    - name: SamSoft Technologies
+      url: https://github.com/sammyeby
+    name: memcached
+    sources:
+    - https://github.com/sammyeby/charts
+    - https://github.com/memcached/memcached
+    type: application
+    urls:
+    - https://github.com/sammyeby/charts/releases/download/memcached-1.0.3/memcached-1.0.3.tgz
+    version: 1.0.3
   - annotations:
       category: Database
       images: |
@@ -2378,6 +2553,28 @@ entries:
     - https://github.com/bysamio/charts/releases/download/memcached-1.0.1/memcached-1.0.1.tgz
     version: 1.0.1
   minio:
+  - apiVersion: v2
+    appVersion: 2025.9.7
+    created: "2026-11-19T19:41:54.513920932Z"
+    description: A Helm chart for deploying MinIO object storage using hardened container
+      images
+    digest: a1944579e7a65fe1320e8125a3b94b43e9228174768394254f2f7cdea2966f3b
+    home: https://github.com/sammyeby/charts
+    keywords:
+    - minio
+    - s3
+    - object-storage
+    - storage
+    maintainers:
+    - name: SamSoft Technologies
+      url: https://github.com/sammyeby
+    name: minio
+    sources:
+    - https://github.com/sammyeby/charts
+    type: application
+    urls:
+    - https://github.com/sammyeby/charts/releases/download/minio-1.0.4/minio-1.0.4.tgz
+    version: 1.0.4
   - apiVersion: v2
     appVersion: 2025.9.7
     created: "2026-03-01T00:32:57.69144089Z"
@@ -2445,6 +2642,33 @@ entries:
     - https://github.com/bysamio/charts/releases/download/minio-1.0.0/minio-1.0.0.tgz
     version: 1.0.0
   postgresql:
+  - apiVersion: v2
+    appVersion: 17.10-alpine
+    created: "2026-11-19T19:41:54.77810296Z"
+    description: A Helm chart for PostgreSQL using SamSoft hardened Docker image (runs
+      as UID 1001)
+    digest: 9e719d939cd4a1fd341c71a03ff4312ea23af9ef0e3699c86f66fbb7360dd5f1
+    home: https://www.postgresql.org/
+    icon: https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg
+    keywords:
+    - postgresql
+    - postgres
+    - database
+    - sql
+    - replication
+    - cluster
+    maintainers:
+    - name: SamSoft Technologies
+      url: https://github.com/sammyeby
+    name: postgresql
+    sources:
+    - https://github.com/sammyeby/charts
+    - https://github.com/sammyeby/images
+    - https://github.com/postgres/postgres
+    type: application
+    urls:
+    - https://github.com/sammyeby/charts/releases/download/postgresql-2.3.2/postgresql-2.3.2.tgz
+    version: 2.3.2
   - apiVersion: v2
     appVersion: 17.10-alpine
     created: "2026-05-22T14:59:43.018011739Z"
@@ -2689,6 +2913,38 @@ entries:
     - https://github.com/bysamio/charts/releases/download/postgresql-1.0.0/postgresql-1.0.0.tgz
     version: 1.0.0
   wordpress:
+  - apiVersion: v2
+    appVersion: 7.1.3
+    created: "2026-11-19T19:41:54.978959951Z"
+    dependencies:
+    - condition: mariadb.enabled
+      name: mariadb
+      repository: oci://ghcr.io/sammyeby/charts
+      version: 1.0.2
+    - condition: memcached.enabled
+      name: memcached
+      repository: oci://ghcr.io/sammyeby/charts
+      version: 1.0.1
+    description: A Helm chart for WordPress using SamSoft non-root Docker image (runs
+      as UID 1001 on port 8080)
+    digest: 867893629747f7ff27d5ea7aaa0cbff8bb239f4c42d3ff55d4bed448d5d830ec
+    home: https://wordpress.org/
+    icon: https://s.w.org/style/images/about/WordPress-logotype-wmark.png
+    keywords:
+    - wordpress
+    - cms
+    - blog
+    maintainers:
+    - name: SamSoft Technologies
+      url: https://github.com/sammyeby
+    name: wordpress
+    sources:
+    - https://github.com/sammyeby/charts
+    - https://github.com/WordPress/WordPress
+    type: application
+    urls:
+    - https://github.com/sammyeby/charts/releases/download/wordpress-3.0.1/wordpress-3.0.1.tgz
+    version: 3.0.1
   - apiVersion: v2
     appVersion: 7.1.3
     created: "2026-10-22T15:43:44.47196388Z"
@@ -3606,4 +3862,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2026-11-17T08:15:36.879669576Z"
+generated: "2026-11-19T19:41:54.979186786Z"
