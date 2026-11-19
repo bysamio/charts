@@ -1,0 +1,44 @@
+name: Chart version check
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  version-bump:
+    name: Changed charts bump their version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Changed charts must bump their version
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -euo pipefail
+          # The release skips any chart version that is already published, so a
+          # chart change without a version bump never reaches the registry.
+          # README-only changes are exempt.
+          #
+          # casepack-api, casepack-spa and casepack-docs are exempt too: their
+          # version is their app's version, which that app's release sets. A
+          # change to one of them ships with the app's next release.
+          release_versioned=" casepack-api casepack-spa casepack-docs "
+          failed=0
+          for chart_yaml in */Chart.yaml; do
+            chart=${chart_yaml%/Chart.yaml}
+            [[ "$release_versioned" == *" $chart "* ]] && continue
+            changed=$(git diff --name-only "origin/$BASE_REF...HEAD" -- "$chart/" ":(exclude)$chart/README.md")
+            [[ -z "$changed" ]] && continue
+            base_version=$(git show "origin/$BASE_REF:$chart/Chart.yaml" 2>/dev/null | awk '/^version:/ { print $2; exit }' || true)
+            head_version=$(awk '/^version:/ { print $2; exit }' "$chart/Chart.yaml")
+            if [[ -n "$base_version" && "$base_version" == "$head_version" ]]; then
+              echo "::error file=$chart/Chart.yaml::$chart changed but its version is still $head_version. Bump it, and add an upgrade note to $chart/README.md."
+              failed=1
+            fi
+          done
+          exit "$failed"
