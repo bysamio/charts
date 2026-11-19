@@ -1,7 +1,7 @@
 #!/bin/bash
 # Helpers for resolving same-repository OCI chart dependencies during local checks.
 
-LOCAL_OCI_REPO="${LOCAL_OCI_REPO:-oci://ghcr.io/bysamio/charts}"
+LOCAL_OCI_REPO="${LOCAL_OCI_REPO:-oci://ghcr.io/sammyeby/charts}"
 LOCAL_DEPS_PREPARED=0
 
 chart_has_dependencies() {

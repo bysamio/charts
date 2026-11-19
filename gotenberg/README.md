@@ -71,6 +71,10 @@ The defaults disable the debug route, disable `downloadFrom`, disable webhooks, 
 
 ## Upgrading
 
+### 0.2.1
+
+Chart metadata only: the chart's source and maintainer now name SamSoft, and the chart is published at `oci://ghcr.io/sammyeby/charts`. The image and the values are unchanged.
+
 ### 0.2.0
 
 The default NetworkPolicy is now restrictive. Same-namespace clients must carry `gotenberg-client: "true"` unless you set `networkPolicy.allowExternal=true`. Cross-namespace clients should be granted with `networkPolicy.extraIngress`. Default egress is DNS-only unless you set `networkPolicy.allowExternalEgress=true`.

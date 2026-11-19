@@ -19,11 +19,11 @@ This chart deploys MinIO in **standalone** or **distributed** mode with security
 
 ```bash
 # Standalone
-helm install minio oci://ghcr.io/bysamio/charts/minio \
+helm install minio oci://ghcr.io/sammyeby/charts/minio \
   --set auth.rootPassword=changeme
 
 # Distributed (4 nodes, erasure coding)
-helm install minio oci://ghcr.io/bysamio/charts/minio \
+helm install minio oci://ghcr.io/sammyeby/charts/minio \
   --set mode=distributed \
   --set replicaCount=4 \
   --set auth.rootPassword=changeme
@@ -36,7 +36,7 @@ kubectl create secret generic minio-creds \
   --from-literal=root-user=admin \
   --from-literal=root-password=supersecret
 
-helm install minio oci://ghcr.io/bysamio/charts/minio \
+helm install minio oci://ghcr.io/sammyeby/charts/minio \
   --set auth.existingSecret=minio-creds
 ```
 
@@ -147,6 +147,10 @@ initBuckets:
 ```
 
 ## Upgrading
+
+### To 1.0.4
+
+Chart metadata only: the chart's source and maintainer now name SamSoft, and the chart is published at `oci://ghcr.io/sammyeby/charts`. The image and the values are unchanged.
 
 ### To 1.0.0
 

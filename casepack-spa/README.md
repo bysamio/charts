@@ -5,7 +5,7 @@ Deploys the CasePack React SPA (Nginx-served static files) to Kubernetes.
 ## Installing
 
 ```bash
-helm install casepack-spa oci://ghcr.io/bysamio/charts/casepack-spa \
+helm install casepack-spa oci://ghcr.io/sammyeby/charts/casepack-spa \
   --namespace casepack --create-namespace \
   -f values-prod.yaml
 ```
@@ -15,7 +15,7 @@ helm install casepack-spa oci://ghcr.io/bysamio/charts/casepack-spa \
 | Parameter | Description | Default |
 |---|---|---|
 | `replicaCount` | Number of replicas | `1` |
-| `image.repository` | Docker image repository | `ghcr.io/bysamio/casepack-spa` |
+| `image.repository` | Docker image repository | `ghcr.io/sammyeby/casepack-spa` |
 | `image.tag` | Image tag (defaults to appVersion) | `""` |
 | `config.apiBaseUrl` | API base URL injected at runtime | `/api` |
 | `config.oidcAuthority` | OIDC issuer URL | `""` |

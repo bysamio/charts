@@ -26,7 +26,7 @@ This chart deploys MariaDB, a community-developed fork of MySQL, on Kubernetes u
 ### From OCI Registry
 
 ```bash
-helm install mariadb oci://ghcr.io/bysamio/charts/mariadb \
+helm install mariadb oci://ghcr.io/sammyeby/charts/mariadb \
   --namespace database \
   --create-namespace \
   --set auth.rootPassword=your-root-password \
@@ -146,6 +146,10 @@ primary:
 
 ## Upgrading
 
+### To 1.0.3
+
+Chart metadata only: the chart's source and maintainer now name SamSoft, and the chart is published at `oci://ghcr.io/sammyeby/charts`. The image and the values are unchanged.
+
 ### To 1.0.0
 
 Initial release. No upgrade path required.
@@ -189,4 +193,4 @@ This chart is licensed under the Apache 2.0 License.
 ## Links
 
 - [MariaDB Documentation](https://mariadb.com/kb/en/documentation/)
-- [BySamio Charts Repository](https://github.com/bysamio/charts)
+- [SamSoft Charts Repository](https://github.com/sammyeby/charts)

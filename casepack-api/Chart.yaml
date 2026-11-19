@@ -4,10 +4,10 @@ description: CasePack API — Java backend for incident reporting and evidence m
 type: application
 version: 0.34.0
 appVersion: "0.34.0"
-home: https://github.com/bysamio/casepack-api
+home: https://github.com/sammyeby/casepack-api
 icon: https://casepack.app/apple-touch-icon.png
 sources:
-  - https://github.com/bysamio/casepack-api
+  - https://github.com/sammyeby/casepack-api
 keywords:
   - casepack
   - incident-management
@@ -19,8 +19,8 @@ keywords:
   - keycloak
   - s3
 maintainers:
-  - name: bysamio
-    url: https://github.com/bysamio
+  - name: SamSoft Technologies
+    url: https://github.com/sammyeby
 annotations:
   artifacthub.io/license: Proprietary
   artifacthub.io/category: security

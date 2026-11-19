@@ -5,10 +5,10 @@ Umbrella Helm chart that deploys the full CasePack stack — API, SPA, PostgreSQ
 ## Quick Start
 
 ```bash
-helm repo add bysamio https://bysamio.github.io/charts/
+helm repo add sammyeby https://sammyeby.github.io/charts/
 helm repo update
 
-helm upgrade --install casepack bysamio/casepack \
+helm upgrade --install casepack sammyeby/casepack \
   --namespace casepack \
   --create-namespace
 ```
@@ -47,9 +47,9 @@ This installs CasePack with all bundled infrastructure using default dev credent
 |---|---|---|---|
 | CasePack API | `casepack-api` | `0.34.0` | Always enabled |
 | CasePack SPA | `casepack-spa` | `0.34.0` | Always enabled |
-| PostgreSQL | `postgresql` (BySamio) | `2.3.1` | `postgresql.enabled` |
-| Keycloak | `keycloak` (BySamio) | `1.4.0` | `keycloak.enabled` |
-| Gotenberg | `gotenberg` (BySamio) | `0.2.0` | `gotenberg.enabled` |
+| PostgreSQL | `postgresql` (SamSoft) | `2.3.2` | `postgresql.enabled` |
+| Keycloak | `keycloak` (SamSoft) | `1.4.1` | `keycloak.enabled` |
+| Gotenberg | `gotenberg` (SamSoft) | `0.2.0` | `gotenberg.enabled` |
 | SeaweedFS | `seaweedfs` | `4.34.0` | `seaweedfs.enabled` |
 
 ## Self-Host License Setup
@@ -213,7 +213,7 @@ casepack-api:
 ```
 
 ```bash
-helm upgrade --install casepack bysamio/casepack \
+helm upgrade --install casepack sammyeby/casepack \
   --namespace casepack \
   --create-namespace \
   -f production-values.yaml
@@ -233,7 +233,7 @@ helm upgrade --install casepack bysamio/casepack \
 | Parameter | Description | Default |
 |---|---|---|
 | `casepack-api.replicaCount` | Number of API replicas | `1` |
-| `casepack-api.image.repository` | API image repository | `ghcr.io/bysamio/casepack-api` |
+| `casepack-api.image.repository` | API image repository | `ghcr.io/sammyeby/casepack-api` |
 | `casepack-api.image.tag` | API image tag | `""` (chart appVersion) |
 | `casepack-api.config.oidcIssuerUri` | OIDC issuer URI | `http://casepack-keycloak/realms/casepack` |
 | `casepack-api.config.s3Endpoint` | Internal S3 endpoint used by API server-side storage operations | `http://casepack-seaweedfs-s3:8333` |
@@ -263,7 +263,7 @@ helm upgrade --install casepack bysamio/casepack \
 |---|---|---|
 | `casepack-spa.enabled` | Deploy bundled SPA | `true` |
 | `casepack-spa.replicaCount` | Number of SPA replicas | `1` |
-| `casepack-spa.image.repository` | SPA image repository | `ghcr.io/bysamio/casepack-spa` |
+| `casepack-spa.image.repository` | SPA image repository | `ghcr.io/sammyeby/casepack-spa` |
 | `casepack-spa.config.apiBaseUrl` | API base URL | `http://localhost:8080` |
 | `casepack-spa.config.oidcAuthority` | OIDC authority URL | `http://localhost:8081/realms/casepack` |
 | `casepack-spa.config.deploymentMode` | SPA deployment mode | `SELF_HOST` |
@@ -304,7 +304,7 @@ helm upgrade --install casepack bysamio/casepack \
 | `keycloak.smtp.password` | SMTP password; prefer `existingSecret` in production | `""` |
 | `keycloak.smtp.starttls` | Enable STARTTLS | `true` |
 | `keycloak.smtp.ssl` | Enable implicit TLS | `false` |
-| `keycloak.theme.image.repository` | Official CasePack theme image repository | `ghcr.io/bysamio/keycloak-themes` |
+| `keycloak.theme.image.repository` | Official CasePack theme image repository | `ghcr.io/sammyeby/keycloak-themes` |
 | `keycloak.theme.image.tag` | Official CasePack theme image tag | `0.5.0` |
 | `keycloak.theme.image.pullPolicy` | Theme loader image pull policy | `IfNotPresent` |
 | `keycloak.ingress.enabled` | Enable Keycloak Ingress | `false` |
@@ -336,6 +336,12 @@ When both `postgresql.enabled` and `keycloak.enabled` are `true`, the chart depl
 
 ## Upgrading
 
+### To 0.8.0
+
+- **Subcharts brought up to date**: 0.7.1 was published with `casepack-api` and `casepack-spa` 0.32.0. Their later pin updates came without a chart version bump, so they were never published. 0.8.0 carries `casepack-api` and `casepack-spa` 0.34.0, `keycloak` 1.4.1 and `postgresql` 2.3.2. It is a minor release because it includes two CasePack releases. The Keycloak image tag stays `26.7.4-optimized`; its repository is now set in this chart as `keycloak.image.repository: sammyeby/keycloak`.
+- **Registry move**: the CasePack API, SPA, Keycloak and theme images, the Keycloak database init image and every subchart except SeaweedFS now come from `ghcr.io/sammyeby`, where SamSoft now publishes them. Every existing version was copied there with an identical digest, so the same image runs. `ghcr.io/bysamio` keeps the versions it has but gets no new ones.
+- **Action**: if you override `casepack-api.image.repository`, `casepack-spa.image.repository`, `keycloak.image.repository` or `keycloak.theme.image.repository`, point them at `sammyeby` to keep receiving updates. `keycloak.image.repository` is a new default here; no values were renamed or removed.
+
 ### To 0.7.1
 
 Security update: the bundled Keycloak now runs image `26.7.4-optimized` (was
@@ -353,7 +359,7 @@ existing installations should configure SMTP and select the `casepack` themes
 in the Keycloak Admin Console as described above.
 
 ```bash
-helm upgrade casepack bysamio/casepack \
+helm upgrade casepack sammyeby/casepack \
   --namespace casepack \
   -f your-values.yaml
 ```
@@ -373,14 +379,14 @@ helm uninstall casepack --namespace casepack
 
 | Chart | Helm Repo |
 |---|---|
-| CasePack API | `bysamio/casepack-api` |
-| CasePack SPA | `bysamio/casepack-spa` |
-| Keycloak | `bysamio/keycloak` |
-| Gotenberg | `bysamio/gotenberg` |
-| SeaweedFS | `bysamio/seaweedfs` |
-| PostgreSQL | `bysamio/postgresql` |
+| CasePack API | `sammyeby/casepack-api` |
+| CasePack SPA | `sammyeby/casepack-spa` |
+| Keycloak | `sammyeby/keycloak` |
+| Gotenberg | `sammyeby/gotenberg` |
+| SeaweedFS | `seaweedfs/seaweedfs` |
+| PostgreSQL | `sammyeby/postgresql` |
 
 ## Support
 
-- [CasePack Deployment Guide](https://github.com/bysamio/casepack)
-- [BySamio Charts](https://github.com/bysamio/charts)
+- [CasePack Deployment Guide](https://github.com/sammyeby/casepack)
+- [SamSoft Charts](https://github.com/sammyeby/charts)

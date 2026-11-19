@@ -7,10 +7,10 @@ appVersion: "0.34.0"
 home: https://casepack.app
 icon: https://casepack.app/apple-touch-icon.png
 sources:
-  - https://github.com/bysamio/casepack-spa
+  - https://github.com/sammyeby/casepack-spa
 maintainers:
-  - name: bysamio
-    email: admin@bysam.io
+  - name: SamSoft Technologies
+    url: https://github.com/sammyeby
 annotations:
   artifacthub.io/license: Proprietary
   artifacthub.io/category: security

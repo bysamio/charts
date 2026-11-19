@@ -7,7 +7,7 @@ APP VERSION: {{ .Chart.AppVersion }}
 {{- if include "keycloak.isOptimizedImage" . }}
 
 ╔════════════════════════════════════════════════════════════════════════════╗
-║  🚀 BySamio Keycloak OPTIMIZED Image Detected                              ║
+║  🚀 SamSoft Keycloak OPTIMIZED Image Detected                              ║
 ║                                                                            ║
 ║  Image: {{ include "keycloak.image" . | trunc 60 }}
 ║                                                                            ║

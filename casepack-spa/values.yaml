@@ -3,7 +3,7 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/bysamio/casepack-spa
+  repository: ghcr.io/sammyeby/casepack-spa
   pullPolicy: IfNotPresent
   tag: ""  # Defaults to Chart appVersion
 

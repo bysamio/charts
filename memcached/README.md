@@ -24,7 +24,7 @@ This chart deploys Memcached, a high-performance distributed memory object cachi
 ### From OCI Registry
 
 ```bash
-helm install memcached oci://ghcr.io/bysamio/charts/memcached \
+helm install memcached oci://ghcr.io/sammyeby/charts/memcached \
   --namespace cache \
   --create-namespace
 ```
@@ -450,6 +450,10 @@ $value = $memcached->get('key');
 
 ## Upgrading
 
+### To 1.0.3
+
+Chart metadata only: the chart's source and maintainer now name SamSoft, and the chart is published at `oci://ghcr.io/sammyeby/charts`. The image and the values are unchanged.
+
 ### To 1.0.0
 
 Initial release. No upgrade path required.
@@ -490,4 +494,4 @@ This chart is licensed under the Apache 2.0 License.
 
 - [Memcached Documentation](https://memcached.org/)
 - [Memcached Wiki](https://github.com/memcached/memcached/wiki)
-- [BySamio Charts Repository](https://github.com/bysamio/charts)
+- [SamSoft Charts Repository](https://github.com/sammyeby/charts)
