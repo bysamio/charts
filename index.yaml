@@ -5,6 +5,61 @@ entries:
       artifacthub.io/category: security
       artifacthub.io/license: Proprietary
     apiVersion: v2
+    appVersion: 0.8.1
+    created: "2026-11-20T22:09:56.619459358Z"
+    dependencies:
+    - name: casepack-api
+      repository: oci://ghcr.io/sammyeby/charts
+      version: 0.34.1
+    - name: casepack-spa
+      repository: oci://ghcr.io/sammyeby/charts
+      version: 0.34.0
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: oci://ghcr.io/sammyeby/charts
+      version: 2.3.2
+    - condition: keycloak.enabled
+      name: keycloak
+      repository: oci://ghcr.io/sammyeby/charts
+      version: 1.4.1
+    - condition: gotenberg.enabled
+      name: gotenberg
+      repository: oci://ghcr.io/sammyeby/charts
+      version: 0.2.0
+    - condition: seaweedfs.enabled
+      name: seaweedfs
+      repository: https://seaweedfs.github.io/seaweedfs/helm
+      version: 4.34.0
+    description: CasePack — multi-tenant incident evidence management platform for
+      MSPs. Deploys the full stack in one command.
+    digest: 9583bb58ece4738d78e6c7f4ce480bae2181b38b8545f502e8cd9d1ddafd41c8
+    home: https://casepack.app
+    icon: https://casepack.app/apple-touch-icon.png
+    keywords:
+    - casepack
+    - incident-reporting
+    - incident-management
+    - evidence
+    - nis2
+    - msp
+    - multi-tenant
+    - keycloak
+    - seaweedfs
+    - self-host
+    maintainers:
+    - name: SamSoft Technologies
+      url: https://github.com/sammyeby
+    name: casepack
+    sources:
+    - https://github.com/sammyeby/casepack
+    type: application
+    urls:
+    - https://github.com/sammyeby/charts/releases/download/casepack-0.8.1/casepack-0.8.1.tgz
+    version: 0.8.1
+  - annotations:
+      artifacthub.io/category: security
+      artifacthub.io/license: Proprietary
+    apiVersion: v2
     appVersion: 0.8.0
     created: "2026-11-19T19:41:52.79732235Z"
     dependencies:
@@ -490,6 +545,37 @@ entries:
     - https://github.com/bysamio/charts/releases/download/casepack-0.1.0/casepack-0.1.0.tgz
     version: 0.1.0
   casepack-api:
+  - annotations:
+      artifacthub.io/category: security
+      artifacthub.io/license: Proprietary
+    apiVersion: v2
+    appVersion: 0.34.1
+    created: "2026-11-20T22:09:56.797187154Z"
+    description: CasePack API — Java backend for incident reporting and evidence management
+      for MSPs
+    digest: a53cebf80624c8bd9fde8905c2d3a52abde53b1d4062b6da4ee1492c12ff0f37
+    home: https://github.com/sammyeby/casepack-api
+    icon: https://casepack.app/apple-touch-icon.png
+    keywords:
+    - casepack
+    - incident-management
+    - evidence
+    - nis2
+    - msp
+    - compliance
+    - multi-tenant
+    - keycloak
+    - s3
+    maintainers:
+    - name: SamSoft Technologies
+      url: https://github.com/sammyeby
+    name: casepack-api
+    sources:
+    - https://github.com/sammyeby/casepack-api
+    type: application
+    urls:
+    - https://github.com/sammyeby/charts/releases/download/casepack-api-0.34.1/casepack-api-0.34.1.tgz
+    version: 0.34.1
   - annotations:
       artifacthub.io/category: security
       artifacthub.io/license: Proprietary
@@ -3862,4 +3948,4 @@ entries:
     urls:
     - https://github.com/bysamio/charts/releases/download/wordpress-1.0.4/wordpress-1.0.4.tgz
     version: 1.0.4
-generated: "2026-11-19T19:41:54.979186786Z"
+generated: "2026-11-20T22:09:56.797626187Z"
